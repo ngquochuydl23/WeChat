@@ -41,10 +41,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ChangePasswordModal({ open, onClose }) {
-  const classes = useStyles();
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setNewShowPassword] = useState(false);
   const [showNewPasswordConfirm, setNewShowPasswordConfirm] = useState(false);
+
+  const classes = useStyles();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -74,7 +75,7 @@ function ChangePasswordModal({ open, onClose }) {
         const { password, newPassword } = values; 
         const payload = { password, newPassword };
         await axios.post(
-          process.env.REACT_APP_API_ENDPOINT + "user/change-password",
+          process.env.REACT_APP_API_ENDPOINT + "user/me/change-password",
           payload,
           {
             headers: {
@@ -147,6 +148,7 @@ function ChangePasswordModal({ open, onClose }) {
               Thông tin tài khoản
             </Typography>
             <TextField
+              className={classes.formField}
               fullWidth
               id="password"
               label="Mật khẩu hiện tại"
@@ -171,6 +173,7 @@ function ChangePasswordModal({ open, onClose }) {
               }}
             />
             <TextField
+              className={classes.formField}
               fullWidth
               id="newPassword"
               label="Mật khẩu mới"
@@ -195,6 +198,7 @@ function ChangePasswordModal({ open, onClose }) {
               }}
             />
             <TextField
+              className={classes.formField}
               fullWidth
               id="confirmPassword"
               label="Nhập lại mật khẩu"

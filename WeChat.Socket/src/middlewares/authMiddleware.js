@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
+const { findById, updateDevice } = require("../services/deviceService");
+const moment = require('moment');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const requestHeader = req.header('Authorization');
     if (!requestHeader) {
@@ -29,9 +31,32 @@ const authMiddleware = (req, res, next) => {
         .status(401)
         .json({
           statusCode: 401,
-          error: "Not Authenticated."
+          error: "Not authenticated."
         })
     }
+
+    const device = await findById(decodedToken.deviceId);
+    if (!device) {
+      return res
+        .status(400)
+        .json({
+          statusCode: 400,
+          error: "Device cannot be detected."
+        })
+    }
+
+    if (device.isTerminated) {
+      return res
+        .status(400)
+        .json({
+          statusCode: 400,
+          error: "Device is terminated."
+        })
+    }
+
+    await updateDevice(device._id, { lastAccess: moment() })
+
+    req.loggingDeviceId = decodedToken.deviceId;
     req.loggingUserId = decodedToken.userId;
     next();
   } catch (error) {

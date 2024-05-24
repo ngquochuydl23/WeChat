@@ -15,7 +15,21 @@ const schema = Joi.object({
     .messages({
       'string.empty': `"password" cannot be an empty field`,
       'string.required': `"password" is a required field`
-    })
+    }),
+  deviceToken: Joi
+    .string()
+    .messages({
+      'string.empty': `"deviceToken" cannot be an empty field`,
+      'string.required': `"deviceToken" is a required field`,
+      'string.pattern.base': `"deviceToken" is not valid`
+    }),
+  deviceName: Joi
+    .string()
+    .messages({
+      'string.empty': `"deviceName" cannot be an empty field`,
+      'string.required': `"deviceName" is a required field`,
+      'string.pattern.base': `"deviceName" is not valid`
+    }),
 })
 
 module.exports = { schema }

@@ -6,6 +6,8 @@ const resetPasswordShemaValidator = require('../validator/resetPasswordShemaVali
 const loginSchemaValidator = require('../validator/loginSchemaValidator');
 const { sendOtpViaEmail, verifyOtp } = require('../services/otpService');
 const { AppException, ValidationMongoException } = require('../exceptions/AppException');
+const device = require('../models/device');
+const { addDevice } = require('../services/deviceService');
 
 exports.signup = async (req, res, next) => {
     try {
@@ -57,7 +59,14 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-    const { phoneNumber, password } = req.body;
+
+    const { appversion, appname, platform } = req.headers;
+    const {
+        phoneNumber,
+        password,
+        deviceToken,
+        deviceName
+    } = req.body;
 
     try {
 
@@ -81,8 +90,18 @@ exports.login = async (req, res, next) => {
             throw new AppException("Account has not been verified.");
         }
 
+        var device = await addDevice({
+            deviceToken,
+            deviceName,
+            platform,
+            appVersion: appversion,
+            appName: appname,
+            userId: user._id,
+        });
+
         const token = jwt.sign({
-            userId: user._id
+            userId: user._id,
+            deviceId: device._id,
         }, "secret", { expiresIn: "30d" });
 
         return res
@@ -90,7 +109,8 @@ exports.login = async (req, res, next) => {
             .json({
                 statusCode: 200,
                 token: token,
-                userId: user._id
+                userId: user._id,
+                deviceId: device._id
             });
     } catch (error) {
         next(error);

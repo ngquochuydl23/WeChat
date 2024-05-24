@@ -58,7 +58,7 @@ const ProfileModal = ({ open, onClose }) => {
     onSubmit: async (values) => {
       const token = localStorage.getItem("accessToken");
       try {
-        await axios.put(process.env.REACT_APP_API_ENDPOINT + "user", values, {
+        await axios.put(process.env.REACT_APP_API_ENDPOINT + "user/me", values, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -94,7 +94,7 @@ const ProfileModal = ({ open, onClose }) => {
         const token = localStorage.getItem("accessToken");
         // Nếu token tồn tại
         if (token) {
-          const response = await axios.get(process.env.REACT_APP_API_ENDPOINT + "user", {
+          const response = await axios.get(process.env.REACT_APP_API_ENDPOINT + "user/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },

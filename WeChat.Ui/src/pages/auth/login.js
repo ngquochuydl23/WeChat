@@ -35,8 +35,8 @@ const Login = () => {
                 .required('Vui lòng nhập mật khẩu')
         }),
         onSubmit: async values => {
+            localStorage.setItem("accessToken", "accessToken");
             try {
-
                 const res = await login(values.phoneNumber, values.password);
                 const { token } = res.data;
 

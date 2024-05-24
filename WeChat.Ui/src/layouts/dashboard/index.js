@@ -1,18 +1,15 @@
 import { useTheme } from "@mui/material/styles";
-import { Box, Stack } from "@mui/material";
+import { Avatar, Box, Stack } from "@mui/material";
 import React, { useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import Logo from "../../assets/Images/siu.ico";
 import { useSelector } from "react-redux";
 import Sidebar from "./Sidebar";
+import { readUrl } from "@/utils/readUrl";
 
 
 const DashboardLayout = () => {
   const theme = useTheme();
   const { user, isLoading } = useSelector((state) => state.user);
-
-  
-
 
   if (!isLoading && !user) {
     return <Navigate to="/auth/login" replace />;
@@ -23,42 +20,27 @@ const DashboardLayout = () => {
       <Box
         p={2}
         sx={{
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: 'white',
           boxShadow: " 0px 0px 2px rgba(0, 0, 0, 0.25)",
-          width: 100,
+          width: '100px',
           height: "100vh",
-
         }}>
         <Stack
           direction="column"
           alignItems={"center"}
           justifyContent="space-between"
-          sx={{ height: "100%" }}
-          spacing={3}>
-          <Stack alignItems={"center"} spacing={2}>
-            <Box
-              sx={{
-                backgroundColor: theme.palette.background.paper,
-                height: 64,
-                width: 64,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-              }}>
-              <img src={Logo} alt="Logo_IUH" sx={{ borderRadius: "50%" }}></img>
-            </Box>
-            <Sidebar />
-          </Stack>
+          sx={{ height: "100%" }}>
+          <Avatar
+            sx={{ width: '60px', height: '60px' }}
+            alt={"Nguyễn Quốc Huy"}
+            src={readUrl("/storage-api/bucket/665084baa340536c521c22b1/OTdjOTQ4NzE4ZTU3YTFiYzVjZWJjMmRiMWQ5MWQwZDEuanBn")} />
+          <Sidebar />
         </Stack>
       </Box>
-      <Box
-        sx={{
-          overflowY: 'scroll',
-          width: '100%'
-        }}>
-        <Outlet />
-      </Box>
-    </Stack>
+      <Box sx={{ overflowY: 'scroll', width: '100%' }}>
+      <Outlet />
+    </Box>
+    </Stack >
   );
 };
 

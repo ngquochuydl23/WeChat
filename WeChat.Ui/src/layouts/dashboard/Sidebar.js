@@ -58,7 +58,6 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     try {
-      console.log("vào");
       localStorage.setItem("accessToken", null);
       dispatch(setUser(null));
       enqueueSnackbar(`Đăng xuất thành công`, {
@@ -69,7 +68,7 @@ const Sidebar = () => {
         },
       });
       navigate("/auth/login");
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const open = Boolean(anchorEl);
@@ -124,7 +123,12 @@ const Sidebar = () => {
         <SettingsOutlinedIcon />
       </IconButton>
       <Popover
-        style={{ boxShadow: "2px 6px 18px" }}
+        sx={{}}
+        
+        PaperProps={{
+          borderRadius: '5px'
+        }}
+        style={{ boxShadow: "2px 6px 18px", }}
         id={id}
         open={open}
         anchorEl={anchorEl}
@@ -138,7 +142,7 @@ const Sidebar = () => {
           horizontal: "left",
         }}
       >
-        <List>
+        <List sx={{  }}>
           <ListItem
             onClick={() => setOpenDialog(true)}
             button

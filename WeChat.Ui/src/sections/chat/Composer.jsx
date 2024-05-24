@@ -8,7 +8,8 @@ import TagFacesIcon from "@mui/icons-material/TagFaces";
 import SendIcon from "@mui/icons-material/Send";
 import { useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
-import { current } from "@reduxjs/toolkit";
+import SendFileMsgDialog from "./SendFileMsgDialog";
+
 
 const Textarea = styled(BaseTextareaAutosize)(
   ({ theme }) => `
@@ -37,9 +38,13 @@ const Textarea = styled(BaseTextareaAutosize)(
     }
   `
 );
-const Composer = ({ onSubmitMsg }) => {
+const Composer = ({ onSubmitMsg, onTyping, onStopTyping, onSendFileMsg }) => {
+  const [timer, setTimer] = useState();
   const [content, setContent] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
+  const [typing, setTyping] = useState(false);
+  const [file, setFile] = useState(null);
+
   const ref = useRef();
 
   const handleClick = (event) => {
@@ -62,6 +67,22 @@ const Composer = ({ onSubmitMsg }) => {
     }
   };
 
+  const onTypingMessage = (e) => {
+    if (!typing) {
+      onTyping();
+    }
+    setTyping(true);
+    setContent(e.target.value);
+    clearTimeout(timer);
+
+    const newTimer = setTimeout(() => {
+      setTyping(false);
+      onStopTyping();
+    }, 1000);
+
+    setTimer(newTimer);
+  }
+
   const onKeyDown = (e) => {
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -73,6 +94,12 @@ const Composer = ({ onSubmitMsg }) => {
     setContent((prevInput) => prevInput + emojiObject.emoji);
   };
 
+  const onPickFile = (event) => {
+    var file = event.target.files[0];
+    console.log(file);
+    setFile(file);
+  }
+
   return (
     <Stack
       direction="row"
@@ -82,49 +109,75 @@ const Composer = ({ onSubmitMsg }) => {
         paddingY: "10px",
         paddingX: "15px",
         alignItems: "flex-end",
-      }}
-    >
+      }}>
       <Textarea
         ref={ref}
         autoFocus
         onKeyDown={onKeyDown}
         maxRows="5"
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={onTypingMessage}
         placeholder="Soạn tin nhắn"
       />
       <Stack direction="row">
-        <IconButton aria-label="attach-file">
+        <IconButton
+          aria-label="attach-file"
+          onClick={() => document?.getElementById("pick-file")?.click()}>
           <AttachFileIcon />
         </IconButton>
-
-        <IconButton aria-label="photos">
+        <IconButton
+          onClick={() => document?.getElementById("pick-image")?.click()}
+          aria-label="photos">
           <CropOriginalIcon />
         </IconButton>
-
-        <IconButton aria-label="emoji" onClick={handleClick}>
+        <IconButton
+          aria-label="emoji"
+          onClick={handleClick}>
           <TagFacesIcon />
         </IconButton>
-        <Popover
-          style={{ boxShadow: "2px 6px 18px" }}
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}>
-          <EmojiPicker
-            onEmojiClick={handleEmojiClick}
-            open={open} />
-        </Popover>
         {content.length > 0 && (
-          <IconButton onClick={onEnter} aria-label="emoji">
+          <IconButton
+            onClick={onEnter}
+            aria-label="emoji">
             <SendIcon sx={{ color: "#0162C4" }} />
           </IconButton>
         )}
       </Stack>
+      <Popover
+        style={{ boxShadow: "2px 6px 18px" }}
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}>
+        <EmojiPicker
+          onEmojiClick={handleEmojiClick}
+          open={open} />
+      </Popover>
+      <input
+        onChange={onPickFile}
+        style={{ display: "none" }}
+        type="file"
+        multiple
+        accept="image/*"
+        id="pick-image"
+      />
+      <input
+        onChange={onPickFile}
+        style={{ display: "none" }}
+        type="file"
+        multiple
+        accept="application/*"
+        id="pick-file"
+      />
+      <SendFileMsgDialog
+        file={file}
+        open={Boolean(file)}
+        onClose={() => setFile(null)}
+        onSendMsg={onSendFileMsg} />
     </Stack>
   );
 };
