@@ -2,7 +2,7 @@ import {Link as RouterLink} from "react-router-dom"
 import { Link,Stack, Typography } from "@mui/material";
 import React from "react";
 import RegisterForm from "../../sections/auth/RegisterForm";
-import AuthSocial from "../../sections/auth/AuthSocial";
+
 const register = () =>{
     return(
         <>
@@ -31,7 +31,6 @@ const register = () =>{
                         Chính Sách Riêng Tư
                     </Link>
                 </Typography>
-                <AuthSocial />
             </Stack>
         </>
 

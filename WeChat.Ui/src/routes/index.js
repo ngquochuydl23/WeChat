@@ -1,7 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import DashboardLayout from "../layouts/dashboard";
-import MainLayout from "../layouts/main";
+import AuthLayout from "../layouts/AuthLayout";
 import { DEFAULT_PATH } from "../config";
 import LoadingScreen from "../components/LoadingScreen";
 import UserPage from "../pages/dashboard/UserPage";
@@ -22,7 +22,7 @@ export default function Router() {
   return useRoutes([
     {
       path: "/auth",
-      element: <MainLayout />,
+      element: <AuthLayout />,
       children: [
         { element: <LoginPage />, path: "login" },
         { element: <RegisterPage />, path: "register" },
