@@ -24,7 +24,7 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
   },
   creatorId: {
     type: mongoose.ObjectId,
-    required: [true, 'creatorId  must not be null']
+    required: [true, 'creatorId must not be null']
   },
   userConfigs: {
     type: [{

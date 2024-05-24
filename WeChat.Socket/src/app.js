@@ -13,6 +13,7 @@ const bodyParser = require('body-parser');
 const app = require('express')();
 const { logRequest, logError } = require('./middlewares/loggingMiddleware')
 const { configureMongoDb } = require('./config/mongodb');
+const { configureRedisDb } = require('./config/redis')
 const chatRoomEvent = require('./socket/chatRoomEvent');
 const _ = require('lodash');
 const roomEvent = require('./socket/roomEvent');
@@ -74,4 +75,5 @@ app.chatRoomNsp = chatRoomNsp;
 module.exports = {
   server,
   configureMongoDb,
+  configureRedisDb
 }

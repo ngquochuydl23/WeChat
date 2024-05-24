@@ -1,11 +1,11 @@
 version: '3.4'
 
 services:
-  socketchat:
-    image: socket-chat
-    container_name: socket-chat
+  weChatSockerChat:
+    image: weChatSockerChat
+    container_name: weChatSockerChat
     build:
-      context: ./socketChat
+      context: ./WeChat.Socket
       dockerfile: Dockerfile
     environment:
       NODE_ENV: production

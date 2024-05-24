@@ -6,4 +6,9 @@ async function findUsersByIds(ids) {
   return await User.find({ _id: { $in: ids } });
 }
 
-module.exports = { findUsersByIds }
+async function find(id) {
+  return await User.findById(id);
+}
+
+
+module.exports = { findUsersByIds, find }
