@@ -10,8 +10,11 @@ http.interceptors.request.use(function (config) {
 
   config.headers['Authorization'] = `Bearer ${accessToken}`
   config.headers['Content-Type'] = `application/json-patch+json`
+  config.headers['appName'] = process.env.REACT_APP_NAME
+  config.headers['appVersion'] = process.env.REACT_APP_VERSION
+  config.headers['platform'] = process.env.REACT_APP_PLATFORM
   config.headers['accept'] = `*/*`
-
+  
   return config;
 }, function (error) {
 
@@ -20,11 +23,11 @@ http.interceptors.request.use(function (config) {
 });
 
 
-http.interceptors.response.use(function(response) {
-  return response.data;
-}, function(error) {
+http.interceptors.response.use(function (response) {
+  return response.data.result;
+}, function (error) {
   if (_.has(error, 'response.data.error')) {
-
+    console.log(error)
     const responseErr = _.get(error, 'response.data.error')
     console.log("http.interceptors.response", { responseErr })
     return Promise.reject(responseErr)

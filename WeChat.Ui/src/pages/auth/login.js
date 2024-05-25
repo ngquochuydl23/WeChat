@@ -35,9 +35,8 @@ const Login = () => {
                 .required('Vui lòng nhập mật khẩu')
         }),
         onSubmit: async values => {
-            localStorage.setItem("accessToken", "accessToken");
             try {
-                const res = await login(values.phoneNumber, values.password);
+                const res = await login(values);
                 const { token } = res.data;
 
                 enqueueSnackbar('Đăng nhập thành công', {
@@ -51,7 +50,7 @@ const Login = () => {
                 localStorage.setItem("accessToken", token);
                 navigate("/chat");
             } catch (error) {
-                if (!error.response) {
+                if (!error) {
                     enqueueSnackbar('Không thể kết nối đến máy chủ', {
                         variant: 'error',
                         anchorOrigin: {
@@ -61,8 +60,8 @@ const Login = () => {
                     });
                     return;
                 }
-                const { error: msg } = error.response.data;
-                if (msg === 'Password is incorrect.') {
+              
+                if (error === 'Password is incorrect.') {
                     enqueueSnackbar('Sai mật khẩu', {
                         variant: 'error',
                         anchorOrigin: {
@@ -70,7 +69,7 @@ const Login = () => {
                             horizontal: 'right'
                         }
                     });
-                } else if (msg === 'User not found.') {
+                } else if (error === 'User not found.') {
                     enqueueSnackbar('User không tồn tại trên hệ thống', {
                         variant: 'error',
                         anchorOrigin: {
@@ -78,7 +77,7 @@ const Login = () => {
                             horizontal: 'right'
                         }
                     });
-                } else if (msg === 'Account has not been verified.') {
+                } else if (error === 'Account has not been verified.') {
                     enqueueSnackbar('Tài khoản chưa được xác thực qua email', {
                         variant: 'error',
                         anchorOrigin: {
@@ -87,7 +86,7 @@ const Login = () => {
                         }
                     });
                 } else {
-                    enqueueSnackbar(msg, {
+                    enqueueSnackbar(error, {
                         variant: 'error',
                         anchorOrigin: {
                             vertical: 'bottom',
