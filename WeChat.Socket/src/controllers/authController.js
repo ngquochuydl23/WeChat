@@ -65,7 +65,8 @@ exports.login = async (req, res, next) => {
         phoneNumber,
         password,
         deviceToken,
-        deviceName
+        deviceName,
+        os
     } = req.body;
 
     try {
@@ -96,6 +97,7 @@ exports.login = async (req, res, next) => {
             platform,
             appVersion: appversion,
             appName: appname,
+            os,
             userId: user._id,
         });
 
@@ -118,43 +120,7 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = async (req, res, next) => {
-    const { phoneNumber, password } = req.body;
-
-    try {
-        const { error } = loginSchemaValidator.schema.validate(req.body);
-        if (error) {
-            throw new AppException(error.details[0].message);
-        }
-
-        var user = await User
-            .findOne({ phoneNumber: phoneNumber })
-            .exec();
-        if (!user) {
-            throw new AppException("User not found.");
-        }
-
-        if (!(await bcrypt.compare(password, user.hashPassword))) {
-            throw new AppException("Password is incorrect.");
-        }
-
-        if (!user.actived) {
-            throw new AppException("Account has not been verified.");
-        }
-
-        const token = jwt.sign({
-            userId: user._id
-        }, "secret", { expiresIn: "30d" });
-
-        return res
-            .status(200)
-            .json({
-                statusCode: 200,
-                token: token,
-                userId: user._id
-            });
-    } catch (error) {
-        next(error);
-    }
+    
 };
 
 exports.verifyOtp = async (req, res, next) => {

@@ -11,16 +11,14 @@ async function addDevice(device) {
 }
 
 async function updateDevice(id, mergeDoc) {
-    await Device.updateOne({ _id: id }, {
-        $set: { ...mergeDoc }
-    });
+    await Device.updateOne({ _id: id }, { $set: { ...mergeDoc } });
 }
 
 async function getOneAsQueryable(where) {
     return Device.findOne({ ...where });
 }
 
-async function getDevicesAsQueryable(where, sort) {
+async function getManyAsQueryable(where, sort) {
     return Device
         .find({ ...where })
         .sort({ ...sort });
@@ -34,7 +32,7 @@ module.exports = {
     findById,
     addDevice,
     updateDevice,
-    getDevicesAsQueryable,
+    getManyAsQueryable,
     getOneAsQueryable,
     terminateDevice
 }

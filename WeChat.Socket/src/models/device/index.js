@@ -21,6 +21,10 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
       message: '{VALUE} is not supported'
     }
   },
+  os: {
+    type: String,
+    required: [true, 'os must not be null'],
+  },
   appVersion: {
     type: String,
     required: [true, 'appVersion must not be null'],

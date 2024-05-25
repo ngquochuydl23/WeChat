@@ -1,11 +1,14 @@
 const { logger } = require("../logger");
-const { getOneAsQueryable, getDevicesAsQueryable, terminateDevice } = require("../services/deviceService");
+const { getOneAsQueryable, getManyAsQueryable, terminateDevice } = require("../services/deviceService");
 const { AppException } = require("../exceptions/AppException");
 
 exports.findDevices = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
-    var devices = await getDevicesAsQueryable(
-        { userId: loggingUserId },
+    var devices = await getManyAsQueryable(
+        {
+            userId: loggingUserId,
+            isTerminated: false
+        },
         {
             lastAccess: -1,
             createdAt: -1
@@ -18,7 +21,7 @@ exports.findDevices = async (req, res, next) => {
             result: {
                 devices
             }
-        })
+        });
 }
 
 exports.terminateDeviceById = async (req, res, next) => {
@@ -44,7 +47,7 @@ exports.terminateDeviceById = async (req, res, next) => {
             .json({
                 statusCode: 200,
                 msg: 'Device is terminated successfully.'
-            })
+            });
     } catch (err) {
         next(err);
     }
