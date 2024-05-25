@@ -30,6 +30,13 @@ const schema = Joi.object({
       'string.required': `"deviceName" is a required field`,
       'string.pattern.base': `"deviceName" is not valid`
     }),
+  os: Joi
+    .string()
+    .messages({
+      'string.empty': `"os" cannot be an empty field`,
+      'string.required': `"os" is a required field`,
+      'string.pattern.base': `"os" is not valid`
+    }),
 })
 
 module.exports = { schema }
