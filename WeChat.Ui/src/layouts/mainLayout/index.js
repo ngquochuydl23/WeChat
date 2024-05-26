@@ -1,19 +1,24 @@
 import { Avatar, Box, List, ListItemButton, ListItemIcon, ListItemText, Popover, Stack } from "@mui/material";
-import React, { useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Sidebar from "./Sidebar";
 import { readUrl } from "@/utils/readUrl";
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import ProfileDialog from "@/sections/chat/ProfileDialog";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonalSettingDialog from "@/sections/settings/PersonalSettingDialog";
+import { setLoading, setUser, stopLoading } from "@/redux/slices/userSlice";
+import { getMyProfile } from "@/services/userApiService";
+import { useSnackbar } from "notistack";
 
 
 const MainLayout = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openSettingDialog, setOpenSettingDialog] = useState(false);
-
+  const { enqueueSnackbar } = useSnackbar();
 
   const { user, isLoading } = useSelector((state) => state.user);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -29,6 +34,36 @@ const MainLayout = () => {
     setAnchorEl(null);
   };
 
+  useEffect(() => {
+    if (localStorage.getItem("social-v2.wechat.accessToken")) {
+
+
+    } else {
+
+    }
+    dispatch(setLoading());
+    getMyProfile()
+      .then(res => {
+        const { user } = res.result;
+        dispatch(setUser(user));
+        navigate("/chat");
+      })
+      .catch(err => {
+        dispatch(setUser(null));
+        enqueueSnackbar(`Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại`, {
+          variant: 'error',
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'right'
+          }
+        });
+      })
+      .finally(() => dispatch(stopLoading()))
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading</div>
+  }
 
   if (!user) {
     return <Navigate to="/auth/login" replace />;

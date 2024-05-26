@@ -137,9 +137,9 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
         })
     }
 
-    useEffect(() => {
-        searchUser();
-    }, [])
+    // useEffect(() => {
+    //     searchUser();
+    // }, [])
     
 
     return (

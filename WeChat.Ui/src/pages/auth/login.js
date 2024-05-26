@@ -14,9 +14,11 @@ import * as Yup from "yup";
 import { useSnackbar } from "notistack";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "@/services/loginApiService";
-
+import { useDispatch } from "react-redux";
+import { setLoading } from "@/redux/slices/userSlice";
 
 const Login = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
     const [showPassword, setShowPassword] = useState(false);
@@ -45,8 +47,12 @@ const Login = () => {
                         }
                     });
 
-                    localStorage.setItem("social-v2.wechat.accessToken", result.token);
-                    navigate("/chat");
+                    Promise.resolve(localStorage.setItem("social-v2.wechat.accessToken", result.token))
+                        .then(() => {
+                            dispatch(setLoading())
+                            navigate("/chat");
+                        })
+
                 })
                 .catch(error => {
                     console.log(error);
