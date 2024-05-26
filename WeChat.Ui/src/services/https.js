@@ -24,7 +24,7 @@ http.interceptors.request.use(function (config) {
 
 
 http.interceptors.response.use(function (response) {
-  return response.data.result;
+  return response.data;
 }, function (error) {
   if (_.has(error, 'response.data.error')) {
     console.log(error)

@@ -7,7 +7,7 @@ const loginSchemaValidator = require('../validator/loginSchemaValidator');
 const { sendOtpViaEmail, verifyOtp } = require('../services/otpService');
 const { AppException, ValidationMongoException } = require('../exceptions/AppException');
 const device = require('../models/device');
-const { addDevice } = require('../services/deviceService');
+const { addDevice, terminateDevice } = require('../services/deviceService');
 
 exports.signup = async (req, res, next) => {
     try {
@@ -42,12 +42,14 @@ exports.signup = async (req, res, next) => {
             .status(201)
             .send({
                 statusCode: 201,
-                user: {
-                    id: user._id,
-                    fullName: user.fullName,
-                    phoneNumber: user.phoneNumber,
-                    email: user.email,
-                    actived: user.actived
+                result: {
+                    user: {
+                        id: user._id,
+                        fullName: user.fullName,
+                        phoneNumber: user.phoneNumber,
+                        email: user.email,
+                        actived: user.actived
+                    }
                 }
             });
     } catch (error) {
@@ -110,9 +112,12 @@ exports.login = async (req, res, next) => {
             .status(200)
             .json({
                 statusCode: 200,
-                token: token,
-                userId: user._id,
-                deviceId: device._id
+                msg: "Login successfully",
+                result: {
+                    token: token,
+                    userId: user._id,
+                    deviceId: device._id
+                }
             });
     } catch (error) {
         next(error);
@@ -120,7 +125,20 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = async (req, res, next) => {
-    
+    const loggingDeviceId = req.loggingDeviceId;
+
+    try {
+        await terminateDevice(loggingDeviceId);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                msg: "Logout successfully"
+            });
+    } catch (error) {
+        next(error);
+    }
 };
 
 exports.verifyOtp = async (req, res, next) => {
@@ -149,7 +167,7 @@ exports.verifyOtp = async (req, res, next) => {
             .status(200)
             .json({
                 statusCode: 200,
-                message: "Verify successfully."
+                msg: "Verify successfully."
             });
     } catch (error) {
         next(error);
@@ -176,7 +194,7 @@ exports.resendOtp = async (req, res, next) => {
             .status(200)
             .json({
                 statusCode: 200,
-                message: "Otp has been resent."
+                msg: "Otp has been resent."
             });
     } catch (error) {
         next(error);
@@ -204,7 +222,7 @@ exports.requestRequestPassword = async (req, res, next) => {
             .status(200)
             .json({
                 statusCode: 200,
-                message: `Otp has been resent to "${email}"`
+                msg: `Otp has been resent to "${email}"`
             });
     } catch (error) {
         next(error);
@@ -239,7 +257,7 @@ exports.resetPassword = async (req, res, next) => {
             .status(200)
             .json({
                 statusCode: 200,
-                message: "Reset password successfully."
+                msg: "Reset password successfully."
             });
     } catch (error) {
         next(error);

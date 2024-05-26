@@ -35,11 +35,8 @@ const Login = () => {
                 .required('Vui lòng nhập mật khẩu')
         }),
         onSubmit: async values => {
-            console.log(values);
             try {
-                const res = await login(values);
-                const { token } = res.data;
-
+                const { result } = await login(values);
                 enqueueSnackbar('Đăng nhập thành công', {
                     variant: 'success',
                     anchorOrigin: {
@@ -48,7 +45,7 @@ const Login = () => {
                     }
                 });
 
-                localStorage.setItem("accessToken", token);
+                localStorage.setItem("social-v2.wechat.accessToken", result.token);
                 navigate("/chat");
             } catch (error) {
                 if (!error) {

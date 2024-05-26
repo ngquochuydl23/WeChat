@@ -5,23 +5,23 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setUser, setLoading, stopLoading } from "./redux/slices/userSlice";
 import { SnackbarProvider, useSnackbar } from 'notistack';
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { getMyProfile } from "./services/userApiService";
 
 export default function App() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
+
+    if (localStorage.getItem("social-v2.wechat.accessToken")) {
+      
       dispatch(setLoading());
-      axios
-        .get(process.env.REACT_APP_API_ENDPOINT + "/user", {
-          headers: {
-            Authorization: 'Bearer ' + token,
-          }
-        })
+      getMyProfile()
         .then(res => {
-          dispatch(setUser(res.data.user));
+          const { user } = res.result;
+          dispatch(setUser(user));
+          navigate("/chat");
         })
         .catch(err => {
           console.log(err);
@@ -34,7 +34,7 @@ export default function App() {
           });
 
         })
-      //   .finally(() => dispatch(stopLoading()))
+        .finally(() => dispatch(stopLoading()))
     }
   }, [dispatch]);
 

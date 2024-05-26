@@ -3,35 +3,7 @@ const bcrypt = require('bcrypt');
 const editProfileSchemaValidator = require('../validator/editProfileSchemaValidator');
 const changePasswordShemaValidator = require('../validator/changePasswordShemaValidator');
 const { AppException } = require('../exceptions/AppException');
-// exports.updateAvatar = async (req, res) => {
-//     const userId = req.userId;
-//     const image = req.file;
-//     try {
-//         const user = await User.findById(userId);
-//         if (!user) {
-//             return res.status(500).json({ message: "Could not find user" });
-//         }
-//         if (!image) {
-//             return res.status(500).json({ message: "No image" });
-//         }
-//         const error = validate.avatar(image);
-//         if (error) {
-//             return res.status(500).json({ message: "Validate fail", error: error });
-//         }
-//         const folderName = user._id;
-//         const imageUrl = await uploadFileToS3(type.USERS, folderName, fileType.AVATAR, image);
-//         const filter = { _id: userId };
-//         const update = { avatar: imageUrl };
-//         const updateUser = await User.findOneAndUpdate(filter, update, {
-//             new: true,
-//         });
-//         res
-//             .status(200)
-//             .json({ message: "Update avatar success.", user: updateUser });
-//     } catch (error) {
-//         res.status(500).json({ message: "Update avatar fail.", error: error });
-//     }
-// };
+
 
 exports.getMyProfile = async (req, res, next) => {
   try {
@@ -42,7 +14,10 @@ exports.getMyProfile = async (req, res, next) => {
     return res
       .status(200)
       .json({
-        user: user
+        statusCode: 200,
+        result: {
+          user
+        }
       });
   } catch (error) {
     next(error);
@@ -63,7 +38,9 @@ exports.getUser = async (req, res, next) => {
     return res
       .status(200)
       .json({
-        user: user
+        result: {
+          user
+        }
       });
   } catch (error) {
     next(error);
@@ -92,7 +69,9 @@ exports.editProfile = async (req, res, next) => {
     return res
       .status(200)
       .json({
-        user: user
+        result: {
+          user
+        }
       });
   } catch (error) {
     next(error);
@@ -159,7 +138,7 @@ exports.changePassword = async (req, res, next) => {
       .status(200)
       .json({
         statusCode: 200,
-        message: "Password changed."
+        msg: "Password changed."
       });
   } catch (error) {
     next(error);
