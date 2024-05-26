@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const editProfileSchemaValidator = require('../validator/editProfileSchemaValidator');
 const changePasswordShemaValidator = require('../validator/changePasswordShemaValidator');
 const { AppException } = require('../exceptions/AppException');
+const { updateUser, findById } = require("../services/userService");
 
 
 exports.getMyProfile = async (req, res, next) => {
@@ -144,3 +145,24 @@ exports.changePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.changeAvatar = async (req, res, next) => {
+  try {
+    const { avatar } = req.body;
+
+    await updateUser(req.loggingUserId, { avatar: avatar });
+
+    const user = await findById(req.loggingUserId)
+    return res
+      .status(200)
+      .json({
+        statusCode: 200,
+        msg: "Avatar changed.",
+        result: {
+          user
+        }
+      });
+  } catch (error) {
+    next(error);
+  }
+}

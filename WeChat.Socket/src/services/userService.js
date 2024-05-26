@@ -10,5 +10,9 @@ async function findById(id) {
   return await User.findById(id);
 }
 
+async function updateUser(id, mergeDoc) {
+  await Device.updateOne({ _id: id }, { $set: { ...mergeDoc } });
+}
 
-module.exports = { findUsersByIds, findById }
+
+module.exports = { findUsersByIds, findById, updateUser }

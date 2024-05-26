@@ -6,9 +6,19 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
   fullName: {
     type: String,
     text: true,
-    required: [true, 'Title must not be null']
+    required: [true, 'fullName must not be null']
   },
   avatar: {
+    type: String,
+    text: true,
+    required: [false]
+  },
+  cover: {
+    type: String,
+    text: true,
+    required: [false]
+  },
+  bio: {
     type: String,
     text: true,
     required: [false]
