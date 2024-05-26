@@ -11,7 +11,7 @@ async function findById(id) {
 }
 
 async function updateUser(id, mergeDoc) {
-  await Device.updateOne({ _id: id }, { $set: { ...mergeDoc } });
+  await User.updateOne({ _id: id }, { $set: { ...mergeDoc } });
 }
 
 
