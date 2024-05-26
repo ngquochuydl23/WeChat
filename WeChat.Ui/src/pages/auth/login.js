@@ -35,6 +35,7 @@ const Login = () => {
                 .required('Vui lòng nhập mật khẩu')
         }),
         onSubmit: async values => {
+            console.log(values);
             try {
                 const res = await login(values);
                 const { token } = res.data;
@@ -60,7 +61,7 @@ const Login = () => {
                     });
                     return;
                 }
-              
+
                 if (error === 'Password is incorrect.') {
                     enqueueSnackbar('Sai mật khẩu', {
                         variant: 'error',

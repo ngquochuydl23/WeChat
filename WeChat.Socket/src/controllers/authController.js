@@ -70,7 +70,7 @@ exports.login = async (req, res, next) => {
     } = req.body;
 
     try {
-
+        console.log(req.body);
         const { error } = loginSchemaValidator.schema.validate(req.body);
         if (error) {
             throw new AppException(error.details[0].message);
