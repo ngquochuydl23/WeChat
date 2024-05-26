@@ -10,6 +10,7 @@ router.get("/", authMiddleware, userController.getUsers)
 router.get("/me", authMiddleware, userController.getMyProfile);
 router.put("/me", authMiddleware, userController.editProfile);
 router.post("/me/change-password", authMiddleware, userController.changePassword);
+router.post("/me/change-avatar", authMiddleware, userController.changeAvatar);
 
 
 router.get("/:userId", authMiddleware, userController.getUser)
