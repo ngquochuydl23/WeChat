@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Divider,
   IconButton,
@@ -9,6 +10,7 @@ import {
   ListItemText,
   Popover,
   Stack,
+  Typography,
 } from "@mui/material";
 import { ChatCircleDots, Users } from "phosphor-react";
 import {
@@ -27,15 +29,19 @@ import { setUser } from "../../redux/slices/userSlice";
 import ChangeCircleOutlinedIcon from "@mui/icons-material/ChangeCircleOutlined";
 import { enqueueSnackbar } from "notistack";
 import ChangePasswordModal from "../../dialog/ChangePasswordModal";
-
+import { Icon } from '@mui/material';
 const sideBarItems = [
   {
     path: "/chat",
     icon: <ChatCircleDots />,
+    title: 'Tin nhắn',
+    hasBadge: true,
   },
   {
     path: "/user",
     icon: <Users />,
+    title: 'Danh bạ',
+    hasBadge: false,
   },
 ];
 
@@ -77,41 +83,63 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
+        paddingTop: '30px',
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         alignItems: "center",
-        height: "80vh",
+        height: "100%",
         width: "max-content",
-        margin: "0 auto",
+
       }}
     >
-      <Stack spacing={3} direction="Column" alignItems="center">
+      <Stack spacing={"10px"} direction="column" alignItems="center">
         {sideBarItems.map((sideBarItem) => (
-          <Box
-            padding={isSelected(sideBarItem.path) ? 1 : 0}
-            sx={
-              isSelected(sideBarItem.path) && {
-                backgroundColor: "rgba(255, 255, 255, 0.5)",
-                borderRadius: 1.5,
-              }
-            }
-            key={sideBarItem.path}
-          >
-            <IconButton
-              LinkComponent={Link}
-              to={sideBarItem.path}
+          <Link to={sideBarItem.path} style={{ color: 'inherit', textDecoration: 'inherit' }}>
+            <Box
+              key={sideBarItem.path}
               sx={{
-                width: "max-content",
-                color: "black",
-              }}
-            >
-              {sideBarItem.icon}
-            </IconButton>
-          </Box>
-        ))}
-        <Divider sx={{ width: "48px" }} />
-      </Stack>
+                textDecoration: 'none',
+                flexDirection: 'column',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '10px',
+                paddingTop: '15px',
+                justifyContent: 'center',
+                ...(isSelected(sideBarItem.path) && {
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                  borderRadius: 1.5,
+                })
+              }}>
+              {sideBarItem.hasBadge
+                ? <Badge badgeContent={4} color="primary">
+                  <Icon sx={{ color: 'gray' }}>
+                    {sideBarItem.icon}
+                  </Icon>
+                </Badge>
+                : <Icon sx={{ color: 'gray' }}>
+                  {sideBarItem.icon}
+                </Icon>
+              }
+              <Typography
+                fontSize="12px"
+                mt="5px"
+                fontWeight="500"
+                sx={{
+                  textDecoration: 'none',
+                  ...(isSelected(sideBarItem.path) ? {
+                    color: 'black'
+                  } : {
+                    color: 'gray'
+                  })
+                }}>
+                {sideBarItem.title}
+              </Typography>
+            </Box>
+          </Link>
+        ))
+        }
+      </Stack >
       <IconButton
         aria-describedby={id}
         onClick={handleClick}
@@ -124,7 +152,7 @@ const Sidebar = () => {
       </IconButton>
       <Popover
         sx={{}}
-        
+
         PaperProps={{
           borderRadius: '5px'
         }}
@@ -142,7 +170,7 @@ const Sidebar = () => {
           horizontal: "left",
         }}
       >
-        <List sx={{  }}>
+        <List sx={{}}>
           <ListItem
             onClick={() => setOpenDialog(true)}
             button
@@ -183,7 +211,7 @@ const Sidebar = () => {
         open={openChangPWDialog}
       />
       <ProfileModal onClose={() => setOpenDialog(false)} open={openDialog} />
-    </Box>
+    </Box >
   );
 };
 

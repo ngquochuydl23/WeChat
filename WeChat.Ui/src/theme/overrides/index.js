@@ -12,7 +12,6 @@ import Paper from './Paper';
 import Input from './Input';
 import Radio from './Radio';
 import Drawer from './Drawer';
-import Dialog from './Dialog';
 import Avatar from './Avatar';
 import Rating from './Rating';
 import Slider from './Slider';
@@ -62,7 +61,6 @@ export default function ComponentsOverrides(theme) {
     Select(theme),
     Button(theme),
     Rating(theme),
-    Dialog(theme),
     Avatar(theme),
     Slider(theme),
     Drawer(theme),

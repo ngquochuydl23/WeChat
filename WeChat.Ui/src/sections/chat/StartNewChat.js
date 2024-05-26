@@ -11,7 +11,7 @@ const StartNewChat = () => {
                 justifyContent: 'center'
             }}>
             <Typography variant="h5">
-                Chào mừng bạn đến với `{ }`
+                Chào mừng bạn đến với WeChat
             </Typography>
             <Typography>
                 Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng người thân, bạn bè được tối ưu hóa cho máy tính của bạn.
