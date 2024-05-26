@@ -35,64 +35,66 @@ const Login = () => {
                 .required('Vui lòng nhập mật khẩu')
         }),
         onSubmit: async values => {
-            try {
-                const { result } = await login(values);
-                enqueueSnackbar('Đăng nhập thành công', {
-                    variant: 'success',
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'right'
+            login(values)
+                .then(({ result }) => {
+                    enqueueSnackbar('Đăng nhập thành công', {
+                        variant: 'success',
+                        anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'right'
+                        }
+                    });
+
+                    localStorage.setItem("social-v2.wechat.accessToken", result.token);
+                    navigate("/chat");
+                })
+                .catch(error => {
+                    console.log(error);
+                    if (!error) {
+                        enqueueSnackbar('Không thể kết nối đến máy chủ', {
+                            variant: 'error',
+                            anchorOrigin: {
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }
+                        });
+                        return;
                     }
-                });
 
-                localStorage.setItem("social-v2.wechat.accessToken", result.token);
-                navigate("/chat");
-            } catch (error) {
-                if (!error) {
-                    enqueueSnackbar('Không thể kết nối đến máy chủ', {
-                        variant: 'error',
-                        anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right'
-                        }
-                    });
-                    return;
-                }
-
-                if (error === 'Password is incorrect.') {
-                    enqueueSnackbar('Sai mật khẩu', {
-                        variant: 'error',
-                        anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right'
-                        }
-                    });
-                } else if (error === 'User not found.') {
-                    enqueueSnackbar('User không tồn tại trên hệ thống', {
-                        variant: 'error',
-                        anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right'
-                        }
-                    });
-                } else if (error === 'Account has not been verified.') {
-                    enqueueSnackbar('Tài khoản chưa được xác thực qua email', {
-                        variant: 'error',
-                        anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right'
-                        }
-                    });
-                } else {
-                    enqueueSnackbar(error, {
-                        variant: 'error',
-                        anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'right'
-                        }
-                    });
-                }
-            }
+                    if (error === 'Password is incorrect.') {
+                        enqueueSnackbar('Sai mật khẩu', {
+                            variant: 'error',
+                            anchorOrigin: {
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }
+                        });
+                    } else if (error === 'User not found.') {
+                        enqueueSnackbar('User không tồn tại trên hệ thống', {
+                            variant: 'error',
+                            anchorOrigin: {
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }
+                        });
+                    } else if (error === 'Account has not been verified.') {
+                        enqueueSnackbar('Tài khoản chưa được xác thực qua email', {
+                            variant: 'error',
+                            anchorOrigin: {
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }
+                        });
+                    } else {
+                        enqueueSnackbar(error, {
+                            variant: 'error',
+                            anchorOrigin: {
+                                vertical: 'bottom',
+                                horizontal: 'right'
+                            }
+                        });
+                    }
+                })
         },
     });
 

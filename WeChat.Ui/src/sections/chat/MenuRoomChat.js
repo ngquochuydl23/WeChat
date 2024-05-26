@@ -8,7 +8,8 @@ import { useState } from "react";
 import { filterRoomInfo } from "../../utils/filterRoomInfo";
 import ReactSearchBox from "react-search-box";
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
-
+import Scrollbars from "react-custom-scrollbars-2";
+import UserSkeleton from "@/components/UserSkeleton";
 
 const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
 
@@ -85,69 +86,9 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
               pt="20px"
               px="20px"
               sx={{ width: '100%' }}>
-              <Stack direction="row">
-                <Skeleton
-                  animation="wave"
-                  variant="circular"
-                  width="50px"
-                  height="50px" />
-                <Stack
-                  ml="10px"
-                  direction="column"
-                  sx={{ width: '80%' }}>
-                  <Skeleton
-                    animation="wave"
-                    height="20px"
-                    width="80%"
-                  />
-                  <Skeleton
-                    animation="wave"
-                    height="15px"
-                    width="40%" />
-                </Stack>
-              </Stack>
-              <Stack direction="row">
-                <Skeleton
-                  animation="wave"
-                  variant="circular"
-                  width="50px"
-                  height="50px" />
-                <Stack
-                  ml="10px"
-                  direction="column"
-                  sx={{ width: '80%' }}>
-                  <Skeleton
-                    animation="wave"
-                    height="20px"
-                    width="80%"
-                  />
-                  <Skeleton
-                    animation="wave"
-                    height="15px"
-                    width="40%" />
-                </Stack>
-              </Stack>
-              <Stack direction="row">
-                <Skeleton
-                  animation="wave"
-                  variant="circular"
-                  width="50px"
-                  height="50px" />
-                <Stack
-                  ml="10px"
-                  direction="column"
-                  sx={{ width: '80%' }}>
-                  <Skeleton
-                    animation="wave"
-                    height="20px"
-                    width="80%"
-                  />
-                  <Skeleton
-                    animation="wave"
-                    height="15px"
-                    width="40%" />
-                </Stack>
-              </Stack>
+              <UserSkeleton />
+              <UserSkeleton />
+              <UserSkeleton />
             </Stack>
             : <Box>
               {(result.contacts && result.contacts.length > 0) &&
@@ -158,7 +99,7 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
             </Box>
           }
         </Stack>
-        : <Stack sx={{ height: "100%", overflowY: "scroll" }}>
+        : <Scrollbars style={{ width: '100%', height: '100%' }}>
           {_.map(rooms, (roomItem) => (
             <RoomChatItem
               {...roomItem}
@@ -167,7 +108,8 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
               loggingUserId={user._id}
             />
           ))}
-        </Stack>
+        </Scrollbars>
+
       }
       <CreateGroupChatDialog
         open={openCreateGroupChat}

@@ -13,7 +13,6 @@ const slice = createSlice({
     reducers:{
         toggleSlidebar(state, action){
             state.sidebar.open = !state.sidebar.open;
-
         },
         updateSideBarType(state, action){
         state.sidebar.type = action.payload.type;

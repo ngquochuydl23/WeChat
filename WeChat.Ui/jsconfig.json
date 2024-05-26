@@ -1,4 +1,7 @@
 {
-    "extends": "./jsconfig.paths.json",
-    "include": ["src", "utils"]
-  }
+  "extends": "./jsconfig.paths.json",
+  "include": [
+    "src",
+    "utils"
+  ]
+}

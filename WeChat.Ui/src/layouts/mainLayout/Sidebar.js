@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import { ChatCircleDots, Users } from "phosphor-react";
 import {
-  unstable_HistoryRouter,
   useLocation,
   useNavigate,
 } from "react-router-dom";
@@ -30,6 +29,7 @@ import ChangeCircleOutlinedIcon from "@mui/icons-material/ChangeCircleOutlined";
 import { enqueueSnackbar } from "notistack";
 import ChangePasswordModal from "../../dialog/ChangePasswordModal";
 import { Icon } from '@mui/material';
+
 const sideBarItems = [
   {
     path: "/chat",
@@ -38,14 +38,14 @@ const sideBarItems = [
     hasBadge: true,
   },
   {
-    path: "/user",
+    path: "/contact",
     icon: <Users />,
     title: 'Danh bạ',
     hasBadge: false,
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ onSettingClick }) => {
   const location = useLocation();
   const isSelected = (path) => location.pathname === path;
   const [anchorEl, setAnchorEl] = useState(null);
@@ -89,16 +89,15 @@ const Sidebar = () => {
         justifyContent: "space-between",
         alignItems: "center",
         height: "100%",
-        width: "max-content",
-
-      }}
-    >
+        width: "max-content"
+      }}>
       <Stack spacing={"10px"} direction="column" alignItems="center">
         {sideBarItems.map((sideBarItem) => (
           <Link to={sideBarItem.path} style={{ color: 'inherit', textDecoration: 'inherit' }}>
             <Box
               key={sideBarItem.path}
               sx={{
+                width: '100%',
                 textDecoration: 'none',
                 flexDirection: 'column',
                 display: 'flex',
@@ -140,16 +139,48 @@ const Sidebar = () => {
         ))
         }
       </Stack >
-      <IconButton
-        aria-describedby={id}
-        onClick={handleClick}
+      <Box
+        key="setting"
         sx={{
-          width: "max-content",
-          color: "black",
-        }}
-      >
-        <SettingsOutlinedIcon />
-      </IconButton>
+          width: '100%',
+          textDecoration: 'none',
+          flexDirection: 'column',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '10px',
+          paddingTop: '15px',
+          justifyContent: 'center',
+          '&:hover': {
+            backgroundColor: "rgba(0, 0, 0, 0.05)",
+            borderRadius: 1.5,
+          },
+          '&:active': {
+            backgroundColor: "rgba(0, 0, 0, 0.05)",
+            borderRadius: 1.5
+          }
+          // ...(isSelected(sideBarItem.path) && {
+          //   backgroundColor: "rgba(0, 0, 0, 0.05)",
+          //   borderRadius: 1.5,
+          // })
+        }}>
+        <Icon sx={{ color: 'gray' }}>
+          <SettingsOutlinedIcon />
+        </Icon>
+        <Typography
+          fontSize="12px"
+          mt="5px"
+          fontWeight="500"
+          sx={{
+            textDecoration: 'none',
+            // ...(isSelected(sideBarItem.path) ? {
+            //   color: 'black'
+            // } : {
+            //   color: 'gray'
+            // })
+          }}>
+          {`Cài đặt`}
+        </Typography>
+      </Box>
       <Popover
         sx={{}}
 

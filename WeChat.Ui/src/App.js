@@ -1,6 +1,5 @@
 import Router from "./routes";
 import ThemeProvider from './theme';
-import ThemeSettings from './components/settings';
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setUser, setLoading, stopLoading } from "./redux/slices/userSlice";
@@ -12,14 +11,15 @@ export default function App() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
-  useEffect(() => {
 
+  useEffect(() => {
     if (localStorage.getItem("social-v2.wechat.accessToken")) {
-      
+
       dispatch(setLoading());
       getMyProfile()
         .then(res => {
           const { user } = res.result;
+          console.log(user)
           dispatch(setUser(user));
           navigate("/chat");
         })
@@ -40,12 +40,9 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <ThemeSettings>
-        <SnackbarProvider
-        >
-          <Router />
-        </SnackbarProvider>
-      </ThemeSettings>
+      <SnackbarProvider>
+        <Router />
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }

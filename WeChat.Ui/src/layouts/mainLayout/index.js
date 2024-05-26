@@ -4,12 +4,17 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Sidebar from "./Sidebar";
 import { readUrl } from "@/utils/readUrl";
-import SendIcon from '@mui/icons-material/Send';
-import Person2Icon from '@mui/icons-material/Person2';
+import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import ProfileDialog from "@/sections/chat/ProfileDialog";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import PersonalSettingDialog from "@/sections/settings/PersonalSettingDialog";
 
-const DashboardLayout = () => {
+
+const MainLayout = () => {
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [openSettingDialog, setOpenSettingDialog] = useState(false);
+
+
   const { user, isLoading } = useSelector((state) => state.user);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -24,6 +29,7 @@ const DashboardLayout = () => {
     setAnchorEl(null);
   };
 
+
   if (!user) {
     return <Navigate to="/auth/login" replace />;
   }
@@ -36,7 +42,7 @@ const DashboardLayout = () => {
           backgroundColor: 'white',
           boxShadow: " 0px 0px 2px rgba(0, 0, 0, 0.25)",
           width: '100px',
-          height: "100vh",
+          height: '100vh'
         }}>
         <Stack
           direction="column"
@@ -53,15 +59,16 @@ const DashboardLayout = () => {
           <Sidebar />
         </Stack>
         <Popover
-          sx={{ ml: '20px' }}
+          sx={{
+            ml: '20px',
+            '.MuiPopover-paper': {
+              borderRadius: '5px',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)'
+            }
+          }}
           id={id}
           open={open}
           anchorEl={anchorEl}
-          PaperProps={{
-            elevation: 0,
-            borderRadius: '5px',
-            border: '1px solid #d3d3d3'
-          }}
           onClose={handleClose}
           anchorOrigin={{
             vertical: 'top',
@@ -72,29 +79,50 @@ const DashboardLayout = () => {
             horizontal: 'left',
           }}>
           <List sx={{ width: '240px' }}>
-            <ListItemButton onClick={() => setOpenProfileDialog(true)}>
+            <ListItemButton
+              onClick={() => {
+                setOpenProfileDialog(true);
+                setAnchorEl(null);
+              }}>
               <ListItemIcon>
-                <Person2Icon color="#d3d3d3" />
+                <Person2OutlinedIcon />
               </ListItemIcon>
-              <ListItemText primary="Xem hồ sơ" />
+              <ListItemText
+                primary="Xem hồ sơ"
+                primaryTypographyProps={{
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }} />
             </ListItemButton>
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                setOpenSettingDialog(true);
+                setAnchorEl(null);
+              }}>
               <ListItemIcon>
-                <SendIcon />
+                <SettingsOutlinedIcon />
               </ListItemIcon>
-              <ListItemText primary="Sent mail" />
+              <ListItemText
+                primary="Cài đặt"
+                primaryTypographyProps={{
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }} />
             </ListItemButton>
           </List>
         </Popover>
       </Box>
-      <Box sx={{ overflowY: 'scroll', width: '100%' }}>
+      <Box sx={{ width: '100%', height: '100vh' }}>
         <Outlet />
       </Box>
       <ProfileDialog
         open={openProfileDialog}
         onClose={() => setOpenProfileDialog(false)} />
+      <PersonalSettingDialog
+        open={openSettingDialog}
+        onClose={() => setOpenSettingDialog(false)} />
     </Stack >
   );
 };
 
-export default DashboardLayout;
+export default MainLayout;
