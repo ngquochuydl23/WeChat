@@ -1,9 +1,9 @@
 version: '3.4'
 
 services:
-  weChatSockerChat:
-    image: we-chat-socket-chat
-    container_name: weChatSockerChat
+  weChatSocket:
+    image: wechat-socketchat
+    container_name: weChatSocket
     build:
       context: ./WeChat.Socket
       dockerfile: Dockerfile
@@ -12,5 +12,14 @@ services:
     ports:
       - 0.0.0.0:4000:4000
     restart: always
+  weChatWebUi:
+    image: wechat-webui
+    container_name: weChatWebUi
+    build:
+      context: ./WeChat.Ui
+      dockerfile: Dockerfile
+    ports:
+      - 4100:80
+    restart: always 
 
   
