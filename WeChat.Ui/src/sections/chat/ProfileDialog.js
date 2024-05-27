@@ -54,10 +54,11 @@ const ProfileDialog = ({ open, onClose }) => {
     <Dialog
       disableBackdropClick={true}
       open={open}
+      fullWidth
       maxWidth='sm'
       scroll={"body"}
       onClose={onClose}>
-      <DialogTitle sx={{ m: 0, px: 2 }} id="customized-dialog-title">
+      <DialogTitle sx={{ m: 0, px: 2, border: 'none' }} id="customized-dialog-title" >
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           Thông tin cá nhân
           <IconButton onClick={onClose}>
@@ -137,16 +138,13 @@ const ProfileDialog = ({ open, onClose }) => {
             </Box>
             <Box mt="50px" ml="20px">
               <Typography variant="h5" pb="0px">{user.fullName}</Typography>
-              <Typography color="#696969">{`@hyomin`}</Typography>
+              <Typography color="#696969">@{user.userName}</Typography>
             </Box>
           </div>
         </div>
 
         <Box px="20px" mt="20px" mb="20px">
-          <Typography gutterBottom>
-            Moment of Love 2022 🤎
-            여러모로 나에겐 선물 같았던 2022년. 고마웠어~ 안녕!
-          </Typography>
+          <Typography gutterBottom>{user.bio}</Typography>
         </Box>
         <Divider orientation="horizontal" />
         <Box px="20px" mt="20px" mb="20px">
@@ -163,7 +161,7 @@ const ProfileDialog = ({ open, onClose }) => {
               fontSize="14px"
               fontWeight="500"
               sx={{ width: '200px' }}>
-              @{`Hyomin`}
+              @{user.userName}
             </Typography>
           </Stack>
 
@@ -212,7 +210,7 @@ const ProfileDialog = ({ open, onClose }) => {
               fontSize="14px"
               fontWeight="500"
               sx={{ width: '200px' }}>
-              @{`Hyomin`}
+              @{user.userName}
             </Typography>
           </Stack>
         </Box>

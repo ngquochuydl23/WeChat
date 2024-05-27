@@ -3,11 +3,11 @@ const _ = require('lodash');
 
 
 async function findUsersByIds(ids) {
-  return await User.find({ _id: { $in: ids } });
+  return await User.find({ _id: { $in: ids } }).select('-hashPassword -isDeleted');
 }
 
-async function findById(id) {
-  return await User.findById(id);
+async function findUserById(id) {
+  return await User.findById(id).select('-hashPassword -isDeleted');
 }
 
 async function updateUser(id, mergeDoc) {
@@ -15,4 +15,4 @@ async function updateUser(id, mergeDoc) {
 }
 
 
-module.exports = { findUsersByIds, findById, updateUser }
+module.exports = { findUsersByIds, findUserById, updateUser }

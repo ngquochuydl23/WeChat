@@ -10,6 +10,7 @@ import ReactSearchBox from "react-search-box";
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import Scrollbars from "react-custom-scrollbars-2";
 import UserSkeleton from "@/components/UserSkeleton";
+import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 
 const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
 
@@ -50,6 +51,9 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
             {`Tin nhắn`}
           </Typography>
         </Box>
+        <IconButton size="medium" onClick={() => setOpenCreateGroupChat(true)}>
+          <PersonAddAltOutlinedIcon />
+        </IconButton>
         <IconButton size="medium" onClick={() => setOpenCreateGroupChat(true)}>
           <DriveFileRenameOutlineIcon />
         </IconButton>

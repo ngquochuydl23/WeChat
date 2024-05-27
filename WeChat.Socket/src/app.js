@@ -1,12 +1,10 @@
 const createError = require('http-errors');
-const express = require('express');
 const path = require('path');
 const cors = require('cors')
 const messageRoute = require('./routes/messageRoute');
 const roomRoute = require('./routes/roomRoute');
 const authRoute = require('./routes/authRoute');
 const userRoute = require('./routes/userRoute');
-const storageRoute = require('./routes/storageRoute');
 const deviceRoute = require('./routes/deviceRoute');
 const bodyParser = require('body-parser');
 const app = require('express')();
@@ -31,7 +29,6 @@ app.use('/api/messages', messageRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
 app.use('/api/room', roomRoute);
-app.use('/api/storage', storageRoute);
 app.use('/api/device', deviceRoute);
 app.use(logError)
 

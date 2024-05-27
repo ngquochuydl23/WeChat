@@ -35,12 +35,6 @@ const MainLayout = () => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("social-v2.wechat.accessToken")) {
-
-
-    } else {
-
-    }
     dispatch(setLoading());
     getMyProfile()
       .then(res => {

@@ -3,6 +3,16 @@ const schemeConstants = require('./schemeConstant');
 const { BaseSchema } = require('../share.model');
 
 module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstants.Collection, {
+  firstName: {
+    type: String,
+    text: true,
+    required: [true, 'firstName must not be null']
+  },
+  lastName: {
+    type: String,
+    text: true,
+    required: [true, 'lastName must not be null']
+  },
   fullName: {
     type: String,
     text: true,
@@ -31,7 +41,7 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
       },
       message: props => `${props.value} is not a valid phone number!`
     },
-    required: [true, 'Phone number must be not null'],
+    required: [true, 'phoneNumber must be not null'],
   },
   email: {
     type: String,
