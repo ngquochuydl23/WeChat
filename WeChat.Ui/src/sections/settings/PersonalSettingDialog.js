@@ -1,21 +1,14 @@
 import React, { Suspense, lazy, useState } from "react";
-import { makeStyles } from "@mui/styles";
 import {
-    Avatar,
     Box,
     Button,
     Dialog,
-    DialogActions,
     DialogContent,
-    DialogTitle,
-    Divider,
     IconButton,
     Stack,
     Typography,
 } from "@mui/material";
-import { readUrl } from "@/utils/readUrl";
 import { useSelector } from "react-redux";
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CloseIcon from '@mui/icons-material/Close';
 import _ from "lodash";
 import LockIcon from '@mui/icons-material/Lock';
@@ -25,6 +18,9 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import Person2Icon from '@mui/icons-material/Person2';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
+import TranslateIcon from '@mui/icons-material/Translate';
+import DevicesIcon from '@mui/icons-material/Devices';
+import Scrollbars from "react-custom-scrollbars-2";
 
 const settingSidebarItems = [
     {
@@ -47,6 +43,20 @@ const settingSidebarItems = [
         inactiveIcon: NotificationsNoneIcon,
         title: "Tùy chỉnh thông báo",
         tabComponent: lazy(() => import("./NotificationTabContent"))
+    },
+    {
+        id: 'language-setting',
+        activeIcon: TranslateIcon,
+        inactiveIcon: TranslateIcon,
+        title: "Cài đặt ngôn ngữ",
+        tabComponent: lazy(() => import("./LanguageSettingTabContent"))
+    },
+    {
+        id: 'device-management',
+        activeIcon: DevicesIcon,
+        inactiveIcon: DevicesIcon,
+        title: "Quản lí thiết bị",
+        tabComponent: lazy(() => import("./DeviceManagementTabContent"))
     }
 ]
 
@@ -59,7 +69,7 @@ const PersonalSettingDialog = ({ open, onClose }) => {
             disableBackdropClick={true}
             open={open}
             fullWidth
-            maxWidth='lg'
+            maxWidth='md'
             scroll={"body"}
             onClose={onClose}>
             <DialogContent
@@ -74,7 +84,8 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                             flexDirection: 'column',
                             backgroundColor: 'white',
                             boxShadow: " 0px 0px 2px rgba(0, 0, 0, 0.25)",
-                            height: '80vh'
+                            minHeight: '80vh',
+                            height: '100%'
                         }}>
                         <Typography
                             fontSize="20px"
@@ -139,17 +150,20 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                                 <CloseIcon />
                             </IconButton>
                         </Stack>
-                        <TabContext value={tabId}>
-                            {_.map(settingSidebarItems, (item) => {
-                                return (
-                                    <TabPanel value={item.id}>
-                                        <Suspense>
-                                            <item.tabComponent />
-                                        </Suspense>
-                                    </TabPanel>
-                                )
-                            })}
-                        </TabContext>
+                        <Scrollbars style={{ width: '100%', height: '100%' }}>
+                            <TabContext value={tabId}>
+                                {_.map(settingSidebarItems, (item) => {
+                                    return (
+                                        <TabPanel value={item.id}>
+                                            <Suspense>
+                                                <item.tabComponent />
+                                            </Suspense>
+                                        </TabPanel>
+                                    )
+                                })}
+                            </TabContext>
+                        </Scrollbars>
+
                     </Stack>
                 </Stack>
 
