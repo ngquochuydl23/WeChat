@@ -8,6 +8,9 @@ import platform from "platform";
 import IcFirefoxBrowser from "@/assets/icons/IcFirefoxBrower";
 import IcGoogleChormeBrowser from "@/assets/icons/IcGoogleChromeBrowser";
 import IcAndroid from "@/assets/icons/IcAndroid";
+import IcMsEdgeBrowser from "@/assets/icons/IcMsEdgeBrowser";
+import IcOperaBrowser from "@/assets/icons/IcOperaBrowser";
+import IcSafariBrowser from "@/assets/icons/IcSafariBrowser";
 
 const DeviceItem = ({
     isCurrentDevice,
@@ -33,6 +36,15 @@ const DeviceItem = ({
                 }
                 {(platform === 'browser' && deviceName.includes("Firefox")) &&
                     <IcFirefoxBrowser />
+                }
+                {(platform === 'browser' && deviceName.includes("Microsoft Edge")) &&
+                    <IcMsEdgeBrowser />
+                }
+                {(platform === 'browser' && deviceName.includes("Opera")) &&
+                    <IcOperaBrowser />
+                }
+                {(platform === 'browser' && deviceName.includes("Safari")) &&
+                    <IcSafariBrowser />
                 }
             </Icon>
         )
