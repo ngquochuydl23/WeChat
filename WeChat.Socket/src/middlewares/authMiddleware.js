@@ -5,8 +5,8 @@ const geoip = require('geoip-lite');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    var ipAddress = req.headers["x-real-ip"];
-    if (!req.headers["x-real-ip"]) {
+    var ipAddress = req.headers['x-forwarded-for'];
+    if (!req.headers['x-forwarded-for']) {
 
       if (process.env.NODE_ENV !== 'LOCAL') {
         return res
@@ -19,7 +19,7 @@ const authMiddleware = async (req, res, next) => {
 
       ipAddress = '171.226.34.164';
     } else {
-      ipAddress = req.headers["x-real-ip"];
+      ipAddress = req.headers['x-forwarded-for'];
     }
 
     const requestHeader = req.header('Authorization');
