@@ -4,7 +4,10 @@ import { Box, CircularProgress, Icon, Stack, Typography } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-
+import platform from "platform";
+import IcFirefoxBrowser from "@/assets/icons/IcFirefoxBrower";
+import IcGoogleChormeBrowser from "@/assets/icons/IcGoogleChromeBrowser";
+import IcAndroid from "@/assets/icons/IcAndroid";
 
 const DeviceItem = ({
     isCurrentDevice,
@@ -16,21 +19,39 @@ const DeviceItem = ({
     lastAccess,
     location
 }) => {
-    return (
-        <Stack direction="row" bgcolor="whitesmoke" px="15px" py="10px" borderRadius="10px">
-            <Icon>
-
+    const FilterPlatformView = () => {
+        return (
+            <Icon sx={{ height: '56px', width: '56px', backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '15px' }}>
+                {(platform === 'ios') &&
+                    <IcFirefoxBrowser />
+                }
+                {(platform === 'android') &&
+                    <IcAndroid />
+                }
+                {(platform === 'browser' && deviceName.includes("Chrome")) &&
+                    <IcGoogleChormeBrowser />
+                }
+                {(platform === 'browser' && deviceName.includes("Firefox")) &&
+                    <IcFirefoxBrowser />
+                }
             </Icon>
-            <Box>
-                <Typography fontWeight="600" fontSize="14px">
+        )
+    }
+    return (
+        <Stack direction="row" bgcolor="white" px="15px" py="10px" borderRadius="10px">
+            <FilterPlatformView />
+            <Box ml="15px">
+                <Typography fontWeight="600" fontSize="15px">
                     {deviceName}
                 </Typography>
-                <Typography mt="5px" fontWeight="500" fontSize="14px" color="black">
+                <Typography mt="5px" fontWeight="500" fontSize="13.5px" color="black">
                     {appName} - {appVersion}
                 </Typography>
-                <Typography fontWeight="400" fontSize="14px" color="gray">
-                    {location}
-                </Typography>
+                {location &&
+                    <Typography fontWeight="400" fontSize="13.5px" color="gray">
+                        {location.city}, {location.country}
+                    </Typography>
+                }
             </Box>
         </Stack>
     )
@@ -66,7 +87,8 @@ const DeviceManagementTabContent = () => {
     return (
         <>
             {loading
-                ? <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
+                ?
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
                     <CircularProgress />
                 </Box>
                 : <Box sx={{ width: '100%' }}>

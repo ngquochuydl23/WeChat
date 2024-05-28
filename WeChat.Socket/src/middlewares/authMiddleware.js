@@ -1,9 +1,27 @@
 const jwt = require("jsonwebtoken");
 const { findById, updateDevice } = require("../services/deviceService");
 const moment = require('moment');
+const geoip = require('geoip-lite');
 
 const authMiddleware = async (req, res, next) => {
   try {
+    var ipAddress = req.headers["x-real-ip"];
+    if (!req.headers["x-real-ip"]) {
+
+      if (process.env.NODE_ENV !== 'LOCAL') {
+        return res
+          .status(400)
+          .json({
+            statusCode: 400,
+            error: "x-real-ip header is required"
+          });
+      }
+
+      ipAddress = '171.226.34.164';
+    } else {
+      ipAddress = req.headers["x-real-ip"];
+    }
+
     const requestHeader = req.header('Authorization');
     if (!requestHeader) {
       return res
@@ -54,7 +72,11 @@ const authMiddleware = async (req, res, next) => {
         })
     }
 
-    await updateDevice(device._id, { lastAccess: moment() })
+    const location = geoip.lookup(ipAddress);
+    await updateDevice(device._id, {
+      lastAccess: moment(),
+      location
+    })
 
     req.loggingDeviceId = decodedToken.deviceId;
     req.loggingUserId = decodedToken.userId;
@@ -82,7 +104,7 @@ const socketAuthMiddleware = async function (socket, next) {
 
     next();
   } catch (error) {
-    console.log(error)
+    console.log(error);
 
   }
 }

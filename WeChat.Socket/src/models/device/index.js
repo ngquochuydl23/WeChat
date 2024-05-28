@@ -42,7 +42,7 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
     required: false,
   },
   location: {
-    type: String,
+    type: Object,
     required: false
   },
   isTerminated: {

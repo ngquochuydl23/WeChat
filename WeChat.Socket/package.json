@@ -18,6 +18,7 @@
     "env-cmd": "^10.1.0",
     "express": "~4.16.1",
     "express-validator": "^7.0.1",
+    "geoip-lite": "^1.4.10",
     "http": "^0.0.1-security",
     "http-errors": "~1.6.3",
     "joi": "^17.12.3",

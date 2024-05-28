@@ -131,7 +131,7 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                     </Box>
                     <Stack
                         ml="2px"
-                        bgcolor="#fff"
+                        bgcolor="#f5f5f5"
                         direction="column"
                         width="100%"
                         display="flex"
