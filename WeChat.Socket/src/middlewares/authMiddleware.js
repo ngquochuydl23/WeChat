@@ -75,7 +75,8 @@ const authMiddleware = async (req, res, next) => {
     const location = geoip.lookup(ipAddress);
     await updateDevice(device._id, {
       lastAccess: moment(),
-      location
+      location,
+      ipAddress
     })
 
     req.loggingDeviceId = decodedToken.deviceId;
