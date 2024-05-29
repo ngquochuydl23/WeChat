@@ -1,6 +1,6 @@
 const { SvgIcon } = require("@mui/material");
 
-const IcAndroid = () => (
+const IcIos = () => (
     <SvgIcon sx={{ height: '100%', width: '100%' }}>
         <svg xmlns="http://www.w3.org/2000/svg" aria-label="Android" role="img" viewBox="0 0 512 512">
             <rect width="512" height="512" rx="15%" fill="#ffffff" />
@@ -9,4 +9,4 @@ const IcAndroid = () => (
     </SvgIcon>
 )
 
-export default IcAndroid;
+export default IcIos;

@@ -11,6 +11,7 @@ import IcAndroid from "@/assets/icons/IcAndroid";
 import IcMsEdgeBrowser from "@/assets/icons/IcMsEdgeBrowser";
 import IcOperaBrowser from "@/assets/icons/IcOperaBrowser";
 import IcSafariBrowser from "@/assets/icons/IcSafariBrowser";
+import IcIos from "@/assets/icons/IcIos";
 
 const DeviceItem = ({
     isCurrentDevice,
@@ -26,7 +27,7 @@ const DeviceItem = ({
         return (
             <Icon sx={{ height: '56px', width: '56px', backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '15px' }}>
                 {(platform === 'ios') &&
-                    <IcFirefoxBrowser />
+                    <IcIos />
                 }
                 {(platform === 'android') &&
                     <IcAndroid />

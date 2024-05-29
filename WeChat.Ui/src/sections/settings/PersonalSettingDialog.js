@@ -4,6 +4,7 @@ import {
     Button,
     Dialog,
     DialogContent,
+    Icon,
     IconButton,
     Stack,
     Typography,
@@ -21,6 +22,7 @@ import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import TranslateIcon from '@mui/icons-material/Translate';
 import DevicesIcon from '@mui/icons-material/Devices';
 import Scrollbars from "react-custom-scrollbars-2";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const settingSidebarItems = [
     {
@@ -28,41 +30,54 @@ const settingSidebarItems = [
         activeIcon: Person2Icon,
         inactiveIcon: Person2OutlinedIcon,
         title: "Thông tin cá nhân",
-        tabComponent: lazy(() => import("./PersonalInfoTabContent"))
+        tabComponent: lazy(() => import("./PersonalInfoTabContent")),
+        parentId: null,
     },
     {
         id: 'privacy-and-security',
         activeIcon: LockIcon,
         inactiveIcon: LockOutlinedIcon,
         title: "Cài đặt quyền riêng tư",
-        tabComponent: lazy(() => import("./PrivacyAndSecurityTabContent"))
+        tabComponent: lazy(() => import("./PrivacyAndSecurityTabContent")),
+        parentId: null,
     },
     {
         id: 'notifications',
         activeIcon: NotificationsIcon,
         inactiveIcon: NotificationsNoneIcon,
         title: "Tùy chỉnh thông báo",
-        tabComponent: lazy(() => import("./NotificationTabContent"))
+        tabComponent: lazy(() => import("./NotificationTabContent")),
+        parentId: null,
     },
     {
         id: 'language-setting',
         activeIcon: TranslateIcon,
         inactiveIcon: TranslateIcon,
         title: "Cài đặt ngôn ngữ",
-        tabComponent: lazy(() => import("./LanguageSettingTabContent"))
+        tabComponent: lazy(() => import("./LanguageSettingTabContent")),
+        parentId: null,
     },
     {
         id: 'device-management',
         activeIcon: DevicesIcon,
         inactiveIcon: DevicesIcon,
         title: "Quản lí thiết bị",
-        tabComponent: lazy(() => import("./DeviceManagementTabContent"))
+        tabComponent: lazy(() => import("./DeviceManagementTabContent")),
+        parentId: null,
+    },
+    {
+        id: 'block-users',
+        title: "Danh sách chặn",
+        tabComponent: lazy(() => import("./BlockUserTabContent")),
+        parentId: 'privacy-and-security',
     }
 ]
 
 const PersonalSettingDialog = ({ open, onClose }) => {
     const { user } = useSelector((state) => state.user);
     const [tabId, setTabId] = useState(settingSidebarItems[0].id);
+
+    const getTabById = () => _.find(settingSidebarItems, x => x.id === tabId);
 
     return (
         <Dialog
@@ -97,7 +112,12 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                         </Typography>
                         <Stack direction="column" spacing="10px">
                             {_.map(settingSidebarItems, (item) => {
-                                const active = item.id === tabId;
+
+                                const active = (item.id === tabId) || (item.id === getTabById(tabId).parentId);
+                                if (item.parentId) {
+                                    return null;
+                                }
+
                                 return (
                                     <Button
                                         size="small"
@@ -141,9 +161,18 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                             direction="row"
                             alignItems="center"
                             justifyContent="space-between">
-                            <Typography mt="20px" ml="20px" fontWeight="900" fontSize="20px">
-                                {_.find(settingSidebarItems, x => x.id === tabId).title}
-                            </Typography>
+                            <Stack direction="row" mt="20px" ml="20px" alignItems="center">
+                                {getTabById().parentId &&
+                                    <IconButton
+                                        sx={{ height: '40px', width: '40px', marginRight: '15px' }}
+                                        onClick={() => setTabId(getTabById().parentId)}>
+                                        <ArrowBackIcon />
+                                    </IconButton>
+                                }
+                                <Typography fontWeight="900" fontSize="20px">
+                                    {getTabById().title}
+                                </Typography>
+                            </Stack>
                             <IconButton
                                 sx={{ margin: '10px' }}
                                 onClick={onClose}>
@@ -156,18 +185,15 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                                     return (
                                         <TabPanel value={item.id}>
                                             <Suspense>
-                                                <item.tabComponent />
+                                                <item.tabComponent onNavigate={setTabId} />
                                             </Suspense>
                                         </TabPanel>
                                     )
                                 })}
                             </TabContext>
                         </Scrollbars>
-
                     </Stack>
                 </Stack>
-
-
             </DialogContent>
         </Dialog >
     );
