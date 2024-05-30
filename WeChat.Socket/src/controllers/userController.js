@@ -3,12 +3,12 @@ const bcrypt = require('bcrypt');
 const editProfileSchemaValidator = require('../validator/editProfileSchemaValidator');
 const changePasswordShemaValidator = require('../validator/changePasswordShemaValidator');
 const { AppException } = require('../exceptions/AppException');
-const { updateUser, findById, findUserById } = require("../services/userService");
+const { updateUser, findUserById } = require("../services/userService");
 
 
 exports.getMyProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.loggingUserId, { hashPassword: 0 });
+    const user = await findUserById(req.loggingUserId);
     if (!user) {
       throw new AppException("User not found.");
     }
@@ -111,7 +111,7 @@ exports.changePassword = async (req, res, next) => {
       throw new AppException(error.details[0].message);
     }
 
-    const user = await User.findById(req.loggingUserId);
+    const user = await findUserById(req.loggingUserId);
     if (!user) {
       throw new AppException("User not found.");
     }
@@ -143,7 +143,7 @@ exports.changeAvatar = async (req, res, next) => {
 
     await updateUser(req.loggingUserId, { avatar: avatar });
 
-    const user = await findById(req.loggingUserId)
+    const user = await findUserById(req.loggingUserId)
     return res
       .status(200)
       .json({

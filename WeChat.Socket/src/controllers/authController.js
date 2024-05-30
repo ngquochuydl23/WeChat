@@ -6,24 +6,26 @@ const resetPasswordShemaValidator = require('../validator/resetPasswordShemaVali
 const loginSchemaValidator = require('../validator/loginSchemaValidator');
 const { sendOtpViaEmail, verifyOtp } = require('../services/otpService');
 const { AppException, ValidationMongoException } = require('../exceptions/AppException');
-const device = require('../models/device');
 const { addDevice, terminateDevice } = require('../services/deviceService');
+const { findOneUser } = require('../services/userService');
 
 exports.signup = async (req, res, next) => {
     try {
-        const { phoneNumber, email, password } = req.body;
+        const {
+            phoneNumber,
+            email,
+            password
+        } = req.body;
+
         const { error } = signUpSchemaValidator.schema.validate(req.body);
         if (error) {
             throw new AppException(error.details[0].message);
         }
 
-        var user = await User
-            .findOne({ $or: [{ phoneNumber: phoneNumber }, { email: email }] })
-            .select('-hashPassword')
-            .exec();
+        var user = await findOneUser({ $or: [{ phoneNumber: phoneNumber }, { email: email }] });
 
         if (user) {
-            throw new AppException('This account is exist.');
+            throw new AppException('This account is already exist.');
         }
 
         const saltRounds = 10;
@@ -31,6 +33,7 @@ exports.signup = async (req, res, next) => {
 
         user = new User({
             ...req.body,
+            fullName: req.body.lastName + ' ' + req.body.firstName,
             hashPassword: hashPassword,
             actived: false
         });
@@ -72,15 +75,12 @@ exports.login = async (req, res, next) => {
     } = req.body;
 
     try {
-        console.log(req.body);
         const { error } = loginSchemaValidator.schema.validate(req.body);
         if (error) {
             throw new AppException(error.details[0].message);
         }
 
-        var user = await User
-            .findOne({ phoneNumber: phoneNumber })
-            .exec();
+        var user = await User.findOne({ phoneNumber: phoneNumber });
         if (!user) {
             throw new AppException("User not found.");
         }
@@ -129,7 +129,6 @@ exports.logout = async (req, res, next) => {
 
     try {
         await terminateDevice(loggingDeviceId);
-
         return res
             .status(200)
             .json({

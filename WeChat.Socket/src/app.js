@@ -6,6 +6,7 @@ const roomRoute = require('./routes/roomRoute');
 const authRoute = require('./routes/authRoute');
 const userRoute = require('./routes/userRoute');
 const deviceRoute = require('./routes/deviceRoute');
+const friendRoute = require('./routes/friendRoute');
 const bodyParser = require('body-parser');
 const app = require('express')();
 const { logRequest, logError } = require('./middlewares/loggingMiddleware')
@@ -31,6 +32,8 @@ app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
 app.use('/api/room', roomRoute);
 app.use('/api/device', deviceRoute);
+app.use('/api/friend', friendRoute);
+
 app.use(logError)
 
 app.use(function (req, res, next) {

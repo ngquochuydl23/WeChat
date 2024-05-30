@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+function whereNotDeleted() {
+  this.where({ isDeleted: false });
+}
+
 const BaseSchema = (name, inheritSchema) => {
   return new mongoose.Schema(
     {
@@ -16,4 +20,4 @@ const BaseSchema = (name, inheritSchema) => {
   );
 }
 
-module.exports = { BaseSchema }
+module.exports = { BaseSchema, whereNotDeleted }

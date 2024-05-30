@@ -1,12 +1,19 @@
 const Joi = require('joi');
 
 const schema = Joi.object({
-  fullName: Joi
+  firstName: Joi
     .string()
     .required()
     .messages({
-      'string.empty': `"fullName" cannot be an empty field`,
-      'string.required': `"fullName" is a required field`
+      'string.empty': `"firstName" cannot be an empty field`,
+      'string.required': `"firstName" is a required field`
+    }),
+  lastName: Joi
+    .string()
+    .required()
+    .messages({
+      'string.empty': `"lastName" cannot be an empty field`,
+      'string.required': `"lastName" is a required field`
     }),
   phoneNumber: Joi
     .string()
