@@ -17,4 +17,8 @@ async function updateUser(id, mergeDoc) {
 async function findOneUser(condition) {
   return await User.findOne({ ...condition }).select('-hashPassword -isDeleted');
 }
-module.exports = { findUsersByIds, findUserById, updateUser, findOneUser }
+
+async function findOneUserByPhone(phoneNumber) {
+  return findOneUser({ phoneNumber })
+}
+module.exports = { findUsersByIds, findUserById, updateUser, findOneUser, findOneUserByPhone }

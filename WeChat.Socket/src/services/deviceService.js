@@ -11,17 +11,23 @@ async function addDevice(device) {
 }
 
 async function updateDevice(id, mergeDoc) {
-    await Device.updateOne({ _id: id }, { $set: { ...mergeDoc } });
+    await Device.updateOne({ _id: id, isTerminated: false }, { $set: { ...mergeDoc } });
 }
 
 async function getOneAsQueryable(where) {
-    return Device.findOne({ ...where });
+    return Device.findOne({ ...where, isTerminated: false });
 }
 
-async function getManyAsQueryable(where, sort) {
+async function getManyAsQueryable(where, skip, limit) {
     return Device
-        .find({ ...where })
-        .sort({ ...sort });
+        .find({ ...where, isTerminated: false })
+        .sort({ lastAccess: -1, createdAt: -1 },)
+        .skip(skip)
+        .limit(limit);
+}
+
+async function getCount(where) {
+    return await Device.find({ ...where, isTerminated: false }).count();
 }
 
 async function terminateDevice(id) {
@@ -34,5 +40,6 @@ module.exports = {
     updateDevice,
     getManyAsQueryable,
     getOneAsQueryable,
-    terminateDevice
+    terminateDevice,
+    getCount
 }

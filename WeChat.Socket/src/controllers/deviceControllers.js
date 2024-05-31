@@ -1,27 +1,27 @@
 const { logger } = require("../logger");
-const { getOneAsQueryable, getManyAsQueryable, terminateDevice } = require("../services/deviceService");
+const { getOneAsQueryable, getManyAsQueryable, terminateDevice, getCount } = require("../services/deviceService");
 const { AppException } = require("../exceptions/AppException");
+const { getPaginateQuery, paginate } = require("../utils/paginate");
 
 exports.findDevices = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
-    var devices = await getManyAsQueryable(
-        {
-            userId: loggingUserId,
-            isTerminated: false
-        },
-        {
-            lastAccess: -1,
-            createdAt: -1
-        });
+    const { skip, limit } = getPaginateQuery(req);
 
-    return res
-        .status(200)
-        .json({
-            statusCode: 200,
-            result: {
-                devices
-            }
-        });
+    try {
+        const total = await getCount();
+        const devices = await getManyAsQueryable({ userId: loggingUserId }, skip, limit);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    ...paginate({ devices }, total, limit, skip)
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
 }
 
 exports.terminateDeviceById = async (req, res, next) => {

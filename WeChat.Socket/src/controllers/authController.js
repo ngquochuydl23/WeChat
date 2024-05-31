@@ -8,6 +8,7 @@ const { sendOtpViaEmail, verifyOtp } = require('../services/otpService');
 const { AppException, ValidationMongoException } = require('../exceptions/AppException');
 const { addDevice, terminateDevice } = require('../services/deviceService');
 const { findOneUser } = require('../services/userService');
+const { generateFromEmail } = require("unique-username-generator");
 
 exports.signup = async (req, res, next) => {
     try {
@@ -35,6 +36,7 @@ exports.signup = async (req, res, next) => {
             ...req.body,
             fullName: req.body.lastName + ' ' + req.body.firstName,
             hashPassword: hashPassword,
+            userName: generateFromEmail(req.body.email),
             actived: false
         });
 

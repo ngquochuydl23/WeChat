@@ -1,36 +1,9 @@
 const { default: mongoose } = require("mongoose");
 const Friend = require("../models/friend");
 
-async function getFriends(loggingUserId, matchObj = null, offset, limit) {
-    return await Friend
-        .aggregate([
-            {
-                $match: {
-                    friends: { $in: [new mongoose.Types.ObjectId(loggingUserId)] }, 
-                    isDeleted: false,
-                    accepted: true
-                }
-            },
-            { $unwind: '$friends' },
-            { $match: { friends: { $ne: new mongoose.Types.ObjectId(loggingUserId) } } },
-            { $skip: offset },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: "Users",
-                    localField: "friends",
-                    foreignField: "_id",
-                    as: "user"
-                }
-            },
-            { $project: { 'user.hashPassword': 0, 'user.actived': 0 } },
-            { "$match": { ...matchObj } }
-        ]);
-}
-
-async function addFriend(loggingUserId, destinationUserId) {
+async function addFriend(loggingUserId, toUserId) {
     const friend = new Friend({
-        friends: [loggingUserId, destinationUserId],
+        friends: [loggingUserId, toUserId],
         sendingRequestUserId: loggingUserId,
         accepted: false
     });
@@ -50,25 +23,67 @@ async function checkIsFriend(loggingUserId, destinationUserId) {
     });
 }
 
-async function removeFriend(loggingUserId, destinationUserId) {
-    await Friend.updateOne({
-        '$expr': {
-            '$setEquals': ['$friends', [
-                new mongoose.Types.ObjectId(loggingUserId),
-                new mongoose.Types.ObjectId(destinationUserId)
-            ]]
-        }
-    }, { $set: { isDeleted: true } })
-}
-
-async function friendCount(loggingUserId) {
+async function getCount(loggingUserId, condition) {
     return await Friend
-        .find({
-            friends: { $in: [loggingUserId] },
-            accepted: true
-        })
+        .find({ friends: { $in: [loggingUserId] }, isDeleted: false, ...condition })
         .count();
 }
+
+async function updateOne(id, mergeDoc) {
+    await Friend.updateOne({ _id: id }, { $set: { ...mergeDoc } });
+}
+
+async function findByFriendId(friendId) {
+    return await Friend.findById(friendId);
+}
+
+async function findManyAsQueryable(loggingUserId, friendConditionObj, userConditionObj, skip, limit) {
+    return await Friend
+        .aggregate([
+            {
+                $match: {
+                    friends: { $in: [new mongoose.Types.ObjectId(loggingUserId)] },
+                    isDeleted: false,
+                    ...friendConditionObj
+                }
+            },
+            { $unwind: '$friends' },
+            { $match: { friends: { $ne: new mongoose.Types.ObjectId(loggingUserId) } } },
+            { $skip: skip },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "friends",
+                    foreignField: "_id",
+                    pipeline: [{
+                        $project: {
+                            'hashPassword': 0,
+                            'actived': 0,
+                            'isDeleted': 0
+                        }
+                    }],
+                    as: "users"
+                }
+            },
+            {
+                $project: {
+                    accepted: 1,
+                    redeemed: 1,
+                    redeemedAt: 1,
+                    sendingRequestUserId: 1,
+                    user: { $first: "$users" }
+                }
+            },
+            { "$match": { ...userConditionObj } }
+        ]);
+}
+
 module.exports = {
-    addFriend, getFriends, checkIsFriend, removeFriend, friendCount
+    addFriend,
+    checkIsFriend,
+    getCount,
+    updateOne,
+    findByFriendId,
+    findManyAsQueryable
 }

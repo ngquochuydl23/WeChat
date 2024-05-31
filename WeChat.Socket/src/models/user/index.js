@@ -42,6 +42,7 @@ const schema = BaseSchema(schemeConstants.Collection, {
             message: props => `${props.value} is not a valid phone number!`
         },
         required: [true, 'phoneNumber must be not null'],
+        index: { unique: true, dropDups: true }
     },
     email: {
         type: String,
@@ -52,6 +53,7 @@ const schema = BaseSchema(schemeConstants.Collection, {
             },
             message: props => `${props.value} is not a valid email!`
         },
+        index: { unique: true, dropDups: true }
     },
     hashPassword: {
         type: String,
@@ -61,15 +63,11 @@ const schema = BaseSchema(schemeConstants.Collection, {
     actived: {
         type: Boolean,
         default: false
+    },
+    userName: {
+        type: String,
+        required: [true, 'userName must not be null']
     }
-})
-
-schema.index({
-    firstName: 'text',
-    lastName: 'text',
-    fullName: 'text',
-    phoneNumber: 'text',
-    email: 'text'
 })
 
 module.exports = mongoose.model(schemeConstants.Model, schema); 

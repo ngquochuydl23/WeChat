@@ -3,22 +3,11 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
-
-
-router.get("/", authMiddleware, userController.getUsers)
-
-router.get("/me", authMiddleware, userController.getMyProfile);
-router.put("/me", authMiddleware, userController.editProfile);
-router.post("/me/change-password", authMiddleware, userController.changePassword);
-router.patch("/me/change-avatar", authMiddleware, userController.changeAvatar);
-
-
-router.get("/:userId", authMiddleware, userController.getUser)
-
-
-
-
-
+router.get("/find-by-phone", authMiddleware, userController.findByPhoneNumber)
 
 module.exports = router;
+
+
+
+
 
