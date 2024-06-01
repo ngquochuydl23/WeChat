@@ -10,6 +10,7 @@ router.get("/received-requests", authMiddleware, friendController.getReceivedReq
 router.get("/check-friend", authMiddleware, friendController.checkFriend);
 
 
+router.post("/:friendId/redeem", authMiddleware, friendController.redeemRequest);
 router.post("/:friendId/accept", authMiddleware, friendController.acceptRequest)
 router.delete("/:friendId", authMiddleware, friendController.unfriend);
 

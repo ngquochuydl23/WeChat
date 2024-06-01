@@ -1,7 +1,8 @@
 const { AppException } = require("../exceptions/AppException");
-const { addFriend, checkIsFriend, getCount, findManyAsQueryable, findByFriendId, updateOne } = require("../services/friendService");
+const { addFriend, findFriendByUserId, getCount, findManyAsQueryable, findByFriendId, updateOne } = require("../services/friendService");
 const { findUserById } = require("../services/userService");
 const { paginate, getPaginateQuery } = require("../utils/paginate");
+const moment = require('moment');
 
 exports.sendRequest = async (req, res, next) => {
     try {
@@ -10,11 +11,38 @@ exports.sendRequest = async (req, res, next) => {
             throw new AppException("Destination user does not exist.");
         }
 
-        if (await checkIsFriend(req.loggingUserId, req.body.toUserId)) {
+        if (await findFriendByUserId(req.loggingUserId, req.body.toUserId)) {
             throw new AppException("This relationship is established.");
         }
 
-        await addFriend(req.loggingUserId, req.body.toUserId);
+        const friend = await addFriend(req.loggingUserId, req.body.toUserId);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                msg: 'Send request successfully.',
+                result: { friend }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.redeemRequest = async (req, res, next) => {
+    try {
+        const friend = await findByFriendId(req.params.friendId);
+
+        if (!friend) {
+            throw new AppException("This relationship is not established.");
+        }
+
+        await updateOne(req.params.friendId, {
+            redeemed: true,
+            redeemedAt: moment(),
+            isDeleted: true
+        });
+
         return res
             .status(200)
             .json({
@@ -63,7 +91,7 @@ exports.checkFriend = async (req, res, next) => {
         if (!req.query.toUserId) {
             throw new AppException("`toUserId` query does not provided.")
         }
-        const friend = await checkIsFriend(req.loggingUserId, req.query.toUserId);
+        const friend = await findFriendByUserId(req.loggingUserId, req.query.toUserId);
 
         if (!friend) {
             throw new AppException("This relationship is not established.")
@@ -150,7 +178,7 @@ exports.acceptRequest = async (req, res, next) => {
 
 exports.unfriend = async (req, res, next) => {
     try {
-        await updateOne(req.params.friendId, { isDeleled: true });
+        await updateOne(req.params.friendId, { isDeleted: true });
         return res
             .status(200)
             .json({

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-    Autocomplete,
     Avatar,
     Box,
     Button,
@@ -10,21 +9,34 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Popover,
     Stack,
     Typography,
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { findUserByPhone } from "@/services/userApiService";
 import PhoneInput from 'react-phone-input-2';
+import { acceptRequest, checkIsFriend, redeemRequest, sendRequest } from "@/services/friendApiService";
+import { useSelector } from "react-redux";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { readUrl } from "@/utils/readUrl";
 import 'react-phone-input-2/lib/material.css';
 import './override.scss'
-import { readUrl } from "@/utils/readUrl";
-import { checkIsFriend } from "@/services/friendApiService";
-import { useSelector } from "react-redux";
 
 
 const FindUserDialog = ({ open, onClose }) => {
+
+    const [anchorEl, setAnchorEl] = useState(null);
+    const openPopover = Boolean(anchorEl);
+    const id = openPopover ? 'simple-popover' : undefined;
+
     const { user } = useSelector((state) => state.user);
+    const [actionLoading, setActionLoading] = useState(false);
 
     const [loading, setLoading] = useState(false);
     const [foundUser, setFoundUser] = useState(null);
@@ -33,22 +45,45 @@ const FindUserDialog = ({ open, onClose }) => {
 
     const [friend, setFriend] = useState(null);
 
-    const redeemRequest = () => {
-
+    const redeem = () => {
+        setActionLoading(true);
+        redeemRequest(friend._id)
+            .then(({ msg }) => {
+                console.log(msg);
+                setFriend(null);
+            })
+            .catch((err) => { console.log(err) })
+            .finally(() => setActionLoading(false))
     }
 
     const addFriend = () => {
-
+        setActionLoading(true);
+        sendRequest(foundUser._id)
+            .then(({ result, msg }) => {
+                console.log(msg);
+                setFriend(result.friend);
+            })
+            .catch((err) => console.log(err))
+            .finally(() => {
+                setActionLoading(false);
+            })
     }
 
-    const acceptRequest = () => {
-
+    const accept = () => {
+        setActionLoading(true);
+        acceptRequest(friend._id)
+            .then(({ msg }) => {
+                console.log(msg);
+                setFriend({ accepted: true })
+            })
+            .catch((err) => console.log(err))
+            .finally(() => setActionLoading(false))
     }
 
     const checkFriend = (userId) => {
         checkIsFriend(userId)
             .then(({ result }) => {
-                console.log(result.friend);
+                console.log(result);
                 setFriend(result.friend);
             })
             .catch((err) => {
@@ -60,9 +95,12 @@ const FindUserDialog = ({ open, onClose }) => {
     const find = () => {
         setLoading(true);
         findUserByPhone(phoneNumber.replace(/\D/g, '').slice(-10))
-            .then(async ({ result }) => {
-                checkFriend(result.user._id);
+            .then(({ result }) => {
                 setFoundUser(result.user);
+
+                if (result.user._id !== user._id) {
+                    checkFriend(result.user._id);
+                } else setFriend(false)
             })
             .catch((err) => {
                 console.log(err);
@@ -75,6 +113,7 @@ const FindUserDialog = ({ open, onClose }) => {
 
     useEffect(() => {
         // setLoading(false);
+        // setActionLoading(false);
         // setFoundUser(null);
         // setPhoneNumber('');
         // setShowNotFoundView(false);
@@ -104,7 +143,7 @@ const FindUserDialog = ({ open, onClose }) => {
                             disabled={loading}
                             specialLabel="Số điện thoại"
                             enableSearch
-                            enableAreaCodes
+                            autoFormat
                             placeholder="Nhập số điện thoại"
                             containerStyle={{
                                 marginTop: '10px',
@@ -116,6 +155,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                 required: true,
                                 autoFocus: true,
                             }}
+
                             dropdownStyle={{ width: '300px', borderRadius: '8px', height: '400px', overflowX: 'none' }}
                             searchStyle={{ borderRadius: '20px', height: '35px', width: '100%', paddingLeft: '20px' }}
                             country={'vn'}
@@ -147,8 +187,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                 }}>
                                 <Avatar
                                     sx={{ height: '50px', width: '50px' }}
-                                    //src={readUrl(foundUser.avatar)} 
-                                    src="https://scontent.cdninstagram.com/v/t39.30808-6/443698361_18448590670011882_7684863512991462085_n.jpg?stp=dst-jpg_e35_p720x720&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE3OTkuc2RyLmYzMDgwOCJ9&_nc_ht=scontent.cdninstagram.com&_nc_cat=106&_nc_ohc=kWvlqGv1pY0Q7kNvgGzCzua&edm=APs17CUAAAAA&ccb=7-5&ig_cache_key=MzM3MzM4MDY3OTE3MTk1MDE3Ng%3D%3D.2-ccb7-5&oh=00_AYCjoUwbJZJuw3HPgpcDdEWDn14hOpCguABy_Z0pPKEgNQ&oe=66606B5F&_nc_sid=10d13b" />
+                                    src={readUrl(foundUser.avatar)} />
                                 <Stack direction="column" display="flex" flex="1">
                                     <Typography
                                         variant="subtitle1"
@@ -165,32 +204,102 @@ const FindUserDialog = ({ open, onClose }) => {
                                         @{foundUser.userName}
                                     </Typography>
                                 </Stack>
-                                {!friend &&
-                                    <Button
-                                        variant="contained"
-                                        sx={{ paddingX: '25px' }}
-                                        size="small"
-                                        onClick={addFriend}>
-                                        {`Kết bạn`}
-                                    </Button>
-                                }
-                                {(friend && !friend.accepted && friend.sendingRequestUserId === user._id) &&
+                                {(!friend && foundUser._id === user._id) &&
                                     <Button
                                         variant="outlined"
                                         sx={{ paddingX: '25px' }}
                                         size="small"
-                                        onClick={redeemRequest}>
-                                        {`Thu hồi`}
+                                    //onClick={accept}
+                                    >
+                                        {`Xem`}
                                     </Button>
                                 }
-                                {(friend && !friend.accepted && friend.sendingRequestUserId !== user._id) &&
-                                    <Button
+                                {(!friend && foundUser._id !== user._id) &&
+                                    <LoadingButton
                                         variant="contained"
                                         sx={{ paddingX: '25px' }}
                                         size="small"
-                                        onClick={acceptRequest}>
+                                        loading={actionLoading}
+                                        onClick={addFriend}>
+                                        {`Kết bạn`}
+                                    </LoadingButton>
+                                }
+                                {(friend && !friend.accepted && friend.sendingRequestUserId === user._id) &&
+                                    <LoadingButton
+                                        variant="outlined"
+                                        sx={{ paddingX: '25px' }}
+                                        size="small"
+                                        loading={actionLoading}
+                                        onClick={redeem}>
+                                        {`Thu hồi`}
+                                    </LoadingButton>
+                                }
+                                {(friend && !friend.accepted && friend.sendingRequestUserId !== user._id) &&
+                                    <LoadingButton
+                                        variant="contained"
+                                        sx={{ paddingX: '25px' }}
+                                        size="small"
+                                        loading={actionLoading}
+                                        onClick={accept}>
                                         {`Đồng ý`}
-                                    </Button>
+                                    </LoadingButton>
+                                }
+                                {(friend && friend.accepted) &&
+                                    <Stack direction="row" alignItems="center">
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ paddingX: '25px', height: '30px' }}
+                                            size="small"
+                                        // onClick={accept}
+                                        >
+                                            {`Nhắn tin`}
+                                        </Button>
+                                        <IconButton
+                                            size="small"
+                                            onClick={(e) => setAnchorEl(e.currentTarget)}>
+                                            <MoreVertIcon />
+                                        </IconButton>
+                                        <Popover
+                                            sx={{
+                                                mt: '10px',
+                                                '.MuiPopover-paper': {
+                                                    borderRadius: '10px',
+                                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)'
+                                                }
+                                            }}
+                                            id={id}
+                                            open={openPopover}
+                                            anchorEl={anchorEl}
+                                            onClose={() => setAnchorEl(null)}
+                                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
+                                            <List sx={{ width: '200px' }}>
+                                                <ListItemButton>
+                                                    {/* <ListItemIcon>
+                                                        <Person2OutlinedIcon />
+                                                    </ListItemIcon> */}
+                                                    <ListItemText
+                                                        primary="Chặn người dùng"
+                                                        primaryTypographyProps={{
+                                                            fontSize: '14px',
+                                                            fontWeight: '500'
+                                                        }} />
+                                                </ListItemButton>
+                                                <ListItemButton>
+                                                    {/* <ListItemIcon>
+                                                        <SettingsOutlinedIcon />
+                                                    </ListItemIcon> */}
+                                                    <ListItemText
+                                                        primary="Xóa bạn"
+                                                        primaryTypographyProps={{
+                                                            fontSize: '14px',
+                                                            fontWeight: '500',
+                                                            color: 'red'
+                                                        }} />
+                                                </ListItemButton>
+                                            </List>
+                                        </Popover>
+                                    </Stack>
                                 }
                             </Stack>
                         }

@@ -26,6 +26,14 @@ const schema = BaseSchema(schemeConstants.Collection, {
     redeemedAt: {
         type: Date,
         default: null
+    },
+    blocked: {
+        type: Boolean,
+        default: false
+    },
+    blockedAt: {
+        type: Date,
+        default: null
     }
 })
 

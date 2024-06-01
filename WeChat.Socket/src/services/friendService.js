@@ -12,7 +12,7 @@ async function addFriend(loggingUserId, toUserId) {
     return friend;
 }
 
-async function checkIsFriend(loggingUserId, destinationUserId) {
+async function findFriendByUserId(loggingUserId, destinationUserId) {
     return await Friend.findOne({
         '$expr': {
             '$setEquals': ['$friends', [
@@ -25,7 +25,11 @@ async function checkIsFriend(loggingUserId, destinationUserId) {
 
 async function getCount(loggingUserId, condition) {
     return await Friend
-        .find({ friends: { $in: [loggingUserId] }, isDeleted: false, ...condition })
+        .find({
+            friends: { $in: [loggingUserId] },
+            isDeleted: false,
+            ...condition
+        })
         .count();
 }
 
@@ -34,7 +38,7 @@ async function updateOne(id, mergeDoc) {
 }
 
 async function findByFriendId(friendId) {
-    return await Friend.findById(friendId);
+    return await Friend.findOne({ _id: new mongoose.Types.ObjectId(friendId) });
 }
 
 async function findManyAsQueryable(loggingUserId, friendConditionObj, userConditionObj, skip, limit) {
@@ -81,7 +85,7 @@ async function findManyAsQueryable(loggingUserId, friendConditionObj, userCondit
 
 module.exports = {
     addFriend,
-    checkIsFriend,
+    findFriendByUserId,
     getCount,
     updateOne,
     findByFriendId,
