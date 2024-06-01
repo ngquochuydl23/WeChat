@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import { makeStyles } from "@mui/styles";
+import React, { useState } from "react";
 import {
   Avatar,
   Box,
@@ -19,7 +18,7 @@ import { useSelector } from "react-redux";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CloseIcon from '@mui/icons-material/Close';
 import { uploadFile } from "@/services/storageApi";
-import { changeAvatar } from "@/services/userApiService";
+import { changeAvatar } from "@/services/profileApiService";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slices/userSlice";
 
@@ -58,7 +57,7 @@ const ProfileDialog = ({ open, onClose }) => {
       maxWidth='sm'
       scroll={"body"}
       onClose={onClose}>
-      <DialogTitle sx={{ m: 0, px: 2, border: 'none' }} id="customized-dialog-title" >
+      <DialogTitle sx={{ m: 0, px: 2, py: '7.5px', borderBottom: 'none' }}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           Thông tin cá nhân
           <IconButton onClick={onClose}>
@@ -66,9 +65,7 @@ const ProfileDialog = ({ open, onClose }) => {
           </IconButton>
         </Stack>
       </DialogTitle>
-      <DialogContent
-        sx={{ padding: 0 }}
-        dividers>
+      <DialogContent sx={{ padding: 0 }}>
         <div
           style={{
             position: 'relative',

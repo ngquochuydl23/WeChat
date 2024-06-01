@@ -1,0 +1,56 @@
+@import 'react-phone-input-2/lib/material.css';
+
+
+.react-tel-input {
+    margin-top: 10px !important;
+
+    .special-label {
+        background-color: white;
+    }
+    .form-control {
+        border-radius: 10px;
+        height: 55px !important;
+        width: 100% !important;
+        //background-color: red;
+
+        &:focus {
+            //border: 1px solid #07C160;
+            border-color: #07C160 !important;
+            box-shadow: none;
+        }
+    }
+
+}
+
+.flag-dropdown {
+    
+
+    .country-list {
+        // background-color: red;
+        overflow-x: hidden;
+        padding-right: 10px;
+        .county {
+            margin: 0;
+        }
+
+        &::-webkit-scrollbar {
+            z-index: 1000;
+            width: 8px;
+            border-radius: 200px;
+            margin-top: 5px;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            background-color: #fff;
+            border: none;
+        }
+
+        &::-webkit-scrollbar-track {
+            border-radius: 200px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: #d3d3d3;
+            border-radius: 200px;
+        }
+    }
+}

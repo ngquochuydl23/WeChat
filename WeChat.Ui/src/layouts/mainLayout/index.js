@@ -9,7 +9,7 @@ import ProfileDialog from "@/sections/chat/ProfileDialog";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonalSettingDialog from "@/sections/settings/PersonalSettingDialog";
 import { setLoading, setUser, stopLoading } from "@/redux/slices/userSlice";
-import { getMyProfile } from "@/services/userApiService";
+import { getMyProfile } from "@/services/profileApiService";
 import { useSnackbar } from "notistack";
 
 
@@ -49,7 +49,8 @@ const MainLayout = () => {
           anchorOrigin: {
             vertical: 'bottom',
             horizontal: 'right'
-          }
+          },
+          preventDuplicate: true
         });
       })
       .finally(() => dispatch(stopLoading()))
@@ -150,6 +151,7 @@ const MainLayout = () => {
       <PersonalSettingDialog
         open={openSettingDialog}
         onClose={() => setOpenSettingDialog(false)} />
+
     </Stack >
   );
 };

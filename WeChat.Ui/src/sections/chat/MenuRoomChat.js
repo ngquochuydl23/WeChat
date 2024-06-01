@@ -11,6 +11,7 @@ import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import Scrollbars from "react-custom-scrollbars-2";
 import UserSkeleton from "@/components/UserSkeleton";
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
+import FindUserDialog from "./FindUserDialog";
 
 const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
 
@@ -24,7 +25,7 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
   });
 
   const [openCreateGroupChat, setOpenCreateGroupChat] = useState(false);
-
+  const [openFindUserDialog, setOpenFindUserDialog] = useState(false);
 
   const doSearch = (value) => {
     console.log(value);
@@ -51,7 +52,7 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
             {`Tin nhắn`}
           </Typography>
         </Box>
-        <IconButton size="medium" onClick={() => setOpenCreateGroupChat(true)}>
+        <IconButton size="medium" onClick={() => setOpenFindUserDialog(true)}>
           <PersonAddAltOutlinedIcon />
         </IconButton>
         <IconButton size="medium" onClick={() => setOpenCreateGroupChat(true)}>
@@ -120,6 +121,9 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
         onClose={() => setOpenCreateGroupChat(false)}
         onCreateGroupChat={onCreateGroupChat}
       />
+      <FindUserDialog
+        open={openFindUserDialog}
+        onClose={() => setOpenFindUserDialog(false)} />
     </Stack>
   );
 };

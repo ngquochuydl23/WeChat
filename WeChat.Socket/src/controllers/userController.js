@@ -5,7 +5,7 @@ exports.findByPhoneNumber = async (req, res, next) => {
     try {
         const user = await findOneUserByPhone(req.query.phoneNumber);
         if (!user) {
-            throw new AppException("User not found");
+            throw new AppException("User not found.");
         }
 
         return res
