@@ -19,12 +19,11 @@ import {
 } from "react-router-dom";
 import { Link } from "react-router-dom/dist";
 import { useState } from "react";
-import { PowerSettingsNew, Settings } from "@mui/icons-material";
+import { PowerSettingsNew } from "@mui/icons-material";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import ProfileModal from "../../dialog/ProfileModal";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../redux/slices/userSlice";
+import { setUser } from "@/redux/slices/userSlice";
 import ChangeCircleOutlinedIcon from "@mui/icons-material/ChangeCircleOutlined";
 import { enqueueSnackbar } from "notistack";
 import ChangePasswordModal from "../../dialog/ChangePasswordModal";
@@ -49,7 +48,6 @@ const Sidebar = ({ onSettingClick }) => {
   const location = useLocation();
   const isSelected = (path) => location.pathname === path;
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
   const [openChangPWDialog, setOpenChangPWDialog] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -203,10 +201,9 @@ const Sidebar = ({ onSettingClick }) => {
       >
         <List sx={{}}>
           <ListItem
-            onClick={() => setOpenDialog(true)}
+          //  onClick={() => setOpenDialog(true)}
             button
-            style={{ margin: "0 6px 0 6px" }}
-          >
+            style={{ margin: "0 6px 0 6px" }} >
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
@@ -241,7 +238,7 @@ const Sidebar = ({ onSettingClick }) => {
         onClose={() => setOpenChangPWDialog(false)}
         open={openChangPWDialog}
       />
-      <ProfileModal onClose={() => setOpenDialog(false)} open={openDialog} />
+
     </Box >
   );
 };
