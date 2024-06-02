@@ -34,6 +34,10 @@ const schema = BaseSchema(schemeConstants.Collection, {
     blockedAt: {
         type: Date,
         default: null
+    },
+    userBlockingId: {
+        type: mongoose.Types.ObjectId,
+        required: [true, 'sendingRequestUser must not be null'],
     }
 })
 

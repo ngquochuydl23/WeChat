@@ -28,6 +28,19 @@ const schema = BaseSchema(schemeConstants.Collection, {
         text: true,
         required: [false]
     },
+    gender: {
+        type: String,
+        text: true,
+        required: [true, 'gender must not be null'],
+        enum: {
+            values: ['male', 'female'],
+            message: '{VALUE} is not supported'
+        }
+    },
+    birthday: {
+        type: Date,
+        default: null
+    },
     bio: {
         type: String,
         text: true,

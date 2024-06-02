@@ -73,9 +73,9 @@ const settingSidebarItems = [
     }
 ]
 
-const PersonalSettingDialog = ({ open, onClose }) => {
+const PersonalSettingDialog = ({ chooseTabId, open, onClose }) => {
     const { user } = useSelector((state) => state.user);
-    const [tabId, setTabId] = useState(settingSidebarItems[0].id);
+    const [tabId, setTabId] = useState(chooseTabId || settingSidebarItems[0].id);
 
     const getTabById = () => _.find(settingSidebarItems, x => x.id === tabId);
 
@@ -151,7 +151,7 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                     </Box>
                     <Stack
                         ml="2px"
-                        bgcolor="#f5f5f5"
+                        bgcolor="#fff"
                         direction="column"
                         width="100%"
                         display="flex"
@@ -180,10 +180,13 @@ const PersonalSettingDialog = ({ open, onClose }) => {
                             </IconButton>
                         </Stack>
                         <Scrollbars style={{ width: '100%', height: '100%' }}>
-                            <TabContext value={tabId}>
+                            <TabContext value={tabId} >
                                 {_.map(settingSidebarItems, (item) => {
                                     return (
-                                        <TabPanel value={item.id}>
+                                        <TabPanel
+                                            itemID={item.id}
+                                            value={item.id}
+                                            style={{ paddingLeft: 0, paddingRight: 0, paddingTop: '24px', paddingBottom: '24px' }}>
                                             <Suspense>
                                                 <item.tabComponent onNavigate={setTabId} />
                                             </Suspense>

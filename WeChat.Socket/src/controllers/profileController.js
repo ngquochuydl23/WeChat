@@ -41,6 +41,25 @@ exports.changeCover = async (req, res, next) => {
     }
 }
 
+exports.changeBio = async (req, res, next) => {
+    try {
+        await updateUser(req.loggingUserId, { cover: req.body.bio });
+
+        const user = await findUserById(req.loggingUserId);
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                msg: "Bio changed.",
+                result: {
+                    user
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
 exports.changePassword = async (req, res, next) => {
     try {
         const { error } = changePasswordShemaValidator.schema.validate(req.body);

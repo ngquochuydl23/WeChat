@@ -1,6 +1,6 @@
 
 import { getDevices } from "@/services/deviceApiService";
-import { Box, CircularProgress, Icon, Stack, Typography } from "@mui/material";
+import { Box, Card, CircularProgress, Icon, Stack, Typography } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 import _ from "lodash";
 import { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ const DeviceItem = ({
 }) => {
     const FilterPlatformView = () => {
         return (
-            <Icon sx={{ height: '56px', width: '56px', backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '15px' }}>
+            <Icon sx={{ height: '56px', width: '56px', padding: '10px', borderRadius: '15px' }}>
                 {(platform === 'ios') &&
                     <IcIos />
                 }
@@ -51,7 +51,13 @@ const DeviceItem = ({
         )
     }
     return (
-        <Stack direction="row" bgcolor="white" px="15px" py="10px" borderRadius="10px">
+        <Stack
+            direction="row"
+            bgcolor="white"
+            px="15px"
+            py="10px"
+            borderRadius="10px"
+            sx={{ border: '0.2px solid #d3d3d3' }}>
             <FilterPlatformView />
             <Box ml="15px">
                 <Typography fontWeight="600" fontSize="15px">
@@ -104,7 +110,7 @@ const DeviceManagementTabContent = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
                     <CircularProgress />
                 </Box>
-                : <Box sx={{ width: '100%' }}>
+                : <Box sx={{ width: '100%', paddingX: '24px' }}>
                     <Box mb="20px">
                         <Typography fontWeight="500" fontSize="14px" mb="20px">
                             {`Thiết bị hiện tại`}

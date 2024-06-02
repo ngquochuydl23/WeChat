@@ -44,7 +44,7 @@ const BlockUserTabContent = ({ onNavigate }) => {
     }, [])
 
     const removeUserBlock = (id) => {
-        
+
     }
 
     const BlockUserItem = ({
@@ -81,28 +81,19 @@ const BlockUserTabContent = ({ onNavigate }) => {
     }
 
     return (
-        <Stack direction="column" spacing="15px">
+        <Stack direction="column" spacing="15px" px="24px">
             <Box sx={{ width: '100%' }}>
                 <Typography variant="subtitle1" fontSize="15x">Chặn tin nhắn</Typography>
-                <Box
-                    mt="10px"
-                    bgcolor="white"
-                    borderRadius="15px"
-                    padding="15px"
-                    display="flex"
-                    justifyContent="space-between"
-                    flexDirection="column">
-                    <Typography fontSize="14px" fontWeight="500">
-                        Những người này không thể nhắn tin cho bạn
-                    </Typography>
-                    <Stack direction="column" spacing="15px" my="10px">
-                        {_.map(blockUsers, (user) => (
-                            <BlockUserItem
-                                {...user}
-                                onRemoveBlocked={removeUserBlock} />
-                        ))}
-                    </Stack>
-                </Box>
+                <Typography fontSize="14px" fontWeight="500">
+                    Những người này không thể nhắn tin cho bạn
+                </Typography>
+                <Stack mt="15px" direction="column" spacing="15px" my="15px">
+                    {_.map(blockUsers, (user) => (
+                        <BlockUserItem
+                            {...user}
+                            onRemoveBlocked={removeUserBlock} />
+                    ))}
+                </Stack>
             </Box>
 
         </Stack>
