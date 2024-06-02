@@ -14,6 +14,7 @@ const BirthdayPicker = ({
     reverse = false,
     onChange,
     sx,
+    disabled = false,
     error = null,
 }) => {
 
@@ -91,6 +92,7 @@ const BirthdayPicker = ({
                         size="small"
                         labelId="year.select.label"
                         id="year.select"
+                        disabled={disabled}
                         sx={{
                             ...(error && {
                                 "&.MuiOutlinedInput-root": {
@@ -149,6 +151,7 @@ const BirthdayPicker = ({
                         size="small"
                         labelId="month.select.label"
                         id="month.select.id"
+                        disabled={disabled}
                         sx={{
                             ...(error && {
                                 "&.MuiOutlinedInput-root": {
@@ -205,9 +208,9 @@ const BirthdayPicker = ({
                     </InputLabel>
                     <Select
                         size="small"
-                        er
                         labelId="day.select.label"
                         id="day.select.id"
+                        disabled={disabled}
                         sx={{
                             ...(error && {
                                 "&.MuiOutlinedInput-root": {

@@ -150,7 +150,7 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 				</div>
 
 				<Box px="20px" mt="20px" mb="20px">
-					<Typography gutterBottom>{user.bio}</Typography>
+					<Typography gutterBottom style={{ wordWrap: 'break-word' }}>{user.bio}</Typography>
 				</Box>
 				<Divider orientation="horizontal" />
 				<Box px="20px" mt="20px" mb="20px">

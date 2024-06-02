@@ -2,7 +2,7 @@ import { http } from "./https";
 import platform from "platform";
 
 export const login = ({ phoneNumber, password }) => {
-    
+
     return http.post("auth/login", {
         phoneNumber: phoneNumber,
         password: password,

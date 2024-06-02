@@ -81,6 +81,7 @@ const PersonalInfoTabContent = () => {
                 <Stack spacing="30px">
                     <Stack direction="row" spacing="20px">
                         <TextField
+                            disabled={loading}
                             fullWidth
                             id="lastName"
                             label="Họ"
@@ -93,6 +94,7 @@ const PersonalInfoTabContent = () => {
                             value={formik.values.lastName}
                         />
                         <TextField
+                            disabled={loading}
                             fullWidth
                             id="firstName"
                             label="Tên"
@@ -106,6 +108,7 @@ const PersonalInfoTabContent = () => {
                         />
                     </Stack>
                     <TextField
+                        disabled={loading}
                         fullWidth
                         id="userName"
                         size="small"
@@ -121,6 +124,7 @@ const PersonalInfoTabContent = () => {
                         value={formik.values.userName}
                     />
                     <TextField
+                        disabled={loading}
                         fullWidth
                         id="bio"
                         multiline
@@ -141,6 +145,7 @@ const PersonalInfoTabContent = () => {
                         error={formik.errors.birthday}
                         monthLabel="Tháng"
                         yearLabel="Năm"
+                        disabled={loading}
                         onChange={(date) => {
                             formik.setFieldValue('birthday', date.toDate())
                         }}
