@@ -8,6 +8,7 @@ const userRoute = require('./routes/userRoute');
 const deviceRoute = require('./routes/deviceRoute');
 const friendRoute = require('./routes/friendRoute');
 const profileRoute = require('./routes/profileRoute');
+const pingRoute = require('./routes/pingRoute');
 const bodyParser = require('body-parser');
 const app = require('express')();
 const { logRequest, logError } = require('./middlewares/loggingMiddleware')
@@ -28,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 app.use(logRequest)
+app.use('/api/ping', pingRoute);;
 app.use('/api/messages', messageRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
