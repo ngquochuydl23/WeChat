@@ -17,7 +17,7 @@ const schema = BaseSchema(schemeConstants.Collection, {
     },
     sendingRequestUserId: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'sendingRequestUser must not be null'],
+        required: [true, 'sendingRequestUserId must not be null'],
     },
     redeemed: {
         type: Boolean,
@@ -37,7 +37,7 @@ const schema = BaseSchema(schemeConstants.Collection, {
     },
     userBlockingId: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'sendingRequestUser must not be null'],
+        required: false,
     }
 })
 
