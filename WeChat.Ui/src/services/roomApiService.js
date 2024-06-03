@@ -4,7 +4,7 @@ export const findSingleRoom = (toUserId) => http.get("room/find-single-room", {
     params: { toUserId }
 });
 
-export const initRoomChat = (title, otherIds) => http.post("/room", {
+export const initRoomChat = (title, otherIds) => http.post("room", {
     title, otherIds
 })
 
