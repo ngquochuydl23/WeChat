@@ -12,120 +12,145 @@ import Scrollbars from "react-custom-scrollbars-2";
 import UserSkeleton from "@/components/UserSkeleton";
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import FindUserDialog from "./FindUserDialog";
+import { searchRoomChatByName } from "@/services/roomApiService";
 
 const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
 
-  const { user } = useSelector((state) => state.user);
-  const [timer, setTimer] = useState();
-  const [search, setSearch] = useState('');
-  const [searching, setSearching] = useState(false);
-  const [result, setResult] = useState({
-    contacts: [],
-    conversation: []
-  });
+    const { user } = useSelector((state) => state.user);
+    const [timer, setTimer] = useState();
+    const [search, setSearch] = useState('');
+    const [searching, setSearching] = useState(false);
 
-  const [openCreateGroupChat, setOpenCreateGroupChat] = useState(false);
-  const [openFindUserDialog, setOpenFindUserDialog] = useState(false);
+    const [searchResult, setSearchResult] = useState({
+        roomSearchings: [],
+        conversation: []
+    });
 
-  const doSearch = (value) => {
-    console.log(value);
-  }
+    const [openCreateGroupChat, setOpenCreateGroupChat] = useState(false);
+    const [openFindUserDialog, setOpenFindUserDialog] = useState(false);
 
-  const onChange = (value) => {
-    setSearching(value.length > 0);
-    setSearch(value);
-    clearTimeout(timer);
-    setTimer(setTimeout(() => doSearch(value), 1000));
-  }
+    const doSearch = (value) => {
+        setSearching(true);
+        searchRoomChatByName(value)
+            .then(({ result }) => {
 
-  return (
-    <Stack
-      sx={{
-        overflowX: "hidden",
-        overflowY: "hidden",
-        height: "100vh",
-        width: "500px",
-      }}>
-      <Stack direction="row" sx={{ paddingX: "15px", paddingY: "10px" }}>
-        <Box sx={{ width: "100%" }}>
-          <Typography fontWeight="1000" fontSize="bold" variant="h4">
-            {`Tin nhắn`}
-          </Typography>
-        </Box>
-        <IconButton size="medium" onClick={() => setOpenFindUserDialog(true)}>
-          <PersonAddAltOutlinedIcon />
-        </IconButton>
-        <IconButton size="medium" onClick={() => setOpenCreateGroupChat(true)}>
-          <DriveFileRenameOutlineIcon />
-        </IconButton>
-      </Stack>
-      <Box px="15px">
-        <ReactSearchBox
-          clearOnSelect
-          autoFocus={false}
-          iconBoxSize="40px"
-          leftIcon={
-            <Box
-              pt="5px"
-              color="#d3d3d3"
-              justifyContent="center"
-              alignItems="center">
-              <SearchTwoToneIcon />
-            </Box>
-          }
-          placeholder="Tìm kiếm"
-          value={search}
-          onChange={onChange}
-        />
-      </Box>
-      {search.length > 0
-        ? <Stack
-          sx={{
-            height: "100%",
-            overflowY: searching ? "none" : "scroll"
-          }}>
-          {searching
-            ? <Stack
-              spacing="15px"
-              direction="column"
-              pt="20px"
-              px="20px"
-              sx={{ width: '100%' }}>
-              <UserSkeleton />
-              <UserSkeleton />
-              <UserSkeleton />
-            </Stack>
-            : <Box>
-              {(result.contacts && result.contacts.length > 0) &&
-                <Box>
-                  Contacts
+                setSearchResult({
+                    ...searchResult,
+                    roomSearchings: result.rooms
+                })
+            })
+            .catch((err) => console.log(err))
+            .finally(() => {
+                setSearching(false);
+            })
+    }
+
+    const onChange = (value) => {
+        setSearching(value.length > 0);
+        setSearch(value);
+        clearTimeout(timer);
+        setTimer(setTimeout(() => doSearch(value), 500));
+    }
+
+    return (
+        <Stack
+            sx={{ overflowX: "hidden", overflowY: "hidden", height: "100vh", width: "500px" }}>
+            <Stack direction="row" sx={{ paddingX: "15px", paddingY: "10px" }}>
+                <Box sx={{ width: "100%" }}>
+                    <Typography fontWeight="1000" fontSize="bold" variant="h4">
+                        {`Tin nhắn`}
+                    </Typography>
                 </Box>
-              }
-            </Box>
-          }
-        </Stack>
-        : <Scrollbars style={{ width: '100%', height: '100%' }}>
-          {_.map(rooms, (roomItem) => (
-            <RoomChatItem
-              {...roomItem}
-              {...filterRoomInfo(user._id, roomItem, roomItem.users)}
-              members={roomItem.users}
-              loggingUserId={user._id}
-            />
-          ))}
-        </Scrollbars>
+                <IconButton size="medium" onClick={() => setOpenFindUserDialog(true)}>
+                    <PersonAddAltOutlinedIcon />
+                </IconButton>
+                <IconButton size="medium" onClick={() => setOpenCreateGroupChat(true)}>
+                    <DriveFileRenameOutlineIcon />
+                </IconButton>
+            </Stack>
+            <Box px="15px">
+                <ReactSearchBox
+                    clearOnSelect
+                    autoFocus={false}
+                    iconBoxSize="40px"
+                    data={[]}
+                    fuseConfigs={{
 
-      }
-      <CreateGroupChatDialog
-        open={openCreateGroupChat}
-        onClose={() => setOpenCreateGroupChat(false)}
-        onCreateGroupChat={onCreateGroupChat}
-      />
-      <FindUserDialog
-        open={openFindUserDialog}
-        onClose={() => setOpenFindUserDialog(false)} />
-    </Stack>
-  );
+                    }}
+                    leftIcon={
+                        <Box
+                            pt="5px"
+                            color="#d3d3d3"
+                            justifyContent="center"
+                            alignItems="center">
+                            <SearchTwoToneIcon />
+                        </Box>
+                    }
+                    placeholder="Tìm kiếm"
+                    value={search}
+                    onChange={onChange}
+                />
+            </Box>
+            {search.length > 0
+                ? <Stack sx={{ height: "100%", overflowY: "none" }}>
+                    {searching
+                        ? <Stack
+                            spacing="15px"
+                            direction="column"
+                            pt="10px"
+                            px="20px"
+                            sx={{ width: '100%' }}>
+                            <UserSkeleton />
+                            <UserSkeleton />
+                            <UserSkeleton />
+                        </Stack>
+                        : <Box height="100%">
+                            {(searchResult.roomSearchings && searchResult.roomSearchings.length > 0) &&
+                                <Box height="100%">
+                                    <Typography
+                                        mt="10px"
+                                        ml="15px"
+                                        color="black"
+                                        fontWeight="600"
+                                        fontSize="16px">
+                                        Liên hệ
+                                    </Typography>
+                                    <Scrollbars autoHide>
+                                        {_.map(searchResult.roomSearchings, (roomItem) => (
+                                            <RoomChatItem
+                                                {...roomItem}
+                                                {...filterRoomInfo(user._id, roomItem, roomItem.users)}
+                                                members={roomItem.users}
+                                                loggingUserId={user._id}
+                                            />
+                                        ))}
+                                    </Scrollbars>
+                                </Box>
+                            }
+                        </Box>
+                    }
+                </Stack>
+                : <Scrollbars autoHide style={{ width: '100%', height: '100%', marginTop: '10px' }}>
+                    {_.map(rooms, (roomItem) => (
+                        <RoomChatItem
+                            {...roomItem}
+                            {...filterRoomInfo(user._id, roomItem, roomItem.users)}
+                            members={roomItem.users}
+                            loggingUserId={user._id}
+                        />
+                    ))}
+                </Scrollbars>
+            }
+            <CreateGroupChatDialog
+                open={openCreateGroupChat}
+                onClose={() => setOpenCreateGroupChat(false)}
+                onCreateGroupChat={onCreateGroupChat}
+            />
+            <FindUserDialog
+                open={openFindUserDialog}
+                onClose={() => setOpenFindUserDialog(false)} />
+        </Stack>
+    );
 };
 
 export default MenuRoomChat;

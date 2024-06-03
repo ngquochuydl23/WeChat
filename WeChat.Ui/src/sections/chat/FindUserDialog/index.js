@@ -11,7 +11,6 @@ import {
     IconButton,
     List,
     ListItemButton,
-    ListItemIcon,
     ListItemText,
     Popover,
     Stack,
@@ -27,22 +26,22 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { readUrl } from "@/utils/readUrl";
 import 'react-phone-input-2/lib/material.css';
 import './override.scss'
+import { findSingleRoom, initRoomChat } from "@/services/roomApiService";
+import { useNavigate } from "react-router-dom";
 
 
 const FindUserDialog = ({ open, onClose }) => {
+    const navigate = useNavigate();
+    const { user } = useSelector((state) => state.user);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const openPopover = Boolean(anchorEl);
     const id = openPopover ? 'simple-popover' : undefined;
-
-    const { user } = useSelector((state) => state.user);
     const [actionLoading, setActionLoading] = useState(false);
-
     const [loading, setLoading] = useState(false);
     const [foundUser, setFoundUser] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [showNotFoundView, setShowNotFoundView] = useState(false);
-
     const [friend, setFriend] = useState(null);
 
     const redeem = () => {
@@ -92,9 +91,35 @@ const FindUserDialog = ({ open, onClose }) => {
             })
     }
 
+    const navigateToChat = () => {
+        findSingleRoom(foundUser._id)
+            .then(({ result }) => {
+                navigate('/chat/' + result.room._id);
+                onClose();
+            })
+            .catch(async (err) => {
+
+                if (err === 'Room not found.') {
+
+                    const { result } = await initRoomChat(null, [foundUser._id]);
+                    navigate('/chat/' + result.room._id);
+                    onClose();
+                    return;
+                }
+                console.log(err);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+
+    const viewProfile = () => {
+
+    }
+
     const find = () => {
         setLoading(true);
-        findUserByPhone(phoneNumber.replace(/\D/g, '').slice(-10))
+        findUserByPhone('0' + phoneNumber.replace(/\D/g, '').slice(-9))
             .then(({ result }) => {
                 setFoundUser(result.user);
 
@@ -109,6 +134,14 @@ const FindUserDialog = ({ open, onClose }) => {
                 }
             })
             .finally(() => setLoading(false))
+    }
+
+    const removeFriend = () => {
+
+    }
+
+    const blockUser = () => {
+
     }
 
     useEffect(() => {
@@ -143,7 +176,7 @@ const FindUserDialog = ({ open, onClose }) => {
                             disabled={loading}
                             specialLabel="Số điện thoại"
                             enableSearch
-                            autoFormat
+                            autoFormat={false}
                             placeholder="Nhập số điện thoại"
                             containerStyle={{
                                 marginTop: '10px',
@@ -155,7 +188,6 @@ const FindUserDialog = ({ open, onClose }) => {
                                 required: true,
                                 autoFocus: true,
                             }}
-
                             dropdownStyle={{ width: '300px', borderRadius: '8px', height: '400px', overflowX: 'none' }}
                             searchStyle={{ borderRadius: '20px', height: '35px', width: '100%', paddingLeft: '20px' }}
                             country={'vn'}
@@ -209,8 +241,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                         variant="outlined"
                                         sx={{ paddingX: '25px' }}
                                         size="small"
-                                    //onClick={accept}
-                                    >
+                                        onClick={viewProfile}>
                                         {`Xem`}
                                     </Button>
                                 }
@@ -250,8 +281,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                             variant="outlined"
                                             sx={{ paddingX: '25px', height: '30px' }}
                                             size="small"
-                                        // onClick={accept}
-                                        >
+                                            onClick={navigateToChat}>
                                             {`Nhắn tin`}
                                         </Button>
                                         <IconButton
@@ -274,7 +304,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                             transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
                                             <List sx={{ width: '200px' }}>
-                                                <ListItemButton>
+                                                <ListItemButton onClick={blockUser}>
                                                     {/* <ListItemIcon>
                                                         <Person2OutlinedIcon />
                                                     </ListItemIcon> */}
@@ -285,7 +315,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                                             fontWeight: '500'
                                                         }} />
                                                 </ListItemButton>
-                                                <ListItemButton>
+                                                <ListItemButton onClick={removeFriend}>
                                                     {/* <ListItemIcon>
                                                         <SettingsOutlinedIcon />
                                                     </ListItemIcon> */}

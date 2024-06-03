@@ -12,12 +12,12 @@ async function addFriend(loggingUserId, toUserId) {
     return friend;
 }
 
-async function findFriendByUserId(loggingUserId, destinationUserId) {
+async function findFriendByUserId(loggingUserId, toUserId) {
     return await Friend.findOne({
         '$expr': {
             '$setEquals': ['$friends', [
                 new mongoose.Types.ObjectId(loggingUserId),
-                new mongoose.Types.ObjectId(destinationUserId)
+                new mongoose.Types.ObjectId(toUserId)
             ]]
         }
     });
@@ -62,9 +62,10 @@ async function findManyAsQueryable(loggingUserId, friendConditionObj, userCondit
                     foreignField: "_id",
                     pipeline: [{
                         $project: {
-                            'hashPassword': 0,
-                            'actived': 0,
-                            'isDeleted': 0
+                            fullName: 1,
+                            userName: 1,
+                            avatar: 1,
+                            gender: 1
                         }
                     }],
                     as: "users"

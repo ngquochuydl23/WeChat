@@ -52,20 +52,10 @@ async function deleteMsgInRoom(loggingUserId, room) {
   });
 }
 
-async function sendMsg(roomId, msg, loggingUserId) {
-  var room = await Room.findById(roomId);
-  var message = new Message({
-    type: msg.type,
-    content: msg.content,
-    roomId: room._id,
-    creatorId: loggingUserId,
-    attachment: msg.attachment
-  });
+async function sendMsg(msg) {
+  const message = new Message({ ...msg });
 
   await message.save();
-  room.lastMsg = message;
-  await room.save();
-
   return message;
 }
 
@@ -98,7 +88,7 @@ async function redeemMsg(loggingUserId, msgId) {
   });
 
   await notifyMsg.save();
-  
+
 
   room.lastMsg = notifyMsg;
   await room.save();

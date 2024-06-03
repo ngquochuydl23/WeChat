@@ -2,7 +2,7 @@ import BirthdayPicker from "@/components/fields/BirthdayPicker";
 import { setUser } from "@/redux/slices/userSlice";
 import { updateProfile } from "@/services/profileApiService";
 import { LoadingButton } from "@mui/lab";
-import { Box, Stack, TextField } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import _ from "lodash";
 import moment from "moment";
@@ -25,7 +25,8 @@ const PersonalInfoTabContent = () => {
             lastName: user.lastName || '',
             userName: user.userName || '',
             bio: user.bio || '',
-            birthday: user.birthday || null
+            birthday: user.birthday || null,
+            gender: user.gender || null
         },
         validationSchema: Yup.object().shape({
             firstName: Yup
@@ -43,7 +44,10 @@ const PersonalInfoTabContent = () => {
                 .test("birthday", "Phải lớn hơn 16 tuổi", function (value) {
                     return moment().diff(value, 'years', false) >= 16
                 })
-                .required("Vui lòng nhập ngày sinh")
+                .required("Vui lòng nhập ngày sinh"),
+            gender: Yup
+                .string()
+                .required('Vui lòng chọn giới tính')
         }),
         onSubmit: async values => {
             setLoading(true);
@@ -74,7 +78,7 @@ const PersonalInfoTabContent = () => {
                 .finally(() => setLoading(false))
         },
     });
-
+    console.log(formik.errors.gender)
     return (
         <Box px="24px">
             <form onSubmit={formik.handleSubmit}>
@@ -139,6 +143,64 @@ const PersonalInfoTabContent = () => {
                         helperText={formik.errors.bio}
                         value={formik.values.bio}
                     />
+                    <FormControl fullWidth size="small">
+                        <InputLabel
+                            id="gender.select.label"
+                            sx={{
+                                backgroundColor: 'white',
+                                ...(formik.errors.gender && {
+                                    color: 'red',
+                                    "&.Mui-focused": {
+                                        color: "red"
+                                    }
+                                })
+                            }}
+                            shrink={formik.values.year}>
+                            {`Giới tính`}
+                        </InputLabel>
+                        <Select
+                            touched
+                            size="small"
+                            labelId="gender.select.label"
+                            id="gender"
+                            disabled={loading}
+                            sx={{
+                                ...(formik.errors.gender && {
+                                    "&.MuiOutlinedInput-root": {
+                                        "& fieldset": {
+                                            borderColor: "red"
+                                        },
+                                        "& fieldset legend span": {
+                                            color: "red"
+                                        },
+                                        "&:hover fieldset": {
+                                            borderColor: "red"
+                                        },
+                                        "& .MuiSelect-select": {
+                                            color: 'red'
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: 'red'
+                                        },
+                                        "&.Mui-focused fieldset": {
+                                            borderColor: "red"
+                                        }
+                                    }
+                                })
+                            }}
+                            value={formik.values.gender}
+                            label={`Giới tính`}
+                            onBlur={formik.handleBlur}
+                            error={formik.errors.gender && formik.touched.gender}
+                            helperText={formik.errors.gender}
+                            onChange={(event) => {
+                                formik.setFieldTouched('gender', true);
+                                formik.setFieldValue('gender', event.target.value);
+                            }}>
+                            <MenuItem value={'female'}>{`Nữ`}</MenuItem>
+                            <MenuItem value={'male'}>{`Nam`}</MenuItem>
+                        </Select>
+                    </FormControl>
                     <BirthdayPicker
                         date={moment(formik.values.birthday)}
                         dayLabel="Ngày"

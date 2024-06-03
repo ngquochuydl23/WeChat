@@ -3,16 +3,15 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import Composer from "./Composer";
 import RoomDetail from "./RoomDetail";
-import _ from "lodash";
 import { LeftMessage, NotificationMessage, RightMessage } from "./MessageItem";
 import { useEffect } from "react";
-import { socketManager } from '../../socket';
+import { socketManager } from '@/socket';
 import { useSelector } from "react-redux";
 import RoomHeader from "./RoomHeader";
 import MemberTyping from "./MemberTyping";
 import { v4 as uuidv4 } from 'uuid';
 import DispersedComposer from "./DispersedComposer";
-
+import _ from "lodash";
 
 const Room = () => {
   const { roomId } = useParams();

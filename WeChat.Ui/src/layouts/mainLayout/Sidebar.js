@@ -87,7 +87,8 @@ const Sidebar = ({ onSettingClick }) => {
         justifyContent: "space-between",
         alignItems: "center",
         height: "100%",
-        width: "max-content"
+        width: "max-content",
+        overflow: 'hidden'
       }}>
       <Stack spacing={"10px"} direction="column" alignItems="center">
         {sideBarItems.map((sideBarItem) => (
@@ -201,7 +202,7 @@ const Sidebar = ({ onSettingClick }) => {
       >
         <List sx={{}}>
           <ListItem
-          //  onClick={() => setOpenDialog(true)}
+            //  onClick={() => setOpenDialog(true)}
             button
             style={{ margin: "0 6px 0 6px" }} >
             <ListItemIcon>
@@ -213,8 +214,7 @@ const Sidebar = ({ onSettingClick }) => {
           <ListItem
             onClick={() => setOpenChangPWDialog(true)}
             button
-            style={{ margin: "0 6px 0 6px" }}
-          >
+            style={{ margin: "0 6px 0 6px" }}>
             <ListItemIcon>
               <ChangeCircleOutlinedIcon />
             </ListItemIcon>
@@ -236,8 +236,7 @@ const Sidebar = ({ onSettingClick }) => {
 
       <ChangePasswordModal
         onClose={() => setOpenChangPWDialog(false)}
-        open={openChangPWDialog}
-      />
+        open={openChangPWDialog} />
 
     </Box >
   );

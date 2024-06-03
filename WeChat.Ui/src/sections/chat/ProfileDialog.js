@@ -22,7 +22,9 @@ import { changeAvatar } from "@/services/profileApiService";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slices/userSlice";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import moment from "moment/";
 
+moment.locale('vn')
 const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 	const dispatch = useDispatch();
 	const { user } = useSelector((state) => state.user);
@@ -148,14 +150,12 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 						</Box>
 					</div>
 				</div>
-
 				<Box px="20px" mt="20px" mb="20px">
 					<Typography gutterBottom style={{ wordWrap: 'break-word' }}>{user.bio}</Typography>
 				</Box>
 				<Divider orientation="horizontal" />
 				<Box px="20px" mt="20px" mb="20px">
 					<Typography variant="h6" fontSize="16px">{`Thông tin cá nhân`}</Typography>
-
 					<Stack direction="row" mt="10px">
 						<Typography
 							fontSize="14px"
@@ -170,7 +170,6 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 							@{user.userName}
 						</Typography>
 					</Stack>
-
 					<Stack direction="row" mt="10px">
 						<Typography
 							fontSize="14px"
@@ -178,14 +177,15 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 							sx={{ width: '200px' }}>
 							{`Giới tính`}
 						</Typography>
-						<Typography
-							fontSize="14px"
-							fontWeight="500"
-							sx={{ width: '200px' }}>
-							{user.gender}
-						</Typography>
+						{user.gender &&
+							<Typography
+								fontSize="14px"
+								fontWeight="500"
+								sx={{ width: '200px' }}>
+								{user.gender === 'female' ? "Nữ" : "Nam"}
+							</Typography>
+						}
 					</Stack>
-
 					<Stack direction="row" mt="10px">
 						<Typography
 							fontSize="14px"
@@ -197,7 +197,7 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 							fontSize="14px"
 							fontWeight="500"
 							sx={{ width: '200px' }}>
-							{`14 tháng 2, 2003`}
+							{moment(user.birthday).format('LL')}
 						</Typography>
 					</Stack>
 				</Box>
@@ -205,18 +205,7 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 				<Box px="20px" mt="20px" mb="20px">
 					<Typography variant="h6" fontSize="16px">{`Hình ảnh`}</Typography>
 					<Stack direction="row" mt="10px">
-						<Typography
-							fontSize="14px"
-							fontWeight="500"
-							sx={{ width: '200px' }}>
-							{`Tên người dùng`}
-						</Typography>
-						<Typography
-							fontSize="14px"
-							fontWeight="500"
-							sx={{ width: '200px' }}>
-							@{user.userName}
-						</Typography>
+						
 					</Stack>
 				</Box>
 			</DialogContent>
