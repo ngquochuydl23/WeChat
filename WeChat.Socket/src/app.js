@@ -54,8 +54,8 @@ app.use(function (err, req, res, next) {
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
-    origins: '*:*',
-    //_.split(process.env.SOCKET_CORS_ORIGINS, ','),
+    origins: _.split(process.env.SOCKET_CORS_ORIGINS, ','),
+    credentials: true,
     methods: ["GET", "POST"]
   },
   transports: ["polling", "websocket"]
