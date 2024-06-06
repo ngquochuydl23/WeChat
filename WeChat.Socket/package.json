@@ -5,7 +5,7 @@
   "scripts": {
     "start": "env-cmd -f .env.local nodemon ./bin/www",
     "start:staging": "env-cmd -f .env.staging nodemon ./bin/www",
-    "start:production": "env-cmd -f .env.staging nodemon ./bin/www"
+    "start:production": "env-cmd -f .env.production nodemon ./bin/www"
   },
   "dependencies": {
     "@datalust/winston-seq": "^2.0.0",

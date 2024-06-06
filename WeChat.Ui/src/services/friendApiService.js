@@ -12,3 +12,5 @@ export const sendRequest = (toUserId) => http.post("friend/", { toUserId });
 export const redeemRequest = (friendId) => http.post("friend/" + friendId + '/redeem');
 
 export const acceptRequest = (friendId) => http.post("friend/" + friendId + '/accept');
+
+export const unfriend = (friendId) => http.delete("friend/" + friendId);

@@ -19,7 +19,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { findUserByPhone } from "@/services/userApiService";
 import PhoneInput from 'react-phone-input-2';
-import { acceptRequest, checkIsFriend, redeemRequest, sendRequest } from "@/services/friendApiService";
+import { acceptRequest, checkIsFriend, redeemRequest, sendRequest, unfriend } from "@/services/friendApiService";
 import { useSelector } from "react-redux";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -137,7 +137,13 @@ const FindUserDialog = ({ open, onClose }) => {
     }
 
     const removeFriend = () => {
-
+        setLoading(true);
+        unfriend(friend._id)
+            .then(({ msg }) => setFriend(null))
+            .catch((err) => {
+                console.log(err);
+            })
+            .finally(() => setLoading(false));
     }
 
     const blockUser = () => {
@@ -145,11 +151,11 @@ const FindUserDialog = ({ open, onClose }) => {
     }
 
     useEffect(() => {
-        // setLoading(false);
-        // setActionLoading(false);
-        // setFoundUser(null);
-        // setPhoneNumber('');
-        // setShowNotFoundView(false);
+        setLoading(false);
+        setActionLoading(false);
+        setFoundUser(null);
+        setPhoneNumber('');
+        setShowNotFoundView(false);
     }, [open])
 
 

@@ -140,7 +140,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
     // useEffect(() => {
     //     searchUser();
     // }, [])
-    
+
 
     return (
         <Dialog
@@ -167,16 +167,16 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                 }}>
                 <CloseIcon />
             </IconButton>
-            <DialogContent dividers>
-                <Stack direction="row">
-                    <Box sx={{
-                        height: '60px',
-                        width: '60px',
-                        aspectRatio: 1,
-                        borderRadius: '200px',
-                        backgroundColor: '#f5f5f5',
-                        border: '1px solid #d3d3d3'
-                    }}>
+            <DialogContent >
+                <Stack direction="row" display="flex">
+                    <Box
+                        sx={{
+                            height: '60px',
+                            aspectRatio: 1,
+                            borderRadius: '200px',
+                            backgroundColor: '#f5f5f5',
+                            border: '1px solid #d3d3d3'
+                        }}>
                     </Box>
                     <TextField
                         value={title}
@@ -270,7 +270,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                         onCreateGroup();
                         onClose();
                         setContent('');
-                        
+
                     }}
                     variant='contained'
                     color='info'
