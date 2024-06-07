@@ -56,9 +56,15 @@ exports.sendMsg = async (req, res, next) => {
   const loggingUserId = req.loggingUserId;
 
   try {
-    const room = await findRoomByUser(roomId, loggingUserId);
-    const message = await sendMsg(roomId, msg, loggingUserId);
-
+    io.of('/rooms')
+      .emit('chatRoom.sentMsg', roomId, (err, response) => {
+        if (err instanceof Error) {
+          console.log(err);
+        } else {
+          logger.info(`ChatRoom nsp emitted to Room nsp`);
+          console.log(response);
+        }
+      });
     return res
       .status(201)
       .json({

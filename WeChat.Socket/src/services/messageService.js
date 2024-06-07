@@ -8,17 +8,15 @@ const room = require('../models/room');
 const mongoose = require('mongoose');
 
 async function getMsgByRoomId(
-  room,
+  roomId,
   loggingUserId,
   skipDays = 0,
   lastLimitDays = 30
 ) {
-  const userConfig = _.find(room.userConfigs,
-    x => x.userId.toHexString() === loggingUserId);
 
   const messages = await Message
     .find({
-      roomId: room._id,
+      roomId: roomId,
       // createdAt: {
       //   $gte: moment()
       //     .subtract(

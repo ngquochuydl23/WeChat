@@ -149,6 +149,9 @@ const MainLayout = () => {
                 <Outlet />
             </Box>
             <ProfileDialog
+                user={user}
+                owned={true}
+                hideBackdrop={false}
                 editProfileClick={() => {
                     setOpenProfileDialog(false);
                     setOpenSettingDialog({ chooseTabId: 'my-profile', open: true });

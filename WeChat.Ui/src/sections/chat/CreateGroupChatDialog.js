@@ -6,13 +6,15 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
-import { Avatar, Box, Checkbox, Divider, Stack, TextField } from '@mui/material';
+import { Avatar, Box, Checkbox, CircularProgress, Divider, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Skeleton from '@mui/material/Skeleton';
 import _ from 'lodash';
 import Chip from '@mui/material/Chip';
-
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import { uploadFile } from '@/services/storageApi';
+import { readUrl } from '@/utils/readUrl';
 
 const SelectedUserItem = ({ user, onRemove }) => {
     const { fullName, avatar } = user;
@@ -60,6 +62,9 @@ const UserItem = ({ user, checked, onChange }) => {
 }
 
 const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
+
+    const [thumbnail, setThumbnail] = useState('');
+    const [uploading, setUploading] = useState(false);
     const [title, setTitle] = useState('');
     const [timer, setTimer] = useState();
     const [content, setContent] = useState("");
@@ -137,9 +142,33 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
         })
     }
 
-    // useEffect(() => {
-    //     searchUser();
-    // }, [])
+    const onPickFile = (event) => {
+        setUploading(true);
+        uploadFile(event.target.files[0])
+            .then(res => {
+                const { url } = res.data.files[0];
+                setThumbnail(url);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+            .finally(() => {
+                setUploading(false);
+            })
+    }
+
+
+    useEffect(() => {
+        setThumbnail('');
+        setUploading(false);
+        setTitle('');
+        setTimer(null);
+        setContent('');
+        setHasSearched(false);
+        setUsers([]);
+        setSelectedUsers([]);
+        setSearchUserLoading(false);
+    }, [open])
 
 
     return (
@@ -147,15 +176,12 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
             open={open}
             scroll={"body"}
             onClose={onClose}
-            maxWidth="sm"
-            aria-labelledby="profile-modal-title"
-            aria-describedby="profile-modal-description">
+            maxWidth="sm">
             <DialogTitle
                 sx={{ fontWeight: '800', m: 0, p: 2 }}
                 id="customized-dialog-title">
                 Tạo nhóm
             </DialogTitle>
-            <Divider />
             <IconButton
                 aria-label="close"
                 onClick={onClose}
@@ -170,20 +196,44 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
             <DialogContent >
                 <Stack direction="row" display="flex">
                     <Box
+                        onClick={() => document.getElementById('room.thumnail.picker').click()}
+                        alignItems="center"
+                        justifyContent="center"
                         sx={{
-                            height: '60px',
+                            display: 'flex',
+                            height: '70px',
+                            position: 'relative',
                             aspectRatio: 1,
                             borderRadius: '200px',
-                            backgroundColor: '#f5f5f5',
-                            border: '1px solid #d3d3d3'
+                            backgroundColor: uploading ? 'white' : '#f5f5f5',
+                            border: '2px solid #d3d3d3'
                         }}>
+                        {!thumbnail &&
+                            <input
+                                onChange={onPickFile}
+                                style={{ display: "none" }}
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                id="room.thumnail.picker" />
+                        }
+                        {uploading &&
+                            <Box sx={{ display: 'flex', position: 'absolute', zIndex: 2 }}>
+                                <CircularProgress color="success" sx={{ color: 'white' }} />
+                            </Box>
+                        }
+                        {!thumbnail
+                            ? <CameraAltIcon sx={{ color: 'gray' }} />
+                            : <Avatar
+                                sx={{ height: '100%', width: '100%', margin: '2px' }}
+                                src={readUrl(thumbnail)} />
+                        }
                     </Box>
                     <TextField
                         value={title}
                         fullWidth
                         onChange={(e) => setTitle(e.target.value)}
                         sx={{ ml: '15px' }}
-                        id="standard-basic"
                         label="Tên nhóm"
                         variant="standard" />
                 </Stack>
@@ -192,7 +242,6 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                     onChange={onEnterSearching}
                     sx={{ mt: '15px', fontSize: '14px' }}
                     fullWidth
-                    id="outlined-basic"
                     label="Nhập số điện thoại"
                     variant="outlined" />
 
@@ -270,7 +319,6 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                         onCreateGroup();
                         onClose();
                         setContent('');
-
                     }}
                     variant='contained'
                     color='info'

@@ -28,6 +28,7 @@ import 'react-phone-input-2/lib/material.css';
 import './override.scss'
 import { findSingleRoom, initRoomChat } from "@/services/roomApiService";
 import { useNavigate } from "react-router-dom";
+import ProfileDialog from "../ProfileDialog";
 
 
 const FindUserDialog = ({ open, onClose }) => {
@@ -42,6 +43,8 @@ const FindUserDialog = ({ open, onClose }) => {
     const [foundUser, setFoundUser] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [showNotFoundView, setShowNotFoundView] = useState(false);
+    const [openProfileDialog, setOpenProfileDialog] = useState(false);
+
     const [friend, setFriend] = useState(null);
 
     const redeem = () => {
@@ -94,8 +97,8 @@ const FindUserDialog = ({ open, onClose }) => {
     const navigateToChat = () => {
         findSingleRoom(foundUser._id)
             .then(({ result }) => {
-                navigate('/chat/' + result.room._id);
                 onClose();
+                navigate('/chat/' + result.room._id);
             })
             .catch(async (err) => {
 
@@ -113,19 +116,15 @@ const FindUserDialog = ({ open, onClose }) => {
             })
     }
 
-    const viewProfile = () => {
-
-    }
-
     const find = () => {
         setLoading(true);
         findUserByPhone('0' + phoneNumber.replace(/\D/g, '').slice(-9))
             .then(({ result }) => {
                 setFoundUser(result.user);
 
-                if (result.user._id !== user._id) {
+                if (result.user._id !== user._id)
                     checkFriend(result.user._id);
-                } else setFriend(false)
+                else setFriend(false);
             })
             .catch((err) => {
                 console.log(err);
@@ -150,14 +149,20 @@ const FindUserDialog = ({ open, onClose }) => {
 
     }
 
+    const onKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            find();
+        }
+    }
+
     useEffect(() => {
         setLoading(false);
         setActionLoading(false);
         setFoundUser(null);
         setPhoneNumber('');
         setShowNotFoundView(false);
+        setOpenProfileDialog(false);
     }, [open])
-
 
     return (
         <Dialog
@@ -183,6 +188,7 @@ const FindUserDialog = ({ open, onClose }) => {
                             specialLabel="Số điện thoại"
                             enableSearch
                             autoFormat={false}
+                            onKeyDown={onKeyDown}
                             placeholder="Nhập số điện thoại"
                             containerStyle={{
                                 marginTop: '10px',
@@ -215,7 +221,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                 alignItems="center"
                                 display="flex"
                                 padding="10px"
-                                onClick={() => { }}
+                                onClick={() => { setOpenProfileDialog(true) }}
                                 mt="10px"
                                 sx={{
                                     '&:hover': {
@@ -247,7 +253,7 @@ const FindUserDialog = ({ open, onClose }) => {
                                         variant="outlined"
                                         sx={{ paddingX: '25px' }}
                                         size="small"
-                                        onClick={viewProfile}>
+                                        onClick={() => setOpenProfileDialog(true)}>
                                         {`Xem`}
                                     </Button>
                                 }
@@ -287,7 +293,10 @@ const FindUserDialog = ({ open, onClose }) => {
                                             variant="outlined"
                                             sx={{ paddingX: '25px', height: '30px' }}
                                             size="small"
-                                            onClick={navigateToChat}>
+                                            onClick={(e) => {
+                                                navigateToChat();
+                                                e.stopPropagation();
+                                            }}>
                                             {`Nhắn tin`}
                                         </Button>
                                         <IconButton
@@ -362,7 +371,13 @@ const FindUserDialog = ({ open, onClose }) => {
                     </Button>
                 }
             </DialogActions>
-        </Dialog >
+            <ProfileDialog
+                user={foundUser}
+                hideBackdrop
+                owned={foundUser ? foundUser._id === user._id : false}
+                open={openProfileDialog}
+                onClose={() => setOpenProfileDialog(false)} />
+        </Dialog>
     );
 };
 

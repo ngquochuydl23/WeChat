@@ -14,7 +14,6 @@ import {
 	Typography,
 } from "@mui/material";
 import { readUrl } from "@/utils/readUrl";
-import { useSelector } from "react-redux";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CloseIcon from '@mui/icons-material/Close';
 import { uploadFile } from "@/services/storageApi";
@@ -24,32 +23,45 @@ import { setUser } from "@/redux/slices/userSlice";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import moment from "moment/";
 
-moment.locale('vn')
-const ProfileDialog = ({ open, onClose, editProfileClick }) => {
+
+const ProfileDialog = ({
+	open,
+	onClose,
+	editProfileClick,
+	hideBackdrop = false,
+	user,
+	owned = false
+}) => {
 	const dispatch = useDispatch();
-	const { user } = useSelector((state) => state.user);
 	const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
 	const patchNewAvatar = (url) => {
-		changeAvatar(url)
-			.then((res) => {
-				dispatch(setUser(res.result.user));
-			})
-			.catch(err => console.log(err))
-			.finally(() => setUploadingAvatar(false))
+		if (owned) {
+			changeAvatar(url)
+				.then((res) => {
+					dispatch(setUser(res.result.user));
+				})
+				.catch(err => console.log(err))
+				.finally(() => setUploadingAvatar(false))
+		}
 	}
 
 	const onPickFile = (event) => {
-		setUploadingAvatar(true);
+		if (owned) {
+			setUploadingAvatar(true);
+			uploadFile(event.target.files[0])
+				.then(res => {
+					const { url } = res.data.files[0];
+					patchNewAvatar(url);
+				})
+				.catch(err => {
+					console.log(err);
+				})
+		}
+	}
 
-		uploadFile(event.target.files[0])
-			.then(res => {
-				const { url } = res.data.files[0];
-				patchNewAvatar(url);
-			})
-			.catch(err => {
-				console.log(err);
-			})
+	if (user == null) {
+		return null;
 	}
 
 	return (
@@ -57,6 +69,7 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 			disableBackdropClick={true}
 			open={open}
 			fullWidth
+			hideBackdrop={hideBackdrop}
 			maxWidth='sm'
 			scroll={"body"}
 			onClose={onClose}>
@@ -107,12 +120,11 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 								sx={{ height: '100px', width: '100px' }}
 								src={readUrl(user.avatar)}
 							/>
-							{uploadingAvatar
+							{owned && ((uploadingAvatar)
 								? <Box sx={{ display: 'flex', position: 'absolute', zIndex: 2 }}>
 									<CircularProgress color="success" sx={{ color: 'white' }} />
 								</Box>
-								:
-								<Box
+								: <Box
 									onClick={() => document.getElementById('pick-avatar').click()}
 									sx={{
 										display: 'flex',
@@ -134,17 +146,19 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 										accept="image/*"
 										id="pick-avatar" />
 									<CameraAltIcon />
-								</Box>
+								</Box>)
 							}
 						</Box>
 						<Box mt="40px" ml="20px">
 							<Stack direction="row" alignItems="center" p={0}>
-								<Typography variant="h5" pb="0px">{user.fullName}</Typography>
-								<IconButton
-									onClick={editProfileClick}
-									sx={{ color: 'gray', ml: '15px' }} >
-									<DriveFileRenameOutlineIcon />
-								</IconButton>
+								<Typography mt="10px" variant="h5" pb="0px">{user.fullName}</Typography>
+								{owned &&
+									<IconButton
+										onClick={editProfileClick}
+										sx={{ color: 'gray', ml: '15px' }} >
+										<DriveFileRenameOutlineIcon />
+									</IconButton>
+								}
 							</Stack>
 							<Typography color="#696969">@{user.userName}</Typography>
 						</Box>
@@ -197,7 +211,7 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 							fontSize="14px"
 							fontWeight="500"
 							sx={{ width: '200px' }}>
-							{moment(user.birthday).format('LL')}
+							{user.birthday ? moment(user.birthday).locale('vn').format('LL') : "Chưa có"}
 						</Typography>
 					</Stack>
 				</Box>
@@ -205,19 +219,22 @@ const ProfileDialog = ({ open, onClose, editProfileClick }) => {
 				<Box px="20px" mt="20px" mb="20px">
 					<Typography variant="h6" fontSize="16px">{`Hình ảnh`}</Typography>
 					<Stack direction="row" mt="10px">
-						
+
 					</Stack>
 				</Box>
 			</DialogContent>
-			<DialogActions>
-				<Button
-					onClick={editProfileClick}
-					height="50px"
-					fullWidth
-					sx={{ backgroundColor: 'rgba(7, 193, 96, 0.1)' }}>
-					Cập nhật hồ sơ
-				</Button>
-			</DialogActions>
+			{owned &&
+				<DialogActions>
+					<Button
+						size="large"
+						onClick={editProfileClick}
+						height="50px"
+						fullWidth
+						sx={{ backgroundColor: 'rgba(7, 193, 96, 0.1)' }}>
+						Cập nhật hồ sơ
+					</Button>
+				</DialogActions>
+			}
 		</Dialog>
 	);
 };

@@ -3,10 +3,10 @@ const _ = require('lodash');
 const { findRoomByUser, getRooms, initRoomChat } = require('../services/roomService');
 const { logger } = require('../logger');
 const { AppException } = require('../exceptions/AppException');
-const User = require('../models/user');
+const User = require('../models/user'); 
 
-function roomEvent(nsp) {
-    nsp
+function roomEvent(io) {
+    io.of('rooms')
         .use(socketAuthMiddleware)
         .on("connection", (socket) => {
 
@@ -58,18 +58,6 @@ function roomEvent(nsp) {
                     console.log(error);
                 }
             })
-
-            socket.on('chatRoom.sentMsg', async function (roomId, callback) {
-                const room = await findRoomByUser(roomId, loggingUserId);
-
-                if (room) {
-                    socket.broadcast
-                        .to(loggingUserId)
-                        .emit('rooms.incomingMsg', roomId, room);
-
-                    callback({ msg: 'emitted.', room });
-                }
-            });
 
             socket.on('disconnect', function () {
                 console.log("disconnect: " + socket.id);

@@ -12,7 +12,7 @@ const { findUsersByIds } = require('./userService');
 
 
 async function findSingleRoomByUserId(loggingUserId, toUserId) {
-    return await Room.findOne({
+    return await findOneRoom({
         singleRoom: true,
         '$expr': {
             '$setEquals': ['$members', [
@@ -26,16 +26,20 @@ async function findSingleRoomByUserId(loggingUserId, toUserId) {
 
 
 
+async function findById(roomId) {
+    return await Room.findById(roomId);
+}
 
+async function findOneRoom(whereObj = {}) {
+    return await Room.findOne({ ...whereObj });
+}
 
 
 
 async function findRoomByUser(roomId, loggingUserId) {
     const room = await Room.findById(roomId);
     const members = await User.find({
-        _id: {
-            $in: room.members
-        }
+        _id: { $in: room.members }
     });
     if (!room) {
         throw new AppException("Room not found.");
@@ -237,4 +241,4 @@ const dispersionRoomById = async (loggingUserId, roomId) => {
     return room;
 }
 
-module.exports = { getRoomsCount, findSingleRoomByUserId, updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom, dispersionRoomById }
+module.exports = { getRoomsCount, findById, findOneRoom, findSingleRoomByUserId, updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom, dispersionRoomById }

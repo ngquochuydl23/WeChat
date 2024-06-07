@@ -52,13 +52,17 @@ const Chats = () => {
         });
     }
 
+    const updateRooms = (roomId, action) => {
+        console.log("updateRooms: " + roomId + ' -> ' + action);
+    }
+
     useEffect(() => {
         socket.emit('subscribe', user._id, onSubscribe);
-        socket.on('rooms.incomingMsg', onReceiveIncomingMsg);
+        socket.on('rooms.incomingMsg', updateRooms)
 
         return () => {
             socket.off('subscribe');
-            socket.off('rooms.incomingMsg');
+            socket.off('rooms.incomingMsg')
             socket.emit('leave', user._id);
         }
     }, [connected, loading])

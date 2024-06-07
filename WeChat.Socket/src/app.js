@@ -17,6 +17,7 @@ const { configureRedisDb } = require('./config/redis')
 const chatRoomEvent = require('./socket/chatRoomEvent');
 const _ = require('lodash');
 const roomEvent = require('./socket/roomEvent');
+const { configureSocketIo } = require('./socket');
 
 
 
@@ -52,26 +53,10 @@ app.use(function (err, req, res, next) {
 });
 
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-  cors: {
-    origins: _.split(process.env.SOCKET_CORS_ORIGINS, ','),
-    credentials: true,
-    methods: ["GET", "POST"]
-  },
-  transports: ["polling", "websocket"]
-});
+const io = configureSocketIo(server);
 
-const chatRoomNsp = io.of('/chatRoom');
-const roomNsp = io.of('/rooms');
-
-
-
-chatRoomEvent(chatRoomNsp);
-roomEvent(roomNsp);
-
-global.roomNsp = roomNsp;
-app.roomNsp = roomNsp;
-app.chatRoomNsp = chatRoomNsp;
+chatRoomEvent(io);
+roomEvent(io);
 
 module.exports = {
   server,

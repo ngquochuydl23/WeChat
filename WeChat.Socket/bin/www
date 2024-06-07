@@ -6,7 +6,7 @@
 
 var { server, configureMongoDb, configureRedisDb } = require('../src/app');
 
-var debug = require('debug')('social-v2-chat:server');
+var debug = require('debug')('wechat:server');
 var http = require('http');
 
 /**
@@ -92,7 +92,7 @@ async function onListening() {
   try {
     await configureMongoDb();
     await configureRedisDb();
-    //await configureSocketIo();
+
     debug('Listening on ' + bind);
   } catch (error) {
     console.log(error)
