@@ -55,6 +55,26 @@ async function findRoomByUser(roomId, loggingUserId) {
     };
 }
 
+async function findRoomJoinUser(roomId, loggingUserId) {
+    const room = await Room.findById(roomId);
+    const members = await User.find({
+        _id: { $in: room.members }
+    });
+    if (!room) {
+        throw new AppException("Room not found.");
+    }
+
+    if (!room.members.includes(loggingUserId)) {
+        throw new AppException("This account is not a member of this room");
+    }
+
+    return {
+        ...(room._doc),
+        users: members
+    };
+}
+
+
 async function initRoomChat(title = undefined, otherMemberIds, loggingUserId) {
     const memberIds = [...otherMemberIds, loggingUserId];
     const room = new Room({

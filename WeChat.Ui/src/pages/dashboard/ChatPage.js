@@ -31,8 +31,12 @@ const Chats = () => {
         }
     }
 
-    const onReceiveIncomingMsg = (roomId, room) => {
-        setRooms((preState) => [room, ...(preState.filter(x => x._id !== roomId))]);
+    const onReceiveIncomingMsg = (roomId, action, data) => {
+      
+
+        if (action !== 'typing') {
+            setRooms((preState) => [data.room, ...(preState.filter(x => x._id !== roomId))]);
+        }
     }
 
     const onConnected = () => {
@@ -52,13 +56,9 @@ const Chats = () => {
         });
     }
 
-    const updateRooms = (roomId, action) => {
-        console.log("updateRooms: " + roomId + ' -> ' + action);
-    }
-
     useEffect(() => {
         socket.emit('subscribe', user._id, onSubscribe);
-        socket.on('rooms.incomingMsg', updateRooms)
+        socket.on('rooms.incomingMsg', onReceiveIncomingMsg)
 
         return () => {
             socket.off('subscribe');

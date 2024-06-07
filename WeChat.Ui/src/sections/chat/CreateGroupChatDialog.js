@@ -15,6 +15,9 @@ import Chip from '@mui/material/Chip';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { uploadFile } from '@/services/storageApi';
 import { readUrl } from '@/utils/readUrl';
+import { getFriends } from '@/services/friendApiService';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const SelectedUserItem = ({ user, onRemove }) => {
     const { fullName, avatar } = user;
@@ -36,7 +39,10 @@ const SelectedUserItem = ({ user, onRemove }) => {
             clickable
             deleteIcon={<CloseIcon color='rgb(1,98,196)' />}
             onDelete={handleDelete}
-            avatar={<Avatar src={avatar} />}
+            avatar={
+                <Avatar
+                    alt={fullName}
+                    src={readUrl(avatar)} />}
             label={fullName}>
             <CloseIcon />
         </Chip>
@@ -46,17 +52,17 @@ const SelectedUserItem = ({ user, onRemove }) => {
 const UserItem = ({ user, checked, onChange }) => {
     const { fullName, avatar } = user;
     return (
-        <Stack
-            alignItems="center"
-            direction="row"
-            spacing="15px">
-            <Checkbox
-                checked={checked}
-                onChange={onChange} />
-            <Avatar src={avatar} />
-            <Typography fontWeight="500">
+        <Stack alignItems="center" direction="row" spacing="15px">
+            <Avatar alt={fullName} src={readUrl(avatar)} />
+            <Typography fontWeight="600" fontSize="15px" sx={{ width: '100%' }}>
                 {fullName}
             </Typography>
+            <Checkbox
+                icon={<RadioButtonUncheckedIcon />}
+                checkedIcon={<CheckCircleIcon />}
+                sx={{ mr: '20px', borderRadius: '300px' }}
+                checked={checked}
+                onChange={onChange} />
         </Stack>
     )
 }
@@ -70,28 +76,22 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
     const [content, setContent] = useState("");
     const [typing, setTyping] = useState(false);
     const [hasSearch, setHasSearched] = useState(false);
-    const [users, setUsers] = useState([]);
+    const [contacts, setContacts] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [searchUserLoading, setSearchUserLoading] = useState(false);
 
     const searchUser = () => {
         setHasSearched(true);
         setSearchUserLoading(true);
-        axios
-            .get(process.env.REACT_APP_API_ENDPOINT + "user/", {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem("accessToken"),
-                },
-                params: {
-                    notIncludeMe: true,
-                    search: content.trim()
-                }
-            })
-            .then(res => {
-                setUsers(_.map(res.data.users, (item) => ({
-                    user: item,
-                    checked: selectedUsers.findIndex(x => x._id === item._id) !== -1
-                })));
+
+        getFriends(content.trim())
+            .then(({ result }) => {
+                setContacts(result.friends);
+
+                // setUsers(_.map(res.data.users, (item) => ({
+                //     user: item,
+                //     checked: selectedUsers.findIndex(x => x._id === item._id) !== -1
+                // })));
             })
             .catch(err => {
                 console.log(err);
@@ -104,13 +104,13 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
     }
 
     const onChangeUserItem = (e, selectedItem) => {
-        const items = _.map(users, (item) => {
+        const items = _.map(contacts, (item) => {
             if (item.user._id === selectedItem.user._id) {
                 item.checked = !selectedItem.checked;
             }
             return item;
         });
-        setUsers(items);
+        setContacts(items);
         if (selectedItem.checked) {
             setSelectedUsers([...selectedUsers, selectedItem.user])
         } else {
@@ -165,7 +165,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
         setTimer(null);
         setContent('');
         setHasSearched(false);
-        setUsers([]);
+        setContacts([]);
         setSelectedUsers([]);
         setSearchUserLoading(false);
     }, [open])
@@ -177,9 +177,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
             scroll={"body"}
             onClose={onClose}
             maxWidth="sm">
-            <DialogTitle
-                sx={{ fontWeight: '800', m: 0, p: 2 }}
-                id="customized-dialog-title">
+            <DialogTitle sx={{ fontWeight: '800', m: 0, p: 2 }}>
                 Tạo nhóm
             </DialogTitle>
             <IconButton
@@ -193,10 +191,10 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                 }}>
                 <CloseIcon />
             </IconButton>
-            <DialogContent >
+            <DialogContent sx={{ py: 0 }}>
                 <Stack direction="row" display="flex">
                     <Box
-                        onClick={() => document.getElementById('room.thumnail.picker').click()}
+                        onClick={() => document.getElementById('room.thumnail.picker')?.click()}
                         alignItems="center"
                         justifyContent="center"
                         sx={{
@@ -240,14 +238,21 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                 <TextField
                     size='small'
                     onChange={onEnterSearching}
-                    sx={{ mt: '15px', fontSize: '14px' }}
+                    sx={{
+                        mt: '15px',
+                        fontSize: '14px',
+                        '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                                borderRadius: `20px`,
+                            }
+                        },
+                    }}
                     fullWidth
-                    label="Nhập số điện thoại"
+                    label="Nhập số điện thoại hoặc tên"
                     variant="outlined" />
-
                 <Stack direction="row" mt="20px" width="552px" minHeight="300px">
                     <Box flex="2">
-                        <Typography sx={{ fontWeight: '600' }}>Kết quả tìm kiếm</Typography>
+                        <Typography sx={{ fontWeight: '600', fontSize: '15px' }}>Kết quả tìm kiếm</Typography>
                         {Boolean(searchUserLoading)
                             ? <Stack
                                 py="10px"
@@ -282,21 +287,21 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                                 sx={{ overflowY: 'auto' }}
                                 spacing="15px"
                                 py="10px">
-                                {_.map(users, (item) => (
+                                {_.map(contacts, (contact) => (
                                     <UserItem
-                                        user={item.user}
-                                        checked={item.checked}
-                                        onChange={(e) => onChangeUserItem(e, item)} />
+                                        user={contact.user}
+                                        checked={contact.checked}
+                                        onChange={(e) => onChangeUserItem(e, contact)} />
                                 ))}
                             </Stack>
                         }
-                        {!users && hasSearch &&
+                        {!contacts && hasSearch &&
                             <Typography sx={{ fontWeight: '600' }}>Không tìm thấy</Typography>
                         }
                     </Box>
                     <Divider orientation="vertical" flexItem />
                     <Box ml="20px" flex="1.3">
-                        <Typography sx={{ fontWeight: '600' }}>Đã chọn</Typography>
+                        <Typography sx={{ fontWeight: '600', fontSize: '15px' }}>Đã chọn</Typography>
                         <Stack direction="column" py="10px" spacing="10px">
                             {_.map(selectedUsers, item => (
                                 <SelectedUserItem user={item} />

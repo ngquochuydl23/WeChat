@@ -3,7 +3,7 @@ const { socketAuthMiddleware } = require('../middlewares/authMiddleware');
 const _ = require('lodash');
 const moment = require('moment');
 const { logger } = require('../logger');
-const { findRoomByUser, findById, findOneRoom } = require('../services/roomService');
+const { findRoomByUser, findById, findOneRoom, updateRoom } = require('../services/roomService');
 const { getMsgByRoomId, sendMsg } = require('../services/messageService');
 const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
@@ -28,11 +28,15 @@ function validateMemberOfRoomMiddleware(socket, next) {
 function chatRoomEvent(io) {
 	async function emitToRoomNsp(roomId, action) {
 		const room = await findById(roomId);
+		const users = await findUsersByIds(room.members);
 
 		room.members.forEach(member => {
 			io.of('rooms')
 				.to(member.toHexString())
-				.emit('rooms.incomingMsg', roomId, action)
+				.emit('rooms.incomingMsg', roomId, action, {
+					room: { ...room, users: users },
+					unreadMsgCount: 0
+				})
 		});
 	}
 
@@ -66,7 +70,6 @@ function chatRoomEvent(io) {
 						pinnedMsgs: [],
 						links: [],
 					});
-					emitToRoomNsp(roomId, 'join');
 				} catch (error) {
 					console.log(error);
 				}
@@ -84,16 +87,16 @@ function chatRoomEvent(io) {
 					creatorId: loggingUserId
 				});
 
-				callback({ message });
-				logger.info(`${loggingUserId} sent msg to room ${room._id}`);
+				await updateRoom(roomId, { lastMsg: message });
 
 				socket.broadcast
 					.to(roomId)
 					.emit('incomingMsg', roomId, message);
 
-				logger.info(`${loggingUserId} sent to client`);
-
 				emitToRoomNsp(roomId, 'newMsg');
+				callback({ message });
+
+				logger.info(`${loggingUserId} sent msg to room ${room._id}`);
 			});
 
 

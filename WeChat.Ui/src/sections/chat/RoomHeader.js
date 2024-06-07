@@ -18,7 +18,7 @@ const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
                     <Skeleton
                         background="#f5f5f5"
                         variant="circular">
-                        <Avatar sx={{ aspectRatio: 1 }} />
+                        <Avatar sx={{ aspectRatio: 1, width: '50px', height: '50px' }} />
                     </Skeleton>
                 </Stack>
                 : <Avatar

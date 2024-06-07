@@ -120,7 +120,8 @@ exports.getFriends = async (req, res, next) => {
         const friends = await findManyAsQueryable(
             req.loggingUserId,
             friendConditionObj = {
-                accepted: true
+                accepted: true,
+                blocked: false
             },
             userConditionObj = {
                 ...(searchText && {

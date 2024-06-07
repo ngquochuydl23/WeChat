@@ -14,3 +14,12 @@ export const redeemRequest = (friendId) => http.post("friend/" + friendId + '/re
 export const acceptRequest = (friendId) => http.post("friend/" + friendId + '/accept');
 
 export const unfriend = (friendId) => http.delete("friend/" + friendId);
+
+
+export const getFriends = (searchText, skip, limit) => http.get("friend/", {
+    params: {
+        searchText,
+        skip,
+        limit
+    }
+})
