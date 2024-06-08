@@ -122,6 +122,7 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
                                                 {...filterRoomInfo(user._id, roomItem, roomItem.users)}
                                                 members={roomItem.users}
                                                 loggingUserId={user._id}
+                                                onClick={() => setSearchResult({ roomSearchings: [], conversation: [] })}
                                             />
                                         ))}
                                     </Scrollbars>

@@ -105,9 +105,11 @@ const FindUserDialog = ({ open, onClose }) => {
                 if (err === 'Room not found.') {
 
                     const { result } = await initRoomChat(null, [foundUser._id]);
-                    navigate('/chat/' + result.room._id);
-                    onClose();
-                    return;
+                    if (result) {
+                        navigate('/chat/' + result.room._id);
+                        onClose();
+                        return;
+                    }
                 }
                 console.log(err);
             })
@@ -263,7 +265,10 @@ const FindUserDialog = ({ open, onClose }) => {
                                         sx={{ paddingX: '25px' }}
                                         size="small"
                                         loading={actionLoading}
-                                        onClick={addFriend}>
+                                        onClick={(e) => {
+                                            addFriend();
+                                            e.stopPropagation();
+                                        }}>
                                         {`Kết bạn`}
                                     </LoadingButton>
                                 }
@@ -273,7 +278,10 @@ const FindUserDialog = ({ open, onClose }) => {
                                         sx={{ paddingX: '25px' }}
                                         size="small"
                                         loading={actionLoading}
-                                        onClick={redeem}>
+                                        onClick={(e) => {
+                                            redeem();
+                                            e.stopPropagation();
+                                        }}>
                                         {`Thu hồi`}
                                     </LoadingButton>
                                 }
@@ -283,7 +291,10 @@ const FindUserDialog = ({ open, onClose }) => {
                                         sx={{ paddingX: '25px' }}
                                         size="small"
                                         loading={actionLoading}
-                                        onClick={accept}>
+                                        onClick={(e) => {
+                                            accept();
+                                            e.stopPropagation();
+                                        }}>
                                         {`Đồng ý`}
                                     </LoadingButton>
                                 }

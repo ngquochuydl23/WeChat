@@ -77,17 +77,17 @@ const ContactPage = () => {
     <Stack
       direction="row"
       sx={{ height: '100%' }}>
-      <MenuRoomChat
+      {/* <MenuRoomChat
         key={roomId}
         rooms={rooms}
-        onCreateGroupChat={createGroupChat} />
+        onCreateGroupChat={createGroupChat} /> */}
       <Divider
         orientation="vertical"
         flexItem />
-      {(Boolean(roomId))
+      {/* {(Boolean(roomId))
         ? <Room />
         : <StartNewChat />
-      }
+      } */}
     </Stack>
   );
 };

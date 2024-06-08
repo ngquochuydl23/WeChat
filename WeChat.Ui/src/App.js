@@ -9,7 +9,18 @@ export default function App() {
 
   useEffect(() => {
     console.log("App.useEffect");
-    navigate(localStorage.getItem("social-v2.wechat.accessToken") ? '/chat' : '/auth/login');
+
+    const lastAccessRoomId = localStorage.getItem("lastAccessRoomId");
+
+    console.log("lastAccessRoomId: " + lastAccessRoomId);
+
+    const chatPath = lastAccessRoomId ? '/chat/' + lastAccessRoomId : '/chat';
+    console.log("lastAccessRoomId: " + lastAccessRoomId);
+    console.log("chatPath: " + chatPath);
+
+    
+
+    navigate(localStorage.getItem("social-v2.wechat.accessToken") ? chatPath : '/auth/login');
   }, []);
 
   return (

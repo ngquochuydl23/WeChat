@@ -12,6 +12,7 @@ import MemberTyping from "./MemberTyping";
 import { v4 as uuidv4 } from 'uuid';
 import DispersedComposer from "./DispersedComposer";
 import _ from "lodash";
+import zIndex from "@mui/material/styles/zIndex";
 
 const Room = () => {
     const { roomId } = useParams();
@@ -97,6 +98,7 @@ const Room = () => {
     }
 
     const onJoined = (response) => {
+        localStorage.setItem("lastAccessRoomId", roomId);
         if (response) {
             setConnected(true);
             setLoading(false);
@@ -144,13 +146,16 @@ const Room = () => {
     }
 
     useEffect(() => {
-        if (roomId) {
+        if (connected && roomId) {
+            console.log("Connected");
+            console.log("Joining")
             socket.emit('join', roomId, onJoined);
+
         }
 
         const timeoutId = setTimeout(() => {
             setMessageTimeout(true);
-        }, 3000);
+        }, 1000);
 
         return () => {
             clearTimeout(timeoutId);
@@ -159,7 +164,9 @@ const Room = () => {
     }, [connected]);
 
     useEffect(() => {
+        console.log("Connecting");
         setLoading(true);
+        socket.connect();
         socket.on('connect', onConnected);
         socket.on('disconnect', onDisconnected);
 
@@ -171,6 +178,8 @@ const Room = () => {
     }, []);
 
     useEffect(() => {
+
+        console.log("Room Changed");
         if (connected) {
             socket.emit('join', roomId, onJoined);
         }
@@ -197,111 +206,113 @@ const Room = () => {
     }, [roomId]);
 
     return (
-        <Stack
-            sx={{
-                width: '100%',
-                height: '100vh',
-                backgroundColor: 'whitesmoke',
-                overflow: 'hidden'
-            }}>
-            <RoomHeader
-                loading={loading}
-                room={room}
-                members={members}
-                loggingUserId={user._id}
-                onToggleRoomDetail={() => { setShowRoomInfo(!showRoomInfo) }} />
-
-            <Box>
-                {!loading && connected
-                    ? (!messageTimeout &&
-                        <Alert severity="success">
-                            Kết nối thành công
-                        </Alert>)
-                    : !loading &&
-                    <Alert severity="error">
-                        Mất kết nối
-                    </Alert>
-                }
-                {loading &&
+        <div style={{ display: 'flex', width: '100%', height: '100vh', position: 'relative' }}>
+            {false &&
+                <img
+                    alt="room.background"
+                    style={{ width: '100%', height: '100vh', position: 'relative' }}
+                    src={require('@/assets/Illustration/room_background_green.png')} />
+            }
+            <Stack sx={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'absolute', zIndex: 1 }}>
+                <Box sx={{ position: 'absolute', zIndex: 1, width: '100%' }}>
+                    <RoomHeader
+                        loading={loading}
+                        room={room}
+                        members={members}
+                        loggingUserId={user._id}
+                        onToggleRoomDetail={() => { setShowRoomInfo(!showRoomInfo) }} />
                     <Box>
-                        <Alert severity="info">Đang kết nối</Alert>
-                        <LinearProgress color="info" />
+                        {!loading && connected
+                            ? (null)
+                            : !loading &&
+                            <Alert severity="error">
+                                Mất kết nối
+                            </Alert>
+                        }
+                        {loading &&
+                            <Box>
+                                <Alert severity="info">Đang kết nối</Alert>
+                                <LinearProgress color="info" />
+                            </Box>
+                        }
                     </Box>
-                }
-            </Box>
-            <Stack
-                sx={{
-                    display: 'flex',
-                    overflowX: 'none',
-                    overflowY: 'auto',
-                    flexDirection: 'column-reverse',
-                    height: '100%',
-                    width: '100%',
-                    paddingX: '10px'
-                }}>
-                {(members.length > 0 && userTypingIds.length > 0) &&
-                    <MemberTyping
-                        typingUserIds={userTypingIds}
-                        members={members} />
-                }
+                </Box>
+                <Stack
+                    sx={{
+                        display: 'flex',
+                        overflowX: 'none',
+                        overflowY: 'auto',
+                        flexDirection: 'column-reverse',
+                        height: '100%',
+                        width: '100%',
+                        paddingX: '10px'
+                    }}>
 
-                {/* Msg from socket */}
-                {_.map(messages, (message, idx) => {
-                    if (message.type === 'system-notification') {
-                        return <NotificationMessage
-                            key={idx}
-                            members={members}
-                            user={members.find(x => x._id === message.creatorId)}
-                            {...message}
-                        />
-                    } else {
-                        if (message.creatorId === user._id) {
+                    {(members.length > 0 && userTypingIds.length > 0) &&
+                        <MemberTyping
+                            typingUserIds={userTypingIds}
+                            members={members} />
+                    }
+
+                    {/* Msg from socket */}
+                    {_.map(messages, (message, idx) => {
+                        if (message.type === 'system-notification') {
+                            return <NotificationMessage
+                                key={idx}
+                                members={members}
+                                user={members.find(x => x._id === message.creatorId)}
+                                {...message}
+                            />
+                        } else {
+                            if (message.creatorId === user._id) {
+                                return (
+                                    <RightMessage
+                                        key={idx}
+                                        {...message}
+                                        msgId={message._id}
+                                        onRedeemMsg={redeemMsg}
+                                    />
+                                )
+                            }
                             return (
-                                <RightMessage
+                                <LeftMessage
                                     key={idx}
-                                    {...message}
-                                    msgId={message._id}
-                                    onRedeemMsg={redeemMsg}
+                                    content={message.content}
+                                    redeem={message.redeem}
+                                    attachment={message.attachment}
+                                    type={message.type}
+                                    user={members.find(x => x._id === message.creatorId)}
                                 />
                             )
                         }
-                        return (
-                            <LeftMessage
-                                key={idx}
-                                content={message.content}
-                                redeem={message.redeem}
-                                attachment={message.attachment}
-                                type={message.type}
-                                user={members.find(x => x._id === message.creatorId)}
-                            />
-                        )
-                    }
-                })}
+                    })}
+                    <Box mb="80px" />
+                </Stack>
+                {room?.dispersed
+                    ? <DispersedComposer
+                        room={room}
+                        members={members} />
+                    : <Composer
+                        onTyping={() => typingMsg(true)}
+                        onStopTyping={() => typingMsg(false)}
+                        onSubmitMsg={onEnteredNewMsg}
+                        onSendFileMsg={sendFileMsg}
+                    />
+                }
+                <Drawer
+                    anchor="right"
+                    open={showRoomInfo}
+                    onClose={() => setShowRoomInfo(false)}>
+                    <RoomDetail
+                        loading={loading}
+                        room={room}
+                        members={members}
+                        loggingUserId={user._id}
+                        onDispersedRoom={dispersedRoom}
+                        onAddMember={addMember} />
+                </Drawer>
             </Stack>
-            {room?.dispersed
-                ? <DispersedComposer
-                    room={room}
-                    members={members} />
-                : <Composer
-                    onTyping={() => typingMsg(true)}
-                    onStopTyping={() => typingMsg(false)}
-                    onSubmitMsg={onEnteredNewMsg}
-                    onSendFileMsg={sendFileMsg}
-                />
-            }
-            <Drawer
-                anchor="right"
-                open={showRoomInfo}
-                onClose={() => setShowRoomInfo(false)}>
-                <RoomDetail
-                    loading={loading}
-                    room={room}
-                    members={members}
-                    loggingUserId={user._id}
-                    onDispersedRoom={dispersedRoom}
-                    onAddMember={addMember} />
-            </Drawer>
-        </Stack>
+        </div>
     )
 }
 

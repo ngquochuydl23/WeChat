@@ -12,7 +12,7 @@ import SendFileMsgDialog from "./SendFileMsgDialog";
 
 
 const Textarea = styled(BaseTextareaAutosize)(
-  ({ theme }) => `
+    ({ theme }) => `
     box-sizing: border-box;
     font-size: 0.875rem;
     font-weight: 500;
@@ -20,10 +20,11 @@ const Textarea = styled(BaseTextareaAutosize)(
     font-family: inherit;
     line-height: 1.5;
     padding: 12px;
-    border-radius: 12px 12px 12px 12px;
+    border-radius: 30px ;
     color: ${"black"};
-    background: white;
+    background: whitesmoke;
     border: none;
+    box-shadow: '0 4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)';
     resize: none;
     font-size: 14px;
     &:hover {
@@ -39,147 +40,148 @@ const Textarea = styled(BaseTextareaAutosize)(
   `
 );
 const Composer = ({ onSubmitMsg, onTyping, onStopTyping, onSendFileMsg }) => {
-  const [timer, setTimer] = useState();
-  const [content, setContent] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [typing, setTyping] = useState(false);
-  const [file, setFile] = useState(null);
+    const [timer, setTimer] = useState();
+    const [content, setContent] = useState("");
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [typing, setTyping] = useState(false);
+    const [file, setFile] = useState(null);
 
-  const ref = useRef();
+    const ref = useRef();
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-    ref.current?.focus();
-  };
+    const handleClose = () => {
+        setAnchorEl(null);
+        ref.current?.focus();
+    };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+    const open = Boolean(anchorEl);
+    const id = open ? "simple-popover" : undefined;
 
-  const onEnter = () => {
-    if (content.length > 0) {
-      onSubmitMsg(content);
-      setContent("");
-      ref.current?.focus();
+    const onEnter = () => {
+        if (content.length > 0) {
+            onSubmitMsg(content);
+            setContent("");
+            ref.current?.focus();
+        }
+    };
+
+    const onTypingMessage = (e) => {
+        if (!typing) {
+            onTyping();
+        }
+        setTyping(true);
+        setContent(e.target.value);
+        clearTimeout(timer);
+
+        const newTimer = setTimeout(() => {
+            setTyping(false);
+            onStopTyping();
+        }, 1000);
+
+        setTimer(newTimer);
     }
-  };
 
-  const onTypingMessage = (e) => {
-    if (!typing) {
-      onTyping();
+    const onKeyDown = (e) => {
+        if (e.keyCode === 13 && !e.shiftKey) {
+            e.preventDefault();
+            onEnter(content);
+        }
+    };
+
+    const handleEmojiClick = (emojiObject, event) => {
+        setContent((prevInput) => prevInput + emojiObject.emoji);
+    };
+
+    const onPickFile = (event) => {
+        var file = event.target.files[0];
+        console.log(file);
+        setFile(file);
     }
-    setTyping(true);
-    setContent(e.target.value);
-    clearTimeout(timer);
 
-    const newTimer = setTimeout(() => {
-      setTyping(false);
-      onStopTyping();
-    }, 1000);
-
-    setTimer(newTimer);
-  }
-
-  const onKeyDown = (e) => {
-    if (e.keyCode === 13 && !e.shiftKey) {
-      e.preventDefault();
-      onEnter(content);
-    }
-  };
-
-  const handleEmojiClick = (emojiObject, event) => {
-    setContent((prevInput) => prevInput + emojiObject.emoji);
-  };
-
-  const onPickFile = (event) => {
-    var file = event.target.files[0];
-    console.log(file);
-    setFile(file);
-  }
-
-  return (
-    <Stack
-      direction="row"
-      sx={{
-        width: "100%",
-        backgroundColor: "white",
-        paddingY: "10px",
-        paddingX: "15px",
-        alignItems: "flex-end",
-      }}>
-      <Textarea
-        ref={ref}
-        autoFocus
-        onKeyDown={onKeyDown}
-        maxRows="5"
-        value={content}
-        onChange={onTypingMessage}
-        placeholder="Soạn tin nhắn"
-      />
-      <Stack direction="row">
-        <IconButton
-          aria-label="attach-file"
-          onClick={() => document?.getElementById("pick-file")?.click()}>
-          <AttachFileIcon />
-        </IconButton>
-        <IconButton
-          onClick={() => document?.getElementById("pick-image")?.click()}
-          aria-label="photos">
-          <CropOriginalIcon />
-        </IconButton>
-        <IconButton
-          aria-label="emoji"
-          onClick={handleClick}>
-          <TagFacesIcon />
-        </IconButton>
-        {content.length > 0 && (
-          <IconButton
-            onClick={onEnter}
-            aria-label="emoji">
-            <SendIcon sx={{ color: "#0162C4" }} />
-          </IconButton>
-        )}
-      </Stack>
-      <Popover
-        style={{ boxShadow: "2px 6px 18px" }}
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}>
-        <EmojiPicker
-          onEmojiClick={handleEmojiClick}
-          open={open} />
-      </Popover>
-      <input
-        onChange={onPickFile}
-        style={{ display: "none" }}
-        type="file"
-        multiple
-        accept="image/*"
-        id="pick-image"
-      />
-      <input
-        onChange={onPickFile}
-        style={{ display: "none" }}
-        type="file"
-        multiple
-        accept="application/*"
-        id="pick-file"
-      />
-      <SendFileMsgDialog
-        file={file}
-        open={Boolean(file)}
-        onClose={() => setFile(null)}
-        onSendMsg={onSendFileMsg} />
-    </Stack>
-  );
+    return (
+        <Stack
+            direction="row"
+            sx={{
+                width: "100%",
+                borderTop: '1px solid #EBE9ED',
+                backgroundColor: "white",
+                paddingY: "10px",
+                paddingX: "15px",
+                alignItems: "flex-end",
+            }}>
+            <Textarea
+                ref={ref}
+                autoFocus
+                onKeyDown={onKeyDown}
+                maxRows="5"
+                value={content}
+                onChange={onTypingMessage}
+                placeholder="Soạn tin nhắn"
+            />
+            <Stack direction="row">
+                <IconButton
+                    aria-label="attach-file"
+                    onClick={() => document?.getElementById("pick-file")?.click()}>
+                    <AttachFileIcon />
+                </IconButton>
+                <IconButton
+                    onClick={() => document?.getElementById("pick-image")?.click()}
+                    aria-label="photos">
+                    <CropOriginalIcon />
+                </IconButton>
+                <IconButton
+                    aria-label="emoji"
+                    onClick={handleClick}>
+                    <TagFacesIcon />
+                </IconButton>
+                {content.length > 0 && (
+                    <IconButton
+                        onClick={onEnter}
+                        aria-label="emoji">
+                        <SendIcon sx={{ color: "#0162C4" }} />
+                    </IconButton>
+                )}
+            </Stack>
+            <Popover
+                style={{ boxShadow: "2px 6px 18px" }}
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                }}>
+                <EmojiPicker
+                    onEmojiClick={handleEmojiClick}
+                    open={open} />
+            </Popover>
+            <input
+                onChange={onPickFile}
+                style={{ display: "none" }}
+                type="file"
+                multiple
+                accept="image/*"
+                id="pick-image"
+            />
+            <input
+                onChange={onPickFile}
+                style={{ display: "none" }}
+                type="file"
+                multiple
+                accept="application/*"
+                id="pick-file"
+            />
+            <SendFileMsgDialog
+                file={file}
+                open={Boolean(file)}
+                onClose={() => setFile(null)}
+                onSendMsg={onSendFileMsg} />
+        </Stack>
+    );
 };
 
 export default Composer;

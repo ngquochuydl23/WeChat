@@ -13,7 +13,8 @@ const RoomChatItem = ({
     lastMsg,
     title,
     avatar,
-    members
+    members,
+    onClick
 }) => {
 
     const param = useParams();
@@ -83,6 +84,7 @@ const RoomChatItem = ({
         <Stack
             component={Link}
             to={"/chat/" + _id}
+            onClick={onClick}
             px="15px"
             py="10px"
             spacing="15px"
@@ -105,10 +107,7 @@ const RoomChatItem = ({
                 alt={title}
                 src={readUrl(avatar)} />
             <Box sx={{ width: '100%' }}>
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    sx={{ width: '100%', overflow: 'none' }}>
+                <Stack direction="row" justifyContent="space-between" sx={{ width: '100%', overflow: 'none' }}>
                     <Typography
                         sx={{
                             color: 'black',
@@ -120,21 +119,11 @@ const RoomChatItem = ({
                         variant="subtitle1">
                         {title}
                     </Typography>
-                    <Typography
-                        sx={{
-                            textAlign: 'right',
-                            color: 'gray',
-                            fontWeight: '500',
-                            fontSize: "12px"
-                        }}>
+                    <Typography sx={{ textAlign: 'right', color: 'gray', fontWeight: '500', fontSize: "12px" }}>
                         {filterChatTime(lastMsg.createdAt)}
                     </Typography>
                 </Stack>
-                <Stack
-                    sx={{ width: '100%' }}
-                    justifyContent="space-between"
-                    spacing="10px"
-                    direction="row">
+                <Stack sx={{ width: '100%' }} justifyContent="space-between" spacing="10px" direction="row">
                     {fitlerLastMsgContent()}
                     {/* {(Boolean(unreadMsg) && unreadMsg > 0)
               && <Chip

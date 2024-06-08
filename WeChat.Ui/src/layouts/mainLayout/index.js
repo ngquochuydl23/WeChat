@@ -8,7 +8,7 @@ import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import ProfileDialog from "@/sections/chat/ProfileDialog";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonalSettingDialog from "@/sections/settings/PersonalSettingDialog";
-import { setLoading, setUser, stopLoading } from "@/redux/slices/userSlice";
+import { logout, setLoading, setUser, stopLoading } from "@/redux/slices/userSlice";
 import { getMyProfile } from "@/services/profileApiService";
 import { useSnackbar } from "notistack";
 
@@ -43,18 +43,28 @@ const MainLayout = () => {
             .then(res => {
                 const { user } = res.result;
                 dispatch(setUser(user));
-                navigate("/chat");
+
+                const lastAccessRoomId = localStorage.getItem("lastAccessRoomId");
+                const chatPath = lastAccessRoomId ? '/chat/' + lastAccessRoomId : '/chat';
+
+                navigate(chatPath);
             })
             .catch(err => {
-                dispatch(setUser(null));
-                enqueueSnackbar(`Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại`, {
-                    variant: 'error',
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'right'
-                    },
-                    preventDuplicate: true
-                });
+                dispatch(logout());
+
+                if (localStorage.getItem("social-v2.wechat.accessToken")) {
+
+                    localStorage.removeItem("social-v2.wechat.accessToken");
+
+                    enqueueSnackbar(`Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại`, {
+                        variant: 'error',
+                        anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'right'
+                        },
+                        preventDuplicate: true
+                    });
+                }
             })
             .finally(() => dispatch(stopLoading()))
     }, []);
@@ -122,10 +132,7 @@ const MainLayout = () => {
                             </ListItemIcon>
                             <ListItemText
                                 primary="Xem hồ sơ"
-                                primaryTypographyProps={{
-                                    fontSize: '14px',
-                                    fontWeight: '500'
-                                }} />
+                                primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
                         </ListItemButton>
                         <ListItemButton
                             onClick={() => {
@@ -137,10 +144,7 @@ const MainLayout = () => {
                             </ListItemIcon>
                             <ListItemText
                                 primary="Cài đặt"
-                                primaryTypographyProps={{
-                                    fontSize: '14px',
-                                    fontWeight: '500'
-                                }} />
+                                primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
                         </ListItemButton>
                     </List>
                 </Popover>

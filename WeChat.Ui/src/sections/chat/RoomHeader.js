@@ -8,16 +8,19 @@ const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
 
     return (
         <Stack
+            sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(6px)',
+              //  borderBottom: '1px solid #EBE9ED',
+              //  boxShadow: '0px -4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)'
+            }}
             px="15px"
             py="10px"
             spacing="15px"
-            bgcolor="rgba(255, 255, 255, 0.9)"
             direction="row">
             {!Boolean(info)
                 ? <Stack direction="row" spacing="10px">
-                    <Skeleton
-                        background="#f5f5f5"
-                        variant="circular">
+                    <Skeleton background="#f5f5f5" variant="circular">
                         <Avatar sx={{ aspectRatio: 1, width: '50px', height: '50px' }} />
                     </Skeleton>
                 </Stack>
@@ -27,11 +30,10 @@ const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
                     src={readUrl(info?.avatar)} />
             }
             <Box sx={{ width: '100%' }}>
-                <Typography
-                    sx={{ width: '100%', color: 'black', fontSize: "16px" }}
-                    variant="subtitle1">
+                <Typography sx={{ width: '100%', color: 'black', fontSize: "16px" }} variant="subtitle1">
                     {info?.title || <Skeleton width="30%" />}
                 </Typography>
+                
                 <Typography
                     sx={{ fontWeight: "500", color: '#696969' }}
                     fontSize="14px"

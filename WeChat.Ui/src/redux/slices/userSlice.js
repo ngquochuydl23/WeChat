@@ -23,6 +23,7 @@ const slice = createSlice({
         logout: (state) => {
             state.user = null;
             localStorage.removeItem("accessToken");
+            localStorage.removeItem("lastAccessRoomId");
         },
     }
 })

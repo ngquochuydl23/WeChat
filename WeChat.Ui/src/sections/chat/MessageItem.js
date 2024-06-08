@@ -30,8 +30,7 @@ export const NotificationMessage = ({ user, content, members }) => {
             justifyContent="center"
             spacing="15px"
             bgcolor="whitesmoke"
-            direction="row"
-        >
+            direction="row">
             {content === "created this room." && (
                 <Chip
                     sx={{
@@ -74,22 +73,21 @@ export const NotificationMessage = ({ user, content, members }) => {
     );
 };
 
-const MsgContent = ({ type = "text", content, attachment }) => {
+const MsgContent = ({ type = "text", content, attachment, isRightMsg = false }) => {
     return (
-        <Stack sx={{ maxWidth: "700px", minWidth: "100px" }} direction="column">
+        <Stack sx={{ maxWidth: "700px" }} direction="column">
             {type === "image" && attachment && (
                 <img
                     alt={attachment.fileName}
                     style={{
                         objectFit: "cover",
                         marginTop: "10px",
-                        borderRadius: content ? "15px 15px 0px 0px " : "15px",
+                        borderRadius: content ? "12px 12px 0px 0px " : "12px",
                         width: "200px",
                         height: "200px",
                         marginBottom: content ? "0px" : "10px",
                     }}
-                    src={readUrl(attachment.url)}
-                />
+                    src={readUrl(attachment.url)} />
             )}
             {type === "file" && attachment && (
                 <Stack
@@ -101,7 +99,6 @@ const MsgContent = ({ type = "text", content, attachment }) => {
                         alignItems: 'center',
                         borderRadius: content ? '15px 15px 0px 0px ' : '10px',
                         marginBottom: content ? '0px' : '10px',
-                        backgroundColor: "white",
                     }}>
                     <Box
                         sx={{
@@ -112,8 +109,7 @@ const MsgContent = ({ type = "text", content, attachment }) => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            borderRadius: "200px",
-                            backgroundColor: "#f9f9f9",
+                            borderRadius: "200px"
                         }}>
                         <AttachFileIcon />
                     </Box>
@@ -131,13 +127,21 @@ const MsgContent = ({ type = "text", content, attachment }) => {
             )}
             {content && content.length > 0 && (
                 <Stack
+                    direction="column"
                     sx={{
-                        padding: "15px",
-                        borderRadius: (attachment) ? '0px 0px 15px 15px' : '20px',
-                        backgroundColor: "white"
+                        border: '1px solid #EBE9ED',
+                        paddingX: "10px",
+                        paddingY: '7px',
+                        borderRadius: (attachment) ? '0px 0px 12px 12px' : '20px',
+                        backgroundColor: isRightMsg ? '#07C160' : "whitesmoke"
                     }}
-                    direction="column">
-                    <Typography color="black" fontWeight="600" fontSize="15px" variant="body1">
+                >
+                    <Typography
+                        width="auto"
+                        color={isRightMsg ? "white" : "black"}
+                        fontWeight="500"
+                        fontSize="15px"
+                        variant="body1">
                         {content}
                     </Typography>
                     {/* <Typography alignSelf="flex-end" mt="5px" color="black" fontWeight="500" fontSize="12px" variant="body1">
@@ -157,7 +161,7 @@ export const LeftMessage = ({
     attachment,
 }) => {
     return redeem ? (
-        <Stack spacing="15px" bgcolor="whitesmoke" mb="10px" direction="row">
+        <Stack spacing="15px" direction="row">
             <Avatar
                 alt={user.fullName}
                 src={readUrl(user.avatar)} />
@@ -181,9 +185,12 @@ export const LeftMessage = ({
             </Box>
         </Stack>
     ) : (
-        <Stack mb="10px" spacing="15px" bgcolor="whitesmoke" direction="row">
+        <Stack mb="10px" spacing="15px" direction="row">
             <Avatar alt={user.fullName} src={readUrl(user.avatar)} />
-            <MsgContent content={content} type={type} attachment={attachment} />
+            <MsgContent
+                content={content}
+                type={type}
+                attachment={attachment} />
         </Stack>
     );
 };
@@ -254,12 +261,7 @@ export const RightMessage = ({
             </Typography>
         </Box>
     ) : (
-        <Stack
-            mb="10px"
-            justifyContent="flex-end"
-            spacing="15px"
-            bgcolor="whitesmoke"
-            direction="row">
+        <Stack mb="10px" justifyContent="flex-end" spacing="15px" direction="row">
             <IconButton
                 size="small"
                 sx={{ aspectRatio: 1 }}
@@ -300,7 +302,7 @@ export const RightMessage = ({
                     </ListItemButton>
                 </List>
             </Popover>
-            <MsgContent content={content} type={type} attachment={attachment} />
+            <MsgContent isRightMsg content={content} type={type} attachment={attachment} />
         </Stack>
     );
 };
