@@ -1,9 +1,8 @@
 
 const { socketAuthMiddleware } = require('../middlewares/authMiddleware');
 const _ = require('lodash');
-const moment = require('moment');
 const { logger } = require('../logger');
-const { findRoomByUser, findById, findOneRoom, updateRoom } = require('../services/roomService');
+const { findById, updateRoom } = require('../services/roomService');
 const { getMsgByRoomId, sendMsg } = require('../services/messageService');
 const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
@@ -19,7 +18,7 @@ function chatRoomEvent(io) {
 			io.of('rooms')
 				.to(member.toHexString())
 				.emit('rooms.incomingMsg', roomId, action, {
-					room: { ...room, users: users },
+					room: { ...room.toObject(), users: users },
 					unreadMsgCount: 0
 				})
 		});
@@ -48,12 +47,8 @@ function chatRoomEvent(io) {
 
 			socket.on('join', async (roomId, callback) => {
 				try {
-					console.log(roomId);
-
 					const room = await findById(roomId);
 					const users = await findUsersByIds(room.members);
-
-
 
 					socket.join(roomId);
 

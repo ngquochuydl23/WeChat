@@ -8,7 +8,6 @@ const Message = require('../models/message');
 const moment = require('moment');
 const { logger } = require('../logger');
 const { default: mongoose } = require("mongoose");
-const { findUsersByIds } = require('./userService');
 
 
 async function findSingleRoomByUserId(loggingUserId, toUserId) {
@@ -27,11 +26,11 @@ async function findSingleRoomByUserId(loggingUserId, toUserId) {
 
 
 async function findById(roomId) {
-    return await Room.findById(roomId);
+    return await Room.findById(roomId)
 }
 
 async function findOneRoom(whereObj = {}) {
-    return await Room.findOne({ ...whereObj });
+    return await Room.findOne({ ...whereObj })
 }
 
 
