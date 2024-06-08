@@ -144,6 +144,10 @@ const Room = () => {
     }
 
     useEffect(() => {
+        if (roomId) {
+            socket.emit('join', roomId, onJoined);
+        }
+
         const timeoutId = setTimeout(() => {
             setMessageTimeout(true);
         }, 3000);
@@ -167,31 +171,30 @@ const Room = () => {
     }, []);
 
     useEffect(() => {
-
         if (connected) {
             socket.emit('join', roomId, onJoined);
-
-            socket.on('incomingMsg', onReceiveIncomingMsg);
-            socket.on('incomingTyping', onReceiveIncomingTyping);
-            socket.on('roomDispersion', onRoomDispersion);
-            socket.on('addMember', onAddedMember);
-            socket.on('incomingRedeemMsg', onIncomingRedeemMsg)
-            socket.io.on("error", (error) => {
-                console.log(error)
-                socket.connect();
-            });
-
-            return () => {
-                socket.off('join');
-                socket.off('incomingMsg');
-                socket.off('incomingTyping');
-                socket.off('roomDispersion');
-                socket.off('addMember');
-                socket.off('incomingRedeemMsg');
-                socket.emit('leave', roomId);
-            };
         }
-    }, [roomId, connected, loading]);
+
+        socket.on('incomingMsg', onReceiveIncomingMsg);
+        socket.on('incomingTyping', onReceiveIncomingTyping);
+        socket.on('roomDispersion', onRoomDispersion);
+        socket.on('addMember', onAddedMember);
+        socket.on('incomingRedeemMsg', onIncomingRedeemMsg)
+        socket.io.on("error", (error) => {
+            console.log(error)
+            socket.connect();
+        });
+
+        return () => {
+            socket.off('join');
+            socket.off('incomingMsg');
+            socket.off('incomingTyping');
+            socket.off('roomDispersion');
+            socket.off('addMember');
+            socket.off('incomingRedeemMsg');
+            socket.emit('leave', roomId);
+        };
+    }, [roomId]);
 
     return (
         <Stack

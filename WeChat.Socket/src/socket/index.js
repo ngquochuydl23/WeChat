@@ -1,5 +1,3 @@
-const chatRoomEvent = require('./chatRoomEvent');
-
 let io;
 
 module.exports = {
@@ -22,7 +20,6 @@ module.exports = {
             pingInterval: 25000
         });
 
-  
 
         io = socketIoInstance;
         return io;

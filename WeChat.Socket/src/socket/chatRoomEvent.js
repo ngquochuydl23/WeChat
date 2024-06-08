@@ -7,23 +7,8 @@ const { findRoomByUser, findById, findOneRoom, updateRoom } = require('../servic
 const { getMsgByRoomId, sendMsg } = require('../services/messageService');
 const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
-const { getIo } = require('.');
 
 
-function validateMemberOfRoomMiddleware(socket, next) {
-	socket.onAny(async (event, ...args) => {
-		const room = await findById(args[0]);
-
-		if (!room) {
-			return next(new Error('Invalid argument type'));
-		}
-
-		if (!room.members.includes(new mongoose.Types.ObjectId(socket.loggingUserId))) {
-			return next(new Error('Invalid argument type'));
-		}
-	});
-	next();
-}
 
 function chatRoomEvent(io) {
 	async function emitToRoomNsp(roomId, action) {
@@ -43,15 +28,32 @@ function chatRoomEvent(io) {
 
 	io.of('chatRoom')
 		.use(socketAuthMiddleware)
-		.use(validateMemberOfRoomMiddleware)
 		.on("connection", (socket) => {
+
+			socket.use(async (packet, next) => {
+				const room = await findById(packet[1]);
+				if (!room) {
+					return next(new Error('Room not found'));
+				}
+
+				if (!room.members.includes(new mongoose.Types.ObjectId(socket.loggingUserId))) {
+					return next(new Error('Invalid argument type'));
+				}
+
+				return next();
+			});
+
 
 			const { loggingUserId } = socket;
 
 			socket.on('join', async (roomId, callback) => {
 				try {
+					console.log(roomId);
+
 					const room = await findById(roomId);
 					const users = await findUsersByIds(room.members);
+
+
 
 					socket.join(roomId);
 
