@@ -221,43 +221,5 @@ async function addMemberToRoom(loggingUserId, memberId, roomId) {
     };
 }
 
-const dispersionRoomById = async (loggingUserId, roomId) => {
-    const room = await Room.findById(roomId);
 
-    if (!room) {
-        throw new AppException("Room not found.");
-    }
-
-    if (room.dispersed) {
-        throw new AppException("Room is already dispersed before.");
-    }
-
-    if (room.singleRoom) {
-        throw new AppException("Cannot remove single room.");
-    }
-
-    if (room.creatorId.toHexString() !== loggingUserId) {
-        throw new AppException("This account is not the creator of this room.");
-    }
-
-    var lastMsg = new Message({
-        type: 'system-notification',
-        content: 'creator dispersed this room.',
-        roomId: room._id,
-        creatorId: loggingUserId
-    });
-
-    await lastMsg.save();
-
-    room.dispersed = true;
-    room.dispersedAt = moment();
-    room.lastMsg = lastMsg;
-
-    await room.save();
-
-    logger.info(`Room ${roomId} is dispersed by creator`);
-
-    return room;
-}
-
-module.exports = { getRoomsCount, findById, findOneRoom, findSingleRoomByUserId, updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom, dispersionRoomById }
+module.exports = { getRoomsCount, findById, findOneRoom, findSingleRoomByUserId, updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom }

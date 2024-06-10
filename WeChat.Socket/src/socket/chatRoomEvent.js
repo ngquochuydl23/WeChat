@@ -24,7 +24,6 @@ function chatRoomEvent(io) {
 		});
 	}
 
-
 	io.of('chatRoom')
 		.use(socketAuthMiddleware)
 		.on("connection", (socket) => {
@@ -98,21 +97,30 @@ function chatRoomEvent(io) {
 
 
 			socket.on('user.disperseRoom', async (roomId, callback) => {
-				const room = await dispersionRoomById(loggingUserId, roomId);
-				callback({
-					emitter: room.creatorId,
-					msg: "Room is dispersed successfully."
+
+				const lastMsg = await sendMsg({
+					type: 'system-notification',
+					content: 'creator dispersed this room.',
+					attachment: msg.attachment,
+					roomId: roomId,
+					creatorId: loggingUserId
 				});
 
-				logger.info(`${loggingUserId} join to room ${roomId}`);
+				await updateRoom(roomId, {
+					lastMsg,
+					dispersed: true,
+					dispersedAt: moment()
+				});
 
 				const messages = await getMsgByRoomId(room, loggingUserId);
 				socket
 					.to(roomId)
-					.emit('roomDispersion', {
-						room,
-						messages
-					});
+					.emit('roomDispersion', { room, messages });
+
+				callback({
+					emitter: loggingUserId,
+					msg: "Room is dispersed successfully."
+				});
 			})
 
 			socket.on('user.typing', async (roomId, { type }) => {
@@ -129,6 +137,8 @@ function chatRoomEvent(io) {
 					.broadcast
 					.to(message.roomId.toString())
 					.emit('incomingRedeemMsg', message);
+
+				emitToRoomNsp(roomId, 'redeemMsg');
 
 				callback({ msg: "Message is redeemed successfully." });
 			});

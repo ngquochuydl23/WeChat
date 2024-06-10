@@ -10,6 +10,7 @@ const {
 const { findUsersByIds } = require('../services/userService');
 const { sendMsg } = require('../services/messageService');
 const { getPaginateQuery, paginate } = require('../utils/paginate');
+const { getIo } = require('../socket');
 
 
 exports.findSingleRoom = async (req, res, next) => {
@@ -37,6 +38,7 @@ exports.initRoomChat = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
 
     try {
+
         if ((await findUsersByIds(otherIds)).length !== otherIds.length) {
             throw new AppException("Someone is not found to create a room.");
         }
@@ -56,6 +58,24 @@ exports.initRoomChat = async (req, res, next) => {
             });
 
             await updateRoom(room._id, { lastMsg });
+
+            const users = await findUsersByIds(room.members);
+        
+            room.members.forEach(member => {
+                getIo()
+                    .of('rooms')
+                    .to(member.toHexString())
+                    .emit('rooms.incomingMsg', room._id, 'newMsg', {
+                        room: {
+                            ...room.toObject(),
+                            lastMsg,
+                            users: users
+                        },
+                        unreadMsgCount: 1
+                    })
+            });
+
+
         }
 
         return res
@@ -64,7 +84,7 @@ exports.initRoomChat = async (req, res, next) => {
                 statusCode: 200,
                 msg: 'Room is created.',
                 result: {
-                    room: { ...room, lastMsg }
+                    room: { ...(room.toObject()), lastMsg }
                 }
             });
     } catch (error) {
