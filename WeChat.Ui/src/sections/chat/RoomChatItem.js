@@ -1,4 +1,4 @@
-import { Box, Typography, Stack, } from "@mui/material";
+import { Box, Typography, Stack, Chip, } from "@mui/material";
 import Avatar from '@mui/material/Avatar';
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
@@ -14,7 +14,8 @@ const RoomChatItem = ({
     title,
     avatar,
     members,
-    onClick
+    onClick,
+    unreadMsg = 0
 }) => {
 
     const param = useParams();
@@ -24,13 +25,20 @@ const RoomChatItem = ({
         if (lastMsg.type === 'text') {
             return (
                 <Typography
+                    textOverflow="ellipsis"
                     sx={{
+
                         fontWeight: "500",
                         color: '#696969',
-                        // ...(unreadMsg > 0 && {
-                        //   fontWeight: "600",
-                        //   color: '#000',
-                        // })
+                        ...((lastMsg.creatorId !== user._id && unreadMsg > 0) && {
+                            fontWeight: "600",
+                            color: '#000',
+                        }),
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: "1",
+                        WebkitBoxOrient: "vertical",
                     }}
                     fontSize="14px"
                     variant="body1">
@@ -72,7 +80,16 @@ const RoomChatItem = ({
         const creator = members.find(x => x._id === lastMsg.creatorId);
         return (
             <Typography
-                sx={{ fontWeight: "500", color: '#696969' }}
+                textOverflow="ellipsis"
+
+                sx={{
+                    fontWeight: "500", color: '#696969',
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: "2",
+                    WebkitBoxOrient: "vertical",
+                }}
                 fontSize="14px"
                 variant="body1">
                 {creator._id === user._id ? "Bạn" : creator.fullName} {filterMsgSystem(lastMsg.content, members)}
@@ -125,15 +142,12 @@ const RoomChatItem = ({
                 </Stack>
                 <Stack sx={{ width: '100%' }} justifyContent="space-between" spacing="10px" direction="row">
                     {fitlerLastMsgContent()}
-                    {/* {(Boolean(unreadMsg) && unreadMsg > 0)
-              && <Chip
-                size="small"
-                sx={{
-                  color: 'white',
-                  backgroundColor: '#0162C4'
-                }}
-                label={unreadMsg} />
-            } */}
+                    {(Boolean(unreadMsg) && unreadMsg > 0 && lastMsg.creatorId !== user._id) &&
+                        <Chip
+                            size="small"
+                            sx={{ color: 'white', backgroundColor: '#07C160', aspectRatio: 1 }}
+                            label={unreadMsg} />
+                    }
                 </Stack>
             </Box >
         </Stack >

@@ -18,6 +18,8 @@ import { readUrl } from '@/utils/readUrl';
 import { getFriends } from '@/services/friendApiService';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { initRoomChat } from '@/services/roomApiService';
+import { useNavigate } from 'react-router-dom';
 
 const SelectedUserItem = ({ user, onRemove }) => {
     const { fullName, avatar } = user;
@@ -67,7 +69,8 @@ const UserItem = ({ user, checked, onChange }) => {
     )
 }
 
-const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
+const CreateGroupChatDialog = ({ open, onClose }) => {
+    const navigate = useNavigate();
 
     const [thumbnail, setThumbnail] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -86,6 +89,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
 
         getFriends(content.trim())
             .then(({ result }) => {
+                console.log(result);
                 setContacts(result.friends);
 
                 // setUsers(_.map(res.data.users, (item) => ({
@@ -135,11 +139,16 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
     }
 
     const onCreateGroup = () => {
-        const members = _.map(selectedUsers, item => item._id);
-        onCreateGroupChat({
-            members,
-            title
-        })
+        const otherIds = _.map(selectedUsers, item => item._id);
+
+        initRoomChat(title, otherIds)
+            .then(({ result }) => {
+                console.log(result);
+                navigate('/chat/' + result.room._id);
+            })
+            .catch((err) => {
+                console.log(err)
+            })
     }
 
     const onPickFile = (event) => {
@@ -171,6 +180,11 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
     }, [open])
 
 
+    useEffect(() => {
+        searchUser();
+
+    }, [])
+
     return (
         <Dialog
             open={open}
@@ -183,12 +197,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
             <IconButton
                 aria-label="close"
                 onClick={onClose}
-                sx={{
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                    color: (theme) => theme.palette.grey[500],
-                }}>
+                sx={{ position: 'absolute', right: 8, top: 8, color: (theme) => theme.palette.grey[500] }}>
                 <CloseIcon />
             </IconButton>
             <DialogContent sx={{ py: 0 }}>
@@ -254,39 +263,27 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
                     <Box flex="2">
                         <Typography sx={{ fontWeight: '600', fontSize: '15px' }}>Kết quả tìm kiếm</Typography>
                         {Boolean(searchUserLoading)
-                            ? <Stack
-                                py="10px"
-                                direction="column"
-                                spacing="10px">
+                            ? <Stack py="10px" direction="column" spacing="10px">
                                 <Stack direction="row" spacing="10px">
-                                    <Skeleton
-                                        background="#f5f5f5"
-                                        variant="circular">
+                                    <Skeleton background="#f5f5f5" variant="circular">
                                         <Avatar />
                                     </Skeleton>
                                     <Skeleton width="60%" />
                                 </Stack>
                                 <Stack direction="row" spacing="10px">
-                                    <Skeleton
-                                        background="#f5f5f5"
-                                        variant="circular">
+                                    <Skeleton background="#f5f5f5" variant="circular">
                                         <Avatar />
                                     </Skeleton>
                                     <Skeleton width="60%" />
                                 </Stack>
                                 <Stack direction="row" spacing="10px">
-                                    <Skeleton
-                                        background="#f5f5f5"
-                                        variant="circular">
+                                    <Skeleton background="#f5f5f5" variant="circular">
                                         <Avatar />
                                     </Skeleton>
                                     <Skeleton width="60%" />
                                 </Stack>
                             </Stack>
-                            : <Stack
-                                sx={{ overflowY: 'auto' }}
-                                spacing="15px"
-                                py="10px">
+                            : <Stack sx={{ overflowY: 'auto' }} spacing="15px" py="10px">
                                 {_.map(contacts, (contact) => (
                                     <UserItem
                                         user={contact.user}
@@ -312,10 +309,7 @@ const CreateGroupChatDialog = ({ open, onClose, onCreateGroupChat }) => {
             </DialogContent>
             <Divider />
             <DialogActions>
-                <Button
-                    onClick={onClose}
-                    variant='contained'
-                    color='error' >
+                <Button onClick={onClose} variant='contained' color='error'>
                     Hủy
                 </Button>
                 <Button

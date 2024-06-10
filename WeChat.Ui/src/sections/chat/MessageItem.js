@@ -24,21 +24,10 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 export const NotificationMessage = ({ user, content, members }) => {
     return (
-        <Stack
-            px="15px"
-            py="10px"
-            justifyContent="center"
-            spacing="15px"
-            bgcolor="whitesmoke"
-            direction="row">
+        <Stack px="15px" py="10px" justifyContent="center" spacing="15px" direction="row">
             {content === "created this room." && (
                 <Chip
-                    sx={{
-                        fontSize: "12px",
-                        justifyContent: "flex-start",
-                        color: "rgb(1,98,196)",
-                        fontWeight: "600",
-                    }}
+                    sx={{ fontSize: "12px", justifyContent: "flex-start", color: "rgb(1,98,196)", fontWeight: "600" }}
                     avatar={<Avatar src={readUrl(user.avatar)} />}
                     label={
                         <Typography fontSize="14px" fontWeight="600">
@@ -52,12 +41,7 @@ export const NotificationMessage = ({ user, content, members }) => {
             )}
             {/^add/.test(content) && (
                 <Chip
-                    sx={{
-                        fontSize: "12px",
-                        justifyContent: "flex-start",
-                        color: "rgb(1,98,196)",
-                        fontWeight: "600",
-                    }}
+                    sx={{ fontSize: "12px", justifyContent: "flex-start", color: "rgb(1,98,196)", fontWeight: "600", }}
                     avatar={<Avatar src={user.avatar} />}
                     label={
                         <Typography fontSize="14px" fontWeight="600">
@@ -134,8 +118,7 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false }) 
                         paddingY: '7px',
                         borderRadius: (attachment) ? '0px 0px 12px 12px' : '20px',
                         backgroundColor: isRightMsg ? '#07C160' : "whitesmoke"
-                    }}
-                >
+                    }}>
                     <Typography
                         width="auto"
                         color={isRightMsg ? "white" : "black"}
@@ -153,13 +136,7 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false }) 
     );
 };
 
-export const LeftMessage = ({
-    user,
-    content,
-    redeem = false,
-    type = "text",
-    attachment,
-}) => {
+export const LeftMessage = ({ user, content, redeem = false, type = "text", attachment }) => {
     return redeem ? (
         <Stack spacing="15px" direction="row">
             <Avatar
@@ -250,39 +227,27 @@ export const RightMessage = ({
                 paddingX: "7px",
                 paddingY: "7px",
             }}>
-            <Typography
-                textAlign="center"
-                color="black"
-                fontWeight="500"
-                fontStyle="italic"
-                fontSize="15px"
-                variant="body1">
+            <Typography textAlign="center" color="black" fontWeight="500" fontStyle="italic" fontSize="15px" variant="body1">
                 {"Bạn đã thu hồi tin nhắn"}
             </Typography>
         </Box>
     ) : (
         <Stack mb="10px" justifyContent="flex-end" spacing="15px" direction="row">
-            <IconButton
+            {/* <IconButton
                 size="small"
                 sx={{ aspectRatio: 1 }}
                 aria-describedby={id}
                 variant="contained"
                 onClick={handleClick}>
                 <MoreHorizIcon />
-            </IconButton>
+            </IconButton> */}
             <Popover
                 id={id}
                 open={open}
                 anchorEl={anchorEl}
                 onClose={handleClose}
-                anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                }}
-                transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                }}>
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}>
                 <List>
                     <ListItemButton
                         onClick={() => {

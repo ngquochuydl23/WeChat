@@ -224,10 +224,7 @@ const Room = () => {
                     <Box>
                         {!loading && connected
                             ? (null)
-                            : !loading &&
-                            <Alert severity="error">
-                                Mất kết nối
-                            </Alert>
+                            : !loading && <Alert severity="error">Mất kết nối</Alert>
                         }
                         {loading &&
                             <Box>
@@ -289,9 +286,7 @@ const Room = () => {
                     <Box mb="80px" />
                 </Stack>
                 {room?.dispersed
-                    ? <DispersedComposer
-                        room={room}
-                        members={members} />
+                    ? <DispersedComposer room={room} members={members} />
                     : <Composer
                         onTyping={() => typingMsg(true)}
                         onStopTyping={() => typingMsg(false)}

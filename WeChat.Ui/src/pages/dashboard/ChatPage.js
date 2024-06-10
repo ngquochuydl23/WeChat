@@ -47,13 +47,6 @@ const Chats = () => {
         setConnected(false);
     }
 
-    const createGroupChat = (data) => {
-        socket.emit('initRoomChat', data, ({ room }) => {
-            setRooms((preState) => [room, ...preState]);
-            navigate("/chat/" + room._id);
-        });
-    }
-
     useEffect(() => {
         socket.emit('subscribe', user._id, onSubscribe);
         socket.on('rooms.incomingMsg', onReceiveIncomingMsg)
@@ -78,20 +71,10 @@ const Chats = () => {
     }, [])
 
     return (
-        <Stack
-            direction="row"
-            sx={{ height: '100%' }}>
-            <MenuRoomChat
-                key={roomId}
-                rooms={rooms}
-                onCreateGroupChat={createGroupChat} />
-            <Divider
-                orientation="vertical"
-                flexItem />
-            {(Boolean(roomId))
-                ? <Room />
-                : <StartNewChat />
-            }
+        <Stack direction="row" sx={{ height: '100%' }}>
+            <MenuRoomChat key={roomId} rooms={rooms} />
+            <Divider orientation="vertical" flexItem />
+            {(Boolean(roomId)) ? <Room /> : <StartNewChat />}
         </Stack>
     );
 };

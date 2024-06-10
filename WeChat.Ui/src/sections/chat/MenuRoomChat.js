@@ -4,7 +4,7 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import CreateGroupChatDialog from "./CreateGroupChatDialog";
 import _ from "lodash";
 import RoomChatItem from "./RoomChatItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { filterRoomInfo } from "../../utils/filterRoomInfo";
 import ReactSearchBox from "react-search-box";
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
@@ -14,7 +14,7 @@ import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import FindUserDialog from "./FindUserDialog";
 import { searchRoomChatByName } from "@/services/roomApiService";
 
-const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
+const MenuRoomChat = ({ rooms }) => {
 
     const { user } = useSelector((state) => state.user);
     const [timer, setTimer] = useState();
@@ -74,15 +74,8 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
                     autoFocus={false}
                     iconBoxSize="40px"
                     data={[]}
-                    fuseConfigs={{
-
-                    }}
                     leftIcon={
-                        <Box
-                            pt="5px"
-                            color="#d3d3d3"
-                            justifyContent="center"
-                            alignItems="center">
+                        <Box pt="5px" color="#d3d3d3" justifyContent="center" alignItems="center">
                             <SearchTwoToneIcon />
                         </Box>
                     }
@@ -94,12 +87,7 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
             {search.length > 0
                 ? <Stack sx={{ height: "100%", overflowY: "none" }}>
                     {searching
-                        ? <Stack
-                            spacing="15px"
-                            direction="column"
-                            pt="10px"
-                            px="20px"
-                            sx={{ width: '100%' }}>
+                        ? <Stack spacing="15px" direction="column" pt="10px" px="20px" sx={{ width: '100%' }}>
                             <UserSkeleton />
                             <UserSkeleton />
                             <UserSkeleton />
@@ -107,17 +95,13 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
                         : <Box height="100%">
                             {(searchResult.roomSearchings && searchResult.roomSearchings.length > 0) &&
                                 <Box height="100%">
-                                    <Typography
-                                        mt="10px"
-                                        ml="15px"
-                                        color="black"
-                                        fontWeight="600"
-                                        fontSize="16px">
+                                    <Typography mt="10px" ml="15px" color="black" fontWeight="600" fontSize="16px">
                                         Liên hệ
                                     </Typography>
                                     <Scrollbars autoHide>
                                         {_.map(searchResult.roomSearchings, (roomItem) => (
                                             <RoomChatItem
+                                                unreadMsg={1}
                                                 {...roomItem}
                                                 {...filterRoomInfo(user._id, roomItem, roomItem.users)}
                                                 members={roomItem.users}
@@ -134,6 +118,7 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
                 : <Scrollbars autoHide style={{ width: '100%', height: '100%', marginTop: '10px' }}>
                     {_.map(rooms, (roomItem) => (
                         <RoomChatItem
+                            unreadMsg={roomItem.unreadMsg || 0}
                             {...roomItem}
                             {...filterRoomInfo(user._id, roomItem, roomItem.users)}
                             members={roomItem.users}
@@ -145,7 +130,6 @@ const MenuRoomChat = ({ rooms, onCreateGroupChat }) => {
             <CreateGroupChatDialog
                 open={openCreateGroupChat}
                 onClose={() => setOpenCreateGroupChat(false)}
-                onCreateGroupChat={onCreateGroupChat}
             />
             <FindUserDialog
                 open={openFindUserDialog}
