@@ -2,9 +2,11 @@ const _ = require('lodash');
 const app = require('../app');
 const { AppException } = require('../exceptions/AppException');
 const { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg, updateManyMsg, findOneMsg } = require('../services/messageService');
-const { findRoomByUser, updateRoom } = require('../services/roomService');
+const { findRoomByUser, updateRoom, findById } = require('../services/roomService');
 const toObjectId = require('../utils/toObjectId');
 const { emitToRoomNsp } = require('../utils/socketUtils');
+const { logger } = require('../logger');
+const { getIo } = require('../socket');
 
 
 exports.getMsgByRoomId = async (req, res, next) => {
@@ -39,9 +41,6 @@ exports.deleteMsgByRoomId = async (req, res, next) => {
     const { roomId } = req.params;
 
     try {
-        const room = await findRoomByUser(roomId, loggingUserId);
-
-        await deleteMsgInRoom(loggingUserId, room);
         return res
             .status(200)
             .json({
@@ -57,26 +56,31 @@ exports.deleteMsgByRoomId = async (req, res, next) => {
 exports.seenMsgs = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
     const { roomId } = req.params;
-    await updateManyMsg(
-        {
-            roomId: roomId,
-            seenBys: { $nin: [toObjectId(loggingUserId)] }
-        },
-        {
-            $push: { seenBys: toObjectId(loggingUserId) }
-        })
 
-    const lastMsg = await findOneMsg({ roomId: roomId }, { createdAt: -1 });
+    try {
+        await updateManyMsg(
+            {
+                roomId: roomId,
+                seenBys: { $nin: [toObjectId(loggingUserId)] }
+            },
+            {
+                $push: { seenBys: toObjectId(loggingUserId) }
+            })
 
-    await updateRoom(roomId, { lastMsg: lastMsg });
-    await emitToRoomNsp(roomId, 'seenMsg');
+        const lastMsg = await findOneMsg({ roomId: roomId }, { createdAt: -1 });
 
-    return res
-        .status(200)
-        .json({
-            statusCode: 200,
-            msg: 'All messages have been seen.'
-        });
+        await updateRoom(roomId, { lastMsg: lastMsg });
+        await emitToRoomNsp(roomId, 'seenMsg');
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                msg: 'All messages have been seen.'
+            });
+    } catch (error) {
+        next(error);
+    }
 }
 
 exports.sendMsg = async (req, res, next) => {
@@ -85,22 +89,37 @@ exports.sendMsg = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
 
     try {
-        io.of('/rooms')
-            .emit('chatRoom.sentMsg', roomId, (err, response) => {
-                if (err instanceof Error) {
-                    console.log(err);
-                } else {
-                    logger.info(`ChatRoom nsp emitted to Room nsp`);
-                    console.log(response);
-                }
-            });
+        const room = await findById(roomId);
+
+        const message = await sendMsg({
+            type: msg.type,
+            content: msg.content,
+            attachment: msg.attachment,
+            roomId: room._id,
+            creatorId: loggingUserId,
+            seenBys: [toObjectId(loggingUserId)]
+        });
+
+        await updateRoom(roomId, { lastMsg: message });
+        
+        getIo()
+            .of('chatRoom')
+            .to(roomId)
+            .emit('incomingMsg', roomId, message);
+
+        await emitToRoomNsp(roomId, 'newMsg');
+
+        logger.info(`${loggingUserId} sent msg to room ${room._id}`);
+
         return res
             .status(201)
             .json({
                 statusCode: 201,
-                message
+                msg: 'Sent message successfully.',
+                result: {
+                    message
+                }
             });
-
     } catch (error) {
         next(error);
     }

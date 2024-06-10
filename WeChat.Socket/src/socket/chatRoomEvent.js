@@ -71,31 +71,6 @@ function chatRoomEvent(io) {
 				}
 			});
 
-			socket.on('user.sendMsg', async function (roomId, msg, callback) {
-
-				const room = await findById(roomId);
-				const message = await sendMsg({
-					type: msg.type,
-					content: msg.content,
-					attachment: msg.attachment,
-					roomId: room._id,
-					creatorId: loggingUserId,
-					seenBys: [new mongoose.Types.ObjectId(loggingUserId)]
-				});
-
-				await updateRoom(roomId, { lastMsg: message });
-
-				socket.broadcast
-					.to(roomId)
-					.emit('incomingMsg', roomId, message);
-
-				emitToRoomNsp(roomId, 'newMsg');
-				callback({ message });
-
-				logger.info(`${loggingUserId} sent msg to room ${room._id}`);
-			});
-
-
 			socket.on('user.disperseRoom', async (roomId, callback) => {
 
 				const lastMsg = await sendMsg({
@@ -159,7 +134,6 @@ function chatRoomEvent(io) {
 
 			socket.on("leave", (roomId) => {
 				socket.leave(roomId);
-
 				logger.info(roomId + " leaved room.");
 			});
 

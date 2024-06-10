@@ -4,12 +4,12 @@ const messageController = require('../controllers/messageController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 
-router.post('/:msgId/', authMiddleware, messageController.redeemMsg);
+router.post('/:msgId/redeem', authMiddleware, messageController.redeemMsg);
 
-router.post('/room/:roomId', authMiddleware, messageController.sendMsg);
+
 router.get('/room/:roomId', authMiddleware, messageController.getMsgByRoomId);
 router.delete('/room/:roomId', authMiddleware, messageController.deleteMsgByRoomId);
 
 router.post('/by-room/:roomId/seen', authMiddleware, messageController.seenMsgs);
-
+router.post('/by-room/:roomId/sendMsg', authMiddleware, messageController.sendMsg);
 module.exports = router;

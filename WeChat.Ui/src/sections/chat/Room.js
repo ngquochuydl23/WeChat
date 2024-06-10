@@ -99,9 +99,6 @@ const Room = () => {
     const onJoined = (response) => {
         localStorage.setItem("lastAccessRoomId", roomId);
 
-
-
-        //socket.emit('user.seenMsg', roomId);
         seen();
         if (response) {
             setConnected(true);
@@ -114,9 +111,7 @@ const Room = () => {
 
     const onReceiveIncomingMsg = async (roomId, msg) => {
         if (msg.creatorId !== user._id) {
-
             seen();
-            //socket.emit('user.seenMsg', roomId);
         }
         setMessages((pre) => [msg, ...pre]);
     }
@@ -124,9 +119,7 @@ const Room = () => {
     const seen = () => {
         if (roomId)
             seenMsg(roomId)
-                .then(({ msg }) => {
-                    console.log(msg);
-                })
+                .then(({ msg }) => {})
                 .catch((err) => {
                     console.log(err);
                 })

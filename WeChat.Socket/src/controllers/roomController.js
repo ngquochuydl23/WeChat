@@ -11,6 +11,7 @@ const { findUsersByIds } = require('../services/userService');
 const { sendMsg } = require('../services/messageService');
 const { getPaginateQuery, paginate } = require('../utils/paginate');
 const { getIo } = require('../socket');
+const { emitToRoomNsp } = require('../utils/socketUtils');
 
 
 exports.findSingleRoom = async (req, res, next) => {
@@ -58,24 +59,7 @@ exports.initRoomChat = async (req, res, next) => {
             });
 
             await updateRoom(room._id, { lastMsg });
-
-            const users = await findUsersByIds(room.members);
-        
-            room.members.forEach(member => {
-                getIo()
-                    .of('rooms')
-                    .to(member.toHexString())
-                    .emit('rooms.incomingMsg', room._id, 'newMsg', {
-                        room: {
-                            ...room.toObject(),
-                            lastMsg,
-                            users: users
-                        },
-                        unreadMsgCount: 1
-                    })
-            });
-
-
+            await emitToRoomNsp(room._id, 'newMsg');
         }
 
         return res
