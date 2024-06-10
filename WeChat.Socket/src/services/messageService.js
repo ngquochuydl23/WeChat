@@ -8,90 +8,101 @@ const room = require('../models/room');
 const mongoose = require('mongoose');
 
 async function getMsgByRoomId(
-  roomId,
-  loggingUserId,
-  skipDays = 0,
-  lastLimitDays = 30
+    roomId,
+    loggingUserId,
+    skipDays = 0,
+    lastLimitDays = 30
 ) {
 
-  const messages = await Message
-    .find({
-      roomId: roomId,
-      // createdAt: {
-      //   $gte: moment()
-      //     .subtract(
-      //       _.min([
-      //         (+lastLimitDays + +skipDays),
-      //         moment(userConfig.chatDeletedAt || userConfig.joinedAt)
-      //           .diff(moment(), 'days'),
-      //       ]),
-      //       'days')
-      //     .startOf('day')
-      //     .format(),
-      //   $lte: moment()
-      //     .subtract(skipDays, 'days')
-      //     .endOf('day')
-      //     .format()
-      // }
-    })
-    .sort({ createdAt: -1 });
+    const messages = await Message
+        .find({
+            roomId: roomId,
+            // createdAt: {
+            //   $gte: moment()
+            //     .subtract(
+            //       _.min([
+            //         (+lastLimitDays + +skipDays),
+            //         moment(userConfig.chatDeletedAt || userConfig.joinedAt)
+            //           .diff(moment(), 'days'),
+            //       ]),
+            //       'days')
+            //     .startOf('day')
+            //     .format(),
+            //   $lte: moment()
+            //     .subtract(skipDays, 'days')
+            //     .endOf('day')
+            //     .format()
+            // }
+        })
+        .sort({ createdAt: -1 });
 
-  return messages;
+    return messages;
 }
 
 async function deleteMsgInRoom(loggingUserId, room) {
-  await Room.updateOne({
-    _id: room._id,
-    'userConfigs.userId': loggingUserId
-  }, {
-    '$set': {
-      'userConfigs.$.chatDeletedAt': moment()
-    }
-  });
+    await Room.updateOne({
+        _id: room._id,
+        'userConfigs.userId': loggingUserId
+    }, {
+        '$set': {
+            'userConfigs.$.chatDeletedAt': moment()
+        }
+    });
 }
 
-async function sendMsg(msg) {
-  const message = new Message({ ...msg });
+async function findOneMsg(whereObj = {}, sortObj = {}) {
+    const msg = await Message.findOne({ ...whereObj })
+        .sort({ ...sortObj });
+    return msg;
+}
 
-  await message.save();
-  return message;
+async function updateManyMsg(whereObj = {}, option = {}) {
+    await Message.updateMany({ ...whereObj }, { ...option });
+}
+
+
+async function sendMsg(msg) {
+    const message = new Message({ ...msg });
+
+    await message.save();
+    return message;
 }
 
 async function redeemMsg(loggingUserId, msgId) {
-  const message = await Message.findById(msgId);
-  const room = await Room.findById(message.roomId);
+    const message = await Message.findById(msgId);
+    const room = await Room.findById(message.roomId);
 
-  if (!message) {
-    throw new AppException("Message not found.");
-  }
+    if (!message) {
+        throw new AppException("Message not found.");
+    }
 
-  if (message.creatorId.toHexString() !== loggingUserId) {
-    throw new AppException("Message is not belong to this account.");
-  }
+    if (message.creatorId.toHexString() !== loggingUserId) {
+        throw new AppException("Message is not belong to this account.");
+    }
 
-  if ((message.redeem)) {
-    throw new AppException("Cannot not redeem this msg. It is redeemed before.");
-  }
+    if ((message.redeem)) {
+        throw new AppException("Cannot not redeem this msg. It is redeemed before.");
+    }
 
-  message.redeem = true;
-  await message.save();
-
-
-  const notifyMsg = new Message({
-    type: 'system-notification',
-    content: 'redeemMsg.',
-    roomId: room._id,
-    createdAt: message.createdAt,
-    creatorId: loggingUserId
-  });
-
-  await notifyMsg.save();
+    message.redeem = true;
+    await message.save();
 
 
-  room.lastMsg = notifyMsg;
-  await room.save();
+    const notifyMsg = new Message({
+        type: 'system-notification',
+        content: 'redeemMsg.',
+        roomId: room._id,
+        createdAt: message.createdAt,
+        creatorId: loggingUserId
+    });
 
-  return message;
+    await notifyMsg.save();
+
+
+    room.lastMsg = notifyMsg;
+    await room.save();
+
+    return message;
 }
 
-module.exports = { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg }
+module.exports = { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg, updateManyMsg, findOneMsg }

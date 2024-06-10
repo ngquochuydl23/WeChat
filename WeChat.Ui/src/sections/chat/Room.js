@@ -12,7 +12,7 @@ import MemberTyping from "./MemberTyping";
 import { v4 as uuidv4 } from 'uuid';
 import DispersedComposer from "./DispersedComposer";
 import _ from "lodash";
-import zIndex from "@mui/material/styles/zIndex";
+import { seenMsg } from "@/services/messagesApiService";
 
 const Room = () => {
     const { roomId } = useParams();
@@ -87,7 +87,6 @@ const Room = () => {
     }
 
     const onConnected = () => {
-        console.log("Socket.onConnected");
         setConnected(true);
         setLoading(false);
     }
@@ -99,6 +98,11 @@ const Room = () => {
 
     const onJoined = (response) => {
         localStorage.setItem("lastAccessRoomId", roomId);
+
+
+
+        //socket.emit('user.seenMsg', roomId);
+        seen();
         if (response) {
             setConnected(true);
             setLoading(false);
@@ -109,7 +113,23 @@ const Room = () => {
     }
 
     const onReceiveIncomingMsg = async (roomId, msg) => {
+        if (msg.creatorId !== user._id) {
+
+            seen();
+            //socket.emit('user.seenMsg', roomId);
+        }
         setMessages((pre) => [msg, ...pre]);
+    }
+
+    const seen = () => {
+        if (roomId)
+            seenMsg(roomId)
+                .then(({ msg }) => {
+                    console.log(msg);
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
     }
 
     const onAddedMember = async (room, msg) => {

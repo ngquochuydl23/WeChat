@@ -180,10 +180,10 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
     }, [open])
 
 
-    useEffect(() => {
-        searchUser();
+    // useEffect(() => {
+    //     searchUser();
 
-    }, [])
+    // }, [])
 
     return (
         <Dialog

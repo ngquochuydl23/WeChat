@@ -3,7 +3,7 @@ const { socketAuthMiddleware } = require('../middlewares/authMiddleware');
 const _ = require('lodash');
 const { logger } = require('../logger');
 const { findById, updateRoom } = require('../services/roomService');
-const { getMsgByRoomId, sendMsg } = require('../services/messageService');
+const { getMsgByRoomId, sendMsg, updateManyMsg, findOneMsg } = require('../services/messageService');
 const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
 
@@ -71,7 +71,6 @@ function chatRoomEvent(io) {
 				}
 			});
 
-
 			socket.on('user.sendMsg', async function (roomId, msg, callback) {
 
 				const room = await findById(roomId);
@@ -80,7 +79,8 @@ function chatRoomEvent(io) {
 					content: msg.content,
 					attachment: msg.attachment,
 					roomId: room._id,
-					creatorId: loggingUserId
+					creatorId: loggingUserId,
+					seenBys: [new mongoose.Types.ObjectId(loggingUserId)]
 				});
 
 				await updateRoom(roomId, { lastMsg: message });

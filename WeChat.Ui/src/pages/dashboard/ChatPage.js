@@ -32,8 +32,15 @@ const Chats = () => {
     }
 
     const onReceiveIncomingMsg = (roomId, action, data) => {
-        if (action !== 'typing') {
+        if (action === 'newMsg') {
             setRooms((preState) => [data.room, ...(preState.filter(x => x._id !== roomId))]);
+        } else {
+            setRooms((preState) => preState.map(item => {
+                if (item._id === data.room._id) {
+                    return data.room;
+                }
+                return item;
+            }));
         }
     }
 

@@ -15,3 +15,5 @@ export const searchRoomChatByName = (name, skip = 0, limit = 10) => http.get("/r
         limit
     }
 })
+
+export const seenMsg = (roomId) => http.post("/room/" + roomId + '/seen');

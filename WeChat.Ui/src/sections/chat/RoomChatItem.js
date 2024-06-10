@@ -7,6 +7,7 @@ import { filterMsgSystem } from "../../utils/fitlerMsg";
 import PhotoIcon from '@mui/icons-material/Photo';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { readUrl } from "@/utils/readUrl";
+import _ from "lodash";
 
 const RoomChatItem = ({
     _id,
@@ -15,8 +16,9 @@ const RoomChatItem = ({
     avatar,
     members,
     onClick,
-    unreadMsg = 0
+    unreadMsg = 0,
 }) => {
+
 
     const param = useParams();
     const { user } = useSelector((state) => state.user);
@@ -81,7 +83,6 @@ const RoomChatItem = ({
         return (
             <Typography
                 textOverflow="ellipsis"
-
                 sx={{
                     fontWeight: "500", color: '#696969',
                     overflow: "hidden",
@@ -96,6 +97,7 @@ const RoomChatItem = ({
             </Typography>
         )
     }
+
 
     return (
         <Stack
@@ -147,6 +149,19 @@ const RoomChatItem = ({
                             size="small"
                             sx={{ color: 'white', backgroundColor: '#07C160', aspectRatio: 1 }}
                             label={unreadMsg} />
+                    }
+                    {(lastMsg.creatorId === user._id && lastMsg.seenBys) &&
+                        <Stack direction="row">
+                            {(lastMsg.seenBys.filter(x => x !== user._id))
+                                .map(id => {
+                                    const seenBy = members.find(mem => mem._id === id);
+                                    return (
+                                        <Avatar
+                                            sx={{ width: '20px', height: '20px' }}
+                                            src={readUrl(seenBy.avatar)} />
+                                    )
+                                })}
+                        </Stack>
                     }
                 </Stack>
             </Box >
