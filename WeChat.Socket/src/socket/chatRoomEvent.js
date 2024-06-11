@@ -1,4 +1,3 @@
-
 const { socketAuthMiddleware } = require('../middlewares/authMiddleware');
 const _ = require('lodash');
 const { logger } = require('../logger');
@@ -105,7 +104,7 @@ function chatRoomEvent(io) {
 					.emit('incomingTyping', roomId, type, loggingUserId);
 
 				emitToRoomNsp(roomId, 'typing', {
-					typing: type === 'true',
+					typing: /^true$/i.test(type),
 					typingUserId: loggingUserId
 				});
 			});
