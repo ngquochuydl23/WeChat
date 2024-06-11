@@ -7,7 +7,6 @@ const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
 
 
-
 function chatRoomEvent(io) {
 	async function emitToRoomNsp(roomId, action, extraData) {
 		const room = await findById(roomId);

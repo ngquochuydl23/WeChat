@@ -56,6 +56,14 @@ async function findOneMsg(whereObj = {}, sortObj = {}) {
     return msg;
 }
 
+async function countMsgs(whereObj = {}) {
+    const count = await Message
+        .find({ ...whereObj })
+        .count();
+
+    return count;
+}
+
 async function updateManyMsg(whereObj = {}, option = {}) {
     await Message.updateMany({ ...whereObj }, { ...option });
 }
@@ -105,4 +113,4 @@ async function redeemMsg(loggingUserId, msgId) {
     return message;
 }
 
-module.exports = { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg, updateManyMsg, findOneMsg }
+module.exports = { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg, updateManyMsg, findOneMsg, countMsgs }

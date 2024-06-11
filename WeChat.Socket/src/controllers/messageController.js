@@ -65,7 +65,7 @@ exports.seenMsgs = async (req, res, next) => {
             },
             {
                 $push: { seenBys: toObjectId(loggingUserId) }
-            })
+            });
 
         const lastMsg = await findOneMsg({ roomId: roomId }, { createdAt: -1 });
 
