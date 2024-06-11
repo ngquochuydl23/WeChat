@@ -12,14 +12,14 @@ import MemberTyping from "./MemberTyping";
 import { v4 as uuidv4 } from 'uuid';
 import DispersedComposer from "./DispersedComposer";
 import _ from "lodash";
-import { seenMsg } from "@/services/messagesApiService";
+import { seenMsg, sendMsg } from "@/services/messagesApiService";
+
+const socket = socketManager('chatRoom');
 
 const Room = () => {
     const { roomId } = useParams();
-    const socket = socketManager('chatRoom');
     const [messageTimeout, setMessageTimeout] = useState(false);
     const { user } = useSelector((state) => state.user);
-    const [connected, setConnected] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showRoomInfo, setShowRoomInfo] = useState(false);
 
@@ -42,9 +42,12 @@ const Room = () => {
                 roomId: roomId
             }
 
-            socket.emit('user.sendMsg', roomId, newMsg, ({ message }) => {
 
-            });
+            sendMsg(roomId, newMsg)
+                .then(({ result, msg }) => { console.log(result) })
+                .catch((err) => {
+                    console.log(err);
+                })
         }
     }
 
@@ -87,21 +90,23 @@ const Room = () => {
     }
 
     const onConnected = () => {
-        setConnected(true);
+        console.log("onConnected");
         setLoading(false);
     }
 
     const onDisconnected = () => {
+        console.log("onDisconnected");
         setLoading(false);
-        setConnected(false);
     }
 
     const onJoined = (response) => {
+        console.log("onJoined");
+
+
         localStorage.setItem("lastAccessRoomId", roomId);
 
         seen();
         if (response) {
-            setConnected(true);
             setLoading(false);
             setMembers(response.users)
             setRoom(response.room);
@@ -113,13 +118,14 @@ const Room = () => {
         if (msg.creatorId !== user._id) {
             seen();
         }
+        console.log(msg);
         setMessages((pre) => [msg, ...pre]);
     }
 
     const seen = () => {
         if (roomId)
             seenMsg(roomId)
-                .then(({ msg }) => {})
+                .then(({ msg }) => { console.log(msg) })
                 .catch((err) => {
                     console.log(err);
                 })
@@ -134,7 +140,6 @@ const Room = () => {
     const onReceiveIncomingTyping = async (roomId, isTyping, typingUserId) => {
         if (!isTyping) {
             setUserTypingIds(userTypingIds.filter(ids => ids !== typingUserId))
-
         } else {
             let temp = userTypingIds.filter(ids => ids !== typingUserId)
             temp.push(typingUserId);
@@ -159,11 +164,8 @@ const Room = () => {
     }
 
     useEffect(() => {
-        if (connected && roomId) {
-            console.log("Connected");
-            console.log("Joining")
+        if (socket.connected && roomId) {
             socket.emit('join', roomId, onJoined);
-
         }
 
         const timeoutId = setTimeout(() => {
@@ -174,14 +176,18 @@ const Room = () => {
             clearTimeout(timeoutId);
             setMessageTimeout(false);
         };
-    }, [connected]);
+    }, [socket.connected]);
 
     useEffect(() => {
-        console.log("Connecting");
         setLoading(true);
-        socket.connect();
+
         socket.on('connect', onConnected);
         socket.on('disconnect', onDisconnected);
+
+        socket.io.on("error", (error) => {
+            console.log(error);
+            socket.connect();
+        });
 
         return () => {
             setLoading(false);
@@ -191,22 +197,16 @@ const Room = () => {
     }, []);
 
     useEffect(() => {
-
-        console.log("Room Changed");
-        if (connected) {
+        if (socket.connected) {
             socket.emit('join', roomId, onJoined);
+
+            socket.on('incomingMsg', onReceiveIncomingMsg);
+            socket.on('incomingTyping', onReceiveIncomingTyping);
+            socket.on('roomDispersion', onRoomDispersion);
+            socket.on('addMember', onAddedMember);
+            socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
         }
-
-        socket.on('incomingMsg', onReceiveIncomingMsg);
-        socket.on('incomingTyping', onReceiveIncomingTyping);
-        socket.on('roomDispersion', onRoomDispersion);
-        socket.on('addMember', onAddedMember);
-        socket.on('incomingRedeemMsg', onIncomingRedeemMsg)
-        socket.io.on("error", (error) => {
-            console.log(error)
-            socket.connect();
-        });
-
+        
         return () => {
             socket.off('join');
             socket.off('incomingMsg');
@@ -220,7 +220,7 @@ const Room = () => {
 
     return (
         <div style={{ display: 'flex', width: '100%', height: '100vh', position: 'relative' }}>
-            {false &&
+            {room?.theme &&
                 <img
                     alt="room.background"
                     style={{ width: '100%', height: '100vh', position: 'relative' }}
@@ -235,10 +235,7 @@ const Room = () => {
                         loggingUserId={user._id}
                         onToggleRoomDetail={() => { setShowRoomInfo(!showRoomInfo) }} />
                     <Box>
-                        {!loading && connected
-                            ? (null)
-                            : !loading && <Alert severity="error">Mất kết nối</Alert>
-                        }
+                        {(!loading && !socket.connected) && <Alert severity="error">Mất kết nối</Alert>}
                         {loading &&
                             <Box>
                                 <Alert severity="info">Đang kết nối</Alert>

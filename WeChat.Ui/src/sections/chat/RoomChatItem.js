@@ -1,4 +1,4 @@
-import { Box, Typography, Stack, Chip, } from "@mui/material";
+import { Box, Typography, Stack, Chip, AvatarGroup, } from "@mui/material";
 import Avatar from '@mui/material/Avatar';
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
@@ -7,7 +7,8 @@ import { filterMsgSystem } from "../../utils/fitlerMsg";
 import PhotoIcon from '@mui/icons-material/Photo';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { readUrl } from "@/utils/readUrl";
-import _ from "lodash";
+import Lottie from "react-lottie";
+import typingAnimation from '../../lotties/typing-lotties.json';
 
 const RoomChatItem = ({
     _id,
@@ -16,7 +17,8 @@ const RoomChatItem = ({
     avatar,
     members,
     onClick,
-    unreadMsg = 0,
+    unreadMsgCount = 0,
+    typing
 }) => {
 
 
@@ -29,10 +31,9 @@ const RoomChatItem = ({
                 <Typography
                     textOverflow="ellipsis"
                     sx={{
-
                         fontWeight: "500",
                         color: '#696969',
-                        ...((lastMsg.creatorId !== user._id && unreadMsg > 0) && {
+                        ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
                             fontWeight: "600",
                             color: '#000',
                         }),
@@ -138,32 +139,66 @@ const RoomChatItem = ({
                         variant="subtitle1">
                         {title}
                     </Typography>
-                    <Typography sx={{ textAlign: 'right', color: 'gray', fontWeight: '500', fontSize: "12px" }}>
+                    <Typography
+                        sx={{
+                            textAlign: 'right',
+                            color: 'gray',
+                            fontWeight: '500',
+                            fontSize: "12px",
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis'
+                        }}>
                         {filterChatTime(lastMsg.createdAt)}
                     </Typography>
                 </Stack>
-                <Stack sx={{ width: '100%' }} justifyContent="space-between" spacing="10px" direction="row">
-                    {fitlerLastMsgContent()}
-                    {(Boolean(unreadMsg) && unreadMsg > 0 && lastMsg.creatorId !== user._id) &&
-                        <Chip
-                            size="small"
-                            sx={{ color: 'white', backgroundColor: '#07C160', aspectRatio: 1 }}
-                            label={unreadMsg} />
-                    }
-                    {(lastMsg.creatorId === user._id && lastMsg.seenBys) &&
-                        <Stack direction="row">
-                            {(lastMsg.seenBys.filter(x => x !== user._id))
-                                .map(id => {
-                                    const seenBy = members.find(mem => mem._id === id);
-                                    return (
-                                        <Avatar
-                                            sx={{ width: '20px', height: '20px' }}
-                                            src={readUrl(seenBy.avatar)} />
-                                    )
-                                })}
-                        </Stack>
-                    }
-                </Stack>
+                {(!typing)
+                    ? <Stack sx={{ width: '100%' }} justifyContent="space-between" spacing="10px" direction="row">
+                        {fitlerLastMsgContent()}
+                        {(Boolean(unreadMsgCount) && unreadMsgCount > 0 && lastMsg.creatorId !== user._id) &&
+                            <Chip
+                                size="small"
+                                sx={{
+                                    color: 'white',
+                                    backgroundColor: '#07C160',
+                                   // aspectRatio: 1,
+                                    '.MuiChip-label': {
+                                        //fontSize: '9px'
+                                    }
+                                }}
+                                label={unreadMsgCount} />
+                        }
+                        {(lastMsg.creatorId === user._id && lastMsg.seenBys) &&
+                            <AvatarGroup max={4} sx={{ height: '20px' }}>
+                                {(lastMsg.seenBys.filter(x => x !== user._id))
+                                    .map(id => {
+                                        const seenBy = members.find(mem => mem._id === id);
+                                        return (
+                                            <Avatar
+                                                key={id}
+                                                alt={seenBy?.fullName}
+                                                sx={{ width: "20px", height: "20px" }}
+                                                src={readUrl(seenBy?.avatar)} />
+                                        )
+                                    })}
+                            </AvatarGroup>
+
+                        }
+                    </Stack>
+                    : <Box sx={{ height: '20px', width: '40px', backgroundColor: 'whitesmoke', borderRadius: '20px' }}>
+                        <Lottie
+                            options={{
+                                loop: true,
+                                autoplay: true,
+                                animationData: typingAnimation,
+                                rendererSettings: { preserveAspectRatio: "xMidYMid slice" }
+                            }}
+                            height={"100%"}
+                            width={"100%"}
+                        />
+                    </Box>
+
+                }
             </Box >
         </Stack >
     )

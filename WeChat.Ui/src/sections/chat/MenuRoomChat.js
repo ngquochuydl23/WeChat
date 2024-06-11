@@ -13,13 +13,20 @@ import UserSkeleton from "@/components/UserSkeleton";
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import FindUserDialog from "./FindUserDialog";
 import { searchRoomChatByName } from "@/services/roomApiService";
+import { socketManager } from "@/socket";
 
-const MenuRoomChat = ({ rooms }) => {
+const socket = socketManager('rooms');
 
+
+const MenuRoomChat = () => {
     const { user } = useSelector((state) => state.user);
+
+
+    const [rooms, setRooms] = useState([]);
     const [timer, setTimer] = useState();
     const [search, setSearch] = useState('');
     const [searching, setSearching] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [searchResult, setSearchResult] = useState({
         roomSearchings: [],
@@ -51,6 +58,80 @@ const MenuRoomChat = ({ rooms }) => {
         clearTimeout(timer);
         setTimer(setTimeout(() => doSearch(value), 500));
     }
+
+    const onSubscribe = (response) => {
+        if (response) {
+            setRooms(response.rooms);
+            console.log(response.rooms);
+        }
+    }
+
+    const onReceiveIncomingMsg = (roomId, action, data) => {
+        if (action === 'newMsg') {
+            setRooms((preState) => [
+                {
+                    ...data.room,
+                    unreadMsgCount: data.unreadMsgCount
+                },
+                ...(preState.filter(x => x._id !== roomId))
+            ]);
+
+        } else if (action === 'typing') {
+
+            setRooms((preState) => preState.map(item => {
+                return {
+                    ...item,
+                    typing: (
+                        item._id === data.room._id
+                        && data.typing
+                        && data.typingUserId !== user._id
+                    )
+                };
+            }));
+        } else {
+
+            setRooms((preState) => preState.map(item => {
+                if (item._id === data.room._id) {
+                    return {
+                        ...data.room,
+                        unreadMsgCount: data.unreadMsgCount
+                    };
+                }
+                return item;
+            }));
+        }
+    }
+
+    const onConnected = () => {
+        setLoading(false);
+    }
+
+    const onDisconnected = () => {
+        setLoading(false);
+    }
+
+    useEffect(() => {
+        socket.emit('subscribe', user._id, onSubscribe);
+        socket.on('rooms.incomingMsg', onReceiveIncomingMsg)
+
+        return () => {
+            socket.off('subscribe');
+            socket.off('rooms.incomingMsg')
+            socket.emit('leave', user._id);
+        }
+    }, [socket.connected])
+
+
+    useEffect(() => {
+        setLoading(true);
+        socket.on('connect', onConnected);
+        socket.on('disconnect', onDisconnected);
+
+        return () => {
+            socket.off('connect', onConnected);
+            socket.off('disconnect', onDisconnected);
+        }
+    }, [])
 
     return (
         <Stack
@@ -115,17 +196,22 @@ const MenuRoomChat = ({ rooms }) => {
                         </Box>
                     }
                 </Stack>
-                : <Scrollbars autoHide style={{ width: '100%', height: '100%', marginTop: '10px' }}>
-                    {_.map(rooms, (roomItem) => (
-                        <RoomChatItem
-                            unreadMsg={roomItem.unreadMsg || 0}
-                            {...roomItem}
-                            {...filterRoomInfo(user._id, roomItem, roomItem.users)}
-                            members={roomItem.users}
-                            loggingUserId={user._id}
-                        />
-                    ))}
-                </Scrollbars>
+                : (loading && !socket.connected)
+                    ? <Box>
+                        Loading
+                    </Box>
+                    : <Scrollbars autoHide style={{ width: '100%', height: '100%', marginTop: '10px' }}>
+                        {_.map(rooms, (roomItem) => (
+                            <RoomChatItem
+                                unreadMsg={roomItem.unreadMsg || 0}
+                                {...roomItem}
+                                {...filterRoomInfo(user._id, roomItem, roomItem.users)}
+                                members={roomItem.users}
+                                loggingUserId={user._id}
+                                typing={roomItem.typing}
+                            />
+                        ))}
+                    </Scrollbars>
             }
             <CreateGroupChatDialog
                 open={openCreateGroupChat}
