@@ -10,7 +10,7 @@ const { findUsersByIds } = require('../services/userService');
 
 
 function chatRoomEvent(io) {
-	async function emitToRoomNsp(roomId, action) {
+	async function emitToRoomNsp(roomId, action, extraData) {
 		const room = await findById(roomId);
 		const users = await findUsersByIds(room.members);
 
@@ -19,7 +19,8 @@ function chatRoomEvent(io) {
 				.to(member.toHexString())
 				.emit('rooms.incomingMsg', roomId, action, {
 					room: { ...room.toObject(), users: users },
-					unreadMsgCount: 0
+					unreadMsgCount: 0,
+					...extraData
 				})
 		});
 	}
@@ -71,66 +72,69 @@ function chatRoomEvent(io) {
 				}
 			});
 
-			socket.on('user.disperseRoom', async (roomId, callback) => {
+			// socket.on('user.disperseRoom', async (roomId, callback) => {
 
-				const lastMsg = await sendMsg({
-					type: 'system-notification',
-					content: 'creator dispersed this room.',
-					attachment: msg.attachment,
-					roomId: roomId,
-					creatorId: loggingUserId
-				});
+			// 	const lastMsg = await sendMsg({
+			// 		type: 'system-notification',
+			// 		content: 'creator dispersed this room.',
+			// 		attachment: msg.attachment,
+			// 		roomId: roomId,
+			// 		creatorId: loggingUserId
+			// 	});
 
-				await updateRoom(roomId, {
-					lastMsg,
-					dispersed: true,
-					dispersedAt: moment()
-				});
+			// 	await updateRoom(roomId, {
+			// 		lastMsg,
+			// 		dispersed: true,
+			// 		dispersedAt: moment()
+			// 	});
 
-				const messages = await getMsgByRoomId(room, loggingUserId);
-				socket
-					.to(roomId)
-					.emit('roomDispersion', { room, messages });
+			// 	const messages = await getMsgByRoomId(room, loggingUserId);
+			// 	socket
+			// 		.to(roomId)
+			// 		.emit('roomDispersion', { room, messages });
 
-				callback({
-					emitter: loggingUserId,
-					msg: "Room is dispersed successfully."
-				});
-			})
+			// 	callback({
+			// 		emitter: loggingUserId,
+			// 		msg: "Room is dispersed successfully."
+			// 	});
+			// })
 
 			socket.on('user.typing', async (roomId, { type }) => {
 				socket
 					.to(roomId)
 					.emit('incomingTyping', roomId, type, loggingUserId);
 
-				emitToRoomNsp(roomId, 'typing:' + type);
-			});
-
-			socket.on('user.redeemMsg', async (msgId, callback) => {
-				const message = await redeemMsg(loggingUserId, msgId);
-				socket
-					.broadcast
-					.to(message.roomId.toString())
-					.emit('incomingRedeemMsg', message);
-
-				emitToRoomNsp(roomId, 'redeemMsg');
-
-				callback({ msg: "Message is redeemed successfully." });
-			});
-
-			socket.on('user.addMember', async (roomId, memberId, callback) => {
-				const room = await addMemberToRoom(loggingUserId, memberId, roomId);
-				logger.info(`Member ${memberId} has been added to room ${roomId}`);
-				callback({
-					roomId,
-					memberId,
-					lastMsg: room.lastMsg
+				emitToRoomNsp(roomId, 'typing', {
+					typing: type === 'true',
+					typingUserId: loggingUserId
 				});
-				console.log(room);
-				socket.broadcast
-					.to(roomId)
-					.emit('addMember', room, room.lastMsg);
-			})
+			});
+
+			// socket.on('user.redeemMsg', async (msgId, callback) => {
+			// 	const message = await redeemMsg(loggingUserId, msgId);
+			// 	socket
+			// 		.broadcast
+			// 		.to(message.roomId.toString())
+			// 		.emit('incomingRedeemMsg', message);
+
+			// 	emitToRoomNsp(roomId, 'redeemMsg');
+
+			// 	callback({ msg: "Message is redeemed successfully." });
+			// });
+
+			// socket.on('user.addMember', async (roomId, memberId, callback) => {
+			// 	const room = await addMemberToRoom(loggingUserId, memberId, roomId);
+			// 	logger.info(`Member ${memberId} has been added to room ${roomId}`);
+			// 	callback({
+			// 		roomId,
+			// 		memberId,
+			// 		lastMsg: room.lastMsg
+			// 	});
+			// 	console.log(room);
+			// 	socket.broadcast
+			// 		.to(roomId)
+			// 		.emit('addMember', room, room.lastMsg);
+			// })
 
 			socket.on("leave", (roomId) => {
 				socket.leave(roomId);
