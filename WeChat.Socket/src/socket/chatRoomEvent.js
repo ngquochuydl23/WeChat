@@ -103,7 +103,7 @@ function chatRoomEvent(io) {
 					.to(roomId)
 					.emit('incomingTyping', roomId, type, loggingUserId);
 
-				emitToRoomNsp(roomId, 'typing');
+				emitToRoomNsp(roomId, 'typing:' + type);
 			});
 
 			socket.on('user.redeemMsg', async (msgId, callback) => {
