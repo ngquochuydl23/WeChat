@@ -35,7 +35,7 @@ exports.findSingleRoom = async (req, res, next) => {
 }
 
 exports.initRoomChat = async (req, res, next) => {
-    const { otherIds, title } = req.body;
+    const { otherIds, title, thumbnail } = req.body;
     const loggingUserId = req.loggingUserId;
 
     try {
@@ -48,7 +48,7 @@ exports.initRoomChat = async (req, res, next) => {
             throw new AppException("Room is already created.");
         }
 
-        const room = await initRoomChat(title, otherIds, loggingUserId);
+        const room = await initRoomChat(title, thumbnail, otherIds, loggingUserId);
 
         if (!room.singleRoom) {
             var lastMsg = await sendMsg({

@@ -74,11 +74,12 @@ async function findRoomJoinUser(roomId, loggingUserId) {
 }
 
 
-async function initRoomChat(title = undefined, otherMemberIds, loggingUserId) {
+async function initRoomChat(title = undefined, thumbnail = undefined, otherMemberIds, loggingUserId) {
     const memberIds = [...otherMemberIds, loggingUserId];
     const room = new Room({
         title: title,
         members: memberIds,
+        thumbnail: thumbnail,
         creatorId: loggingUserId,
         singleRoom: memberIds.length === 2,
         userConfigs: _.map(memberIds, id => ({
