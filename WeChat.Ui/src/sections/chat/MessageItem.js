@@ -57,7 +57,7 @@ export const NotificationMessage = ({ user, content, members }) => {
     );
 };
 
-const MsgContent = ({ type = "text", content, attachment, isRightMsg = false }) => {
+const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx }) => {
     return (
         <Stack sx={{ maxWidth: "700px" }} direction="column">
             {type === "image" && attachment && (
@@ -117,7 +117,8 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false }) 
                         paddingX: "10px",
                         paddingY: '7px',
                         borderRadius: (attachment) ? '0px 0px 12px 12px' : '20px',
-                        backgroundColor: isRightMsg ? '#07C160' : "whitesmoke"
+                        backgroundColor: isRightMsg ? '#07C160' : "whitesmoke",
+                        ...sx
                     }}>
                     <Typography
                         width="auto"
@@ -136,43 +137,37 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false }) 
     );
 };
 
-export const LeftMessage = ({ user, content, redeem = false, type = "text", attachment }) => {
+export const LeftMessage = ({ user, content, redeem = false, type = "text", attachment, sx }) => {
     return redeem ? (
-        <Stack spacing="15px" direction="row">
-            <Avatar
-                alt={user.fullName}
-                src={readUrl(user.avatar)} />
-            <Box
-                sx={{
-                    display: "flex",
-                    alignSelf: "flex-end",
-                    marginInlineEnd: "15px",
-                    borderRadius: "15px",
-                    minWidth: "180px",
-                    maxWidth: "350px",
-                    justifyContent: "flex-end",
-                    border: "2px solid #d3d3d3",
-                    paddingX: "7px",
-                    paddingY: "7px",
-                    marginBottom: "10px",
-                }}>
-                <Typography color="black" fontWeight="500" fontStyle="italic" fontSize="15px" variant="body1">
-                    {user.fullName} đã thu hồi tin nhắn.
-                </Typography>
-            </Box>
-        </Stack>
+        <Box
+            sx={{
+                display: "flex",
+                alignSelf: "flex-end",
+                marginInlineEnd: "15px",
+                borderRadius: "15px",
+                minWidth: "180px",
+                maxWidth: "350px",
+                justifyContent: "flex-end",
+                border: "2px solid #d3d3d3",
+                paddingX: "7px",
+                paddingY: "7px",
+                marginBottom: "10px",
+            }}>
+            <Typography color="black" fontWeight="500" fontStyle="italic" fontSize="15px" variant="body1">
+                {user.fullName} đã thu hồi tin nhắn.
+            </Typography>
+        </Box>
     ) : (
-        <Stack mb="10px" spacing="15px" direction="row">
-            <Avatar alt={user.fullName} src={readUrl(user.avatar)} />
-            <MsgContent
-                content={content}
-                type={type}
-                attachment={attachment} />
-        </Stack>
+        <MsgContent
+            sx={{ borderRadius: '5px 20px 20px 5px', ...sx }}
+            content={content}
+            type={type}
+            attachment={attachment} />
     );
 };
 
 export const RightMessage = ({
+    sx,
     content,
     seen = false,
     sent = true,
@@ -232,7 +227,7 @@ export const RightMessage = ({
             </Typography>
         </Box>
     ) : (
-        <Stack mb="10px" justifyContent="flex-end" spacing="15px" direction="row">
+        <Stack justifyContent="flex-end" spacing="15px" direction="row">
             {/* <IconButton
                 size="small"
                 sx={{ aspectRatio: 1 }}
@@ -267,7 +262,12 @@ export const RightMessage = ({
                     </ListItemButton>
                 </List>
             </Popover>
-            <MsgContent isRightMsg content={content} type={type} attachment={attachment} />
+            <MsgContent
+                sx={{ borderRadius: '20px 5px 5px 20px', ...sx }}
+                isRightMsg
+                content={content}
+                type={type}
+                attachment={attachment} />
         </Stack>
     );
 };

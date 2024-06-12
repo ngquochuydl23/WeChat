@@ -13,6 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 import DispersedComposer from "./DispersedComposer";
 import _ from "lodash";
 import { seenMsg, sendMsg } from "@/services/messagesApiService";
+import { groupMsg, groupTimeLine } from "@/utils/groupMsg";
+import GroupMsgItem from "./GroupMsgItem";
 
 const socket = socketManager('chatRoom');
 
@@ -110,6 +112,9 @@ const Room = () => {
             setLoading(false);
             setMembers(response.users)
             setRoom(response.room);
+
+            console.log(groupMsg(response.messages));
+            //console.log(groupTimeLine(response.messages));
             setMessages(response.messages)
         }
     }
@@ -206,7 +211,7 @@ const Room = () => {
             socket.on('addMember', onAddedMember);
             socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
         }
-        
+
         return () => {
             socket.off('join');
             socket.off('incomingMsg');
@@ -262,7 +267,17 @@ const Room = () => {
                     }
 
                     {/* Msg from socket */}
-                    {_.map(messages, (message, idx) => {
+                    {_.map(groupMsg(messages), (item, idx) => {
+                        return (
+                            <GroupMsgItem
+                                key={idx}
+                                user={user}
+                                members={members}
+                                datetime={item.datetime}
+                                groupsInDay={item.groupsInDay} />
+                        )
+                    })}
+                    {/* {_.map(messages, (message, idx) => {
                         if (message.type === 'system-notification') {
                             return <NotificationMessage
                                 key={idx}
@@ -292,7 +307,7 @@ const Room = () => {
                                 />
                             )
                         }
-                    })}
+                    })} */}
                     <Box mb="80px" />
                 </Stack>
                 {room?.dispersed

@@ -1,0 +1,78 @@
+import _ from "lodash";
+import moment from "moment";
+
+export const groupMsg = (messages) => {
+    var groupToDayForm = function (group, datetime) {
+        return {
+            datetime: datetime,
+            messages: group
+        }
+    };
+
+    var resultAsDays = _.chain(messages)
+        .groupBy((obj) => moment(obj.createdAt).format('DD-MMM-YYYY'))
+        .map(groupToDayForm)
+        .value();
+
+    return resultAsDays.map(({ datetime, messages }) => ({
+        datetime,
+        groupsInDay: groupMsgWithThreshold(messages)
+    }));
+}
+
+export const groupMsgWithThreshold = (messages) => {
+
+    const timeThreshold = 5 * 60 * 1000;
+
+    messages.forEach(message => {
+        message.createdAt = new Date(message.createdAt);
+    });
+
+    // Sort messages by createdAt time
+    const sortedMessages = _.sortBy(messages, 'createdAt');
+    // const sortedMessages = messages;
+    // Group messages into arrays based on the time threshold
+    const groupedMessages = [];
+    let currentGroup = [];
+
+    sortedMessages.forEach((message, index) => {
+        if (index === 0) {
+            currentGroup.push(message);
+        } else {
+            const timeDifference = message.createdAt - sortedMessages[index - 1].createdAt;
+
+
+
+            if (message.type === 'system-notification') {
+                if (message.type === sortedMessages[index - 1].type) {
+                    currentGroup.push(message);
+                } else {
+                    currentGroup = [message]
+                }
+
+            } else {
+                if (
+                    timeDifference <= timeThreshold && message.creatorId === sortedMessages[index - 1].creatorId) {
+                    currentGroup.push(message);
+                } else {
+                    groupedMessages.push(currentGroup);
+                    currentGroup = [message];
+                }
+            }
+        }
+    });
+
+    if (currentGroup.length > 0) {
+        groupedMessages.push(currentGroup);
+    }
+
+    // Output the grouped messages
+    // groupedMessages.forEach((group, index) => {
+    //     console.log(`Group ${index + 1}:`);
+    //     group.forEach(msg => {
+    //         console.log(` - ${msg.content} at ${msg.createdAt}`);
+    //     });
+    // });
+
+    return groupedMessages;
+}
