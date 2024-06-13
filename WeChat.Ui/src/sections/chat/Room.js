@@ -189,6 +189,12 @@ const Room = () => {
         socket.on('connect', onConnected);
         socket.on('disconnect', onDisconnected);
 
+        socket.on('incomingMsg', onReceiveIncomingMsg);
+        socket.on('incomingTyping', onReceiveIncomingTyping);
+        socket.on('roomDispersion', onRoomDispersion);
+        socket.on('addMember', onAddedMember);
+        socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
+        
         socket.io.on("error", (error) => {
             console.log(error);
             socket.connect();
@@ -198,27 +204,22 @@ const Room = () => {
             setLoading(false);
             socket.off('connect', onConnected);
             socket.off('disconnect', onDisconnected);
-        }
-    }, []);
 
-    useEffect(() => {
-        if (socket.connected) {
-            socket.emit('join', roomId, onJoined);
-
-            socket.on('incomingMsg', onReceiveIncomingMsg);
-            socket.on('incomingTyping', onReceiveIncomingTyping);
-            socket.on('roomDispersion', onRoomDispersion);
-            socket.on('addMember', onAddedMember);
-            socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
-        }
-
-        return () => {
             socket.off('join');
             socket.off('incomingMsg');
             socket.off('incomingTyping');
             socket.off('roomDispersion');
             socket.off('addMember');
             socket.off('incomingRedeemMsg');
+        }
+    }, []);
+
+    useEffect(() => {
+        if (socket.connected) {
+            socket.emit('join', roomId, onJoined);
+        }
+
+        return () => {
             socket.emit('leave', roomId);
         };
     }, [roomId]);

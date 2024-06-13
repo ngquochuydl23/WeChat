@@ -4,9 +4,8 @@ import MainLayout from "../layouts/mainLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import { DEFAULT_PATH } from "../config";
 import LoadingScreen from "../components/LoadingScreen";
-import UserPage from "../pages/dashboard/UserPage";
-import ProfilePage from "../pages/dashboard/ProfilePage";
-import ContactPage from "@/pages/dashboard/ContactPage";
+import ProfilePage from "../pages/chat/ProfilePage";
+import ContactPage from "@/pages/chat/ContactPage";
 
 
 const Loadable = (Component) => (props) => {
@@ -17,7 +16,7 @@ const Loadable = (Component) => (props) => {
   );
 };
 const ChatPage = Loadable(
-  lazy(() => import("../pages/dashboard/ChatPage"))
+  lazy(() => import("../pages/chat/ChatPage"))
 );
 
 export default function Router() {
