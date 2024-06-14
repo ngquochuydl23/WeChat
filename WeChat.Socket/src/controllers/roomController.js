@@ -6,13 +6,15 @@ const {
     updateRoom,
     getRooms,
     getRoomsCount,
+    findById,
 } = require('../services/roomService');
 const { findUsersByIds } = require('../services/userService');
 const { sendMsg } = require('../services/messageService');
 const { getPaginateQuery, paginate } = require('../utils/paginate');
 const { getIo } = require('../socket');
 const { emitToRoomNsp } = require('../utils/socketUtils');
-
+const toObjectId = require('../utils/toObjectId');
+const moment = require('moment');
 
 exports.findSingleRoom = async (req, res, next) => {
     try {
@@ -104,7 +106,7 @@ exports.getRoomsByMemberName = async (req, res, next) => {
         if (!name) {
             throw new AppException("name query is not provided.");
         }
-        
+
         const rooms = await getRooms(req.loggingUserId, {
             "users": {
                 "$elemMatch": {
@@ -128,3 +130,48 @@ exports.getRoomsByMemberName = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.leaveRoom = async (req, res, next) => {
+    const { roomId } = req.params;
+
+    try {
+        const room = await findById(roomId);
+        if (!room) {
+            throw new AppException("Room not found.");
+        }
+
+        if (!room.members.includes(toObjectId(req.loggingUserId))) {
+            throw new AppException("This account is not a member of this room.");
+        }
+
+        const message = await sendMsg({
+            type: 'system-notification',
+            content: 'leaved this room.',
+            roomId: room._id,
+            creatorId: toObjectId(req.loggingUserId)
+        });
+
+        await updateRoom(roomId, {
+            "userConfigs.$[idx].leaved": true,
+            "userConfigs.$[idx].leavedAt": moment()
+        }, {
+            arrayFilters: [{ "idx.userId": toObjectId(req.loggingUserId) }]
+        });
+
+        getIo()
+            .of('chatRoom')
+            .to(roomId)
+            .emit('incomingMsg', roomId, message);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    msg: "Leaved room."
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}

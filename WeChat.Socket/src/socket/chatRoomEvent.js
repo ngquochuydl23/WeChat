@@ -5,6 +5,7 @@ const { findById, updateRoom } = require('../services/roomService');
 const { getMsgByRoomId, sendMsg, updateManyMsg, findOneMsg } = require('../services/messageService');
 const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
+const { response } = require('express');
 
 
 function chatRoomEvent(io) {
@@ -12,14 +13,17 @@ function chatRoomEvent(io) {
 		const room = await findById(roomId);
 		const users = await findUsersByIds(room.members);
 
-		room.members.forEach(member => {
-			io.of('rooms')
-				.to(member.toHexString())
-				.emit('rooms.incomingMsg', roomId, action, {
-					room: { ...room.toObject(), users: users },
-					unreadMsgCount: 0,
-					...extraData
-				})
+		room.userConfigs.forEach(async ({ userId, leaved }) => {
+			if (!leaved) {
+
+				io.of('rooms')
+					.to(userId.toHexString())
+					.emit('rooms.incomingMsg', roomId, action, {
+						room: { ...room.toObject(), users: users },
+						unreadMsgCount: 0,
+						...extraData
+					})
+			}
 		});
 	}
 
@@ -48,6 +52,15 @@ function chatRoomEvent(io) {
 					const room = await findById(roomId);
 					const users = await findUsersByIds(room.members);
 
+					const userConfig = room.userConfigs.find(x => x.userId.toHexString() === loggingUserId);
+					
+					if (userConfig.leaved) {
+						return callback({
+							status: 'refuse',
+							error: 'User is not belong to the room'
+						});
+					}
+
 					socket.join(roomId);
 
 					logger.info(`${loggingUserId} join to room ${roomId}`);
@@ -58,12 +71,15 @@ function chatRoomEvent(io) {
 					// Get all medias from msgDocs
 					// const medias = _.filter(msgDocs, ({ _doc }) => _doc.type === 'media');
 					callback({
-						room,
-						users,
-						messages: messages,
-						medias: [],
-						pinnedMsgs: [],
-						links: [],
+						status: 'ok',
+						response: {
+							room,
+							users,
+							messages: messages,
+							medias: [],
+							pinnedMsgs: [],
+							links: [],
+						}
 					});
 				} catch (error) {
 					console.log(error);

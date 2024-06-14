@@ -15,4 +15,5 @@ router.get('/find-single-room', authMiddleware, roomController.findSingleRoom);
 router.post('/', authMiddleware, roomController.initRoomChat);
 router.get('/last', authMiddleware, roomController.getLastRooms);
 router.get('/search', authMiddleware, roomController.getRoomsByMemberName);
+router.post('/:roomId/leave', authMiddleware, roomController.leaveRoom);
 module.exports = router;

@@ -8,20 +8,37 @@ async function emitToRoomNsp(roomId, action) {
     const room = await findById(roomId);
     const users = await findUsersByIds(room.members);
 
-    room.members.forEach(async member => {
+    // room.members.forEach(async member => {
 
-        const unreadMsgCount = await countMsgs({
-            roomId: room._id,
-            seenBys: { $nin: [toObjectId(member)] }
-        });
+    //     const unreadMsgCount = await countMsgs({
+    //         roomId: room._id,
+    //         seenBys: { $nin: [toObjectId(member)] }
+    //     });
 
-        getIo()
-            .of('rooms')
-            .to(member.toHexString())
-            .emit('rooms.incomingMsg', roomId, action, {
-                room: { ...room.toObject(), users: users },
-                unreadMsgCount
-            })
+    //     getIo()
+    //         .of('rooms')
+    //         .to(member.toHexString())
+    //         .emit('rooms.incomingMsg', roomId, action, {
+    //             room: { ...room.toObject(), users: users },
+    //             unreadMsgCount
+    //         })
+    // });
+
+    room.userConfigs.forEach(async ({ userId, leaved }) => {
+        if (!leaved) {
+            const unreadMsgCount = await countMsgs({
+                roomId: room._id,
+                seenBys: { $nin: [userId] }
+            });
+
+            getIo()
+                .of('rooms')
+                .to(userId.toHexString())
+                .emit('rooms.incomingMsg', roomId, action, {
+                    room: { ...room.toObject(), users: users },
+                    unreadMsgCount
+                })
+        }
     });
 }
 

@@ -23,11 +23,11 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
 
                     if (isNotificationSystem) {
                         return (
-                            <Stack alignSelf="center" my="10px" spacing="15px" direction="row" >
+                            <Stack alignSelf="center" alignItems="center" my="10px" spacing="15px" direction="column">
                                 {_.map(messages, (message, idx) => (
                                     <div style={{ display: 'flex' }} key={message._id}>
                                         <NotificationMessage
-                                            key={idx}
+                                            key={message._id}
                                             members={members}
                                             user={members.find(x => x._id === message.creatorId)}
                                             {...message}

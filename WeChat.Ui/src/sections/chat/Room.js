@@ -1,9 +1,8 @@
 import { Box, Stack, Drawer, LinearProgress, Alert } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import Composer from "./Composer";
 import RoomDetail from "./RoomDetail";
-import { LeftMessage, NotificationMessage, RightMessage } from "./MessageItem";
 import { useEffect } from "react";
 import { socketManager } from '@/socket';
 import { useSelector } from "react-redux";
@@ -13,12 +12,13 @@ import { v4 as uuidv4 } from 'uuid';
 import DispersedComposer from "./DispersedComposer";
 import _ from "lodash";
 import { seenMsg, sendMsg } from "@/services/messagesApiService";
-import { groupMsg, groupTimeLine } from "@/utils/groupMsg";
+import { groupMsg } from "@/utils/groupMsg";
 import GroupMsgItem from "./GroupMsgItem";
 
 const socket = socketManager('chatRoom');
 
 const Room = () => {
+    const navigate = useNavigate();
     const { roomId } = useParams();
     const [messageTimeout, setMessageTimeout] = useState(false);
     const { user } = useSelector((state) => state.user);
@@ -43,7 +43,6 @@ const Room = () => {
                 creatorId: user._id,
                 roomId: roomId
             }
-
 
             sendMsg(roomId, newMsg)
                 .then(({ result, msg }) => { console.log(result) })
@@ -101,24 +100,6 @@ const Room = () => {
         setLoading(false);
     }
 
-    const onJoined = (response) => {
-        console.log("onJoined");
-
-
-        localStorage.setItem("lastAccessRoomId", roomId);
-
-        seen();
-        if (response) {
-            setLoading(false);
-            setMembers(response.users)
-            setRoom(response.room);
-
-            console.log(groupMsg(response.messages));
-            //console.log(groupTimeLine(response.messages));
-            setMessages(response.messages)
-        }
-    }
-
     const onReceiveIncomingMsg = async (roomId, msg) => {
         if (msg.creatorId !== user._id) {
             seen();
@@ -168,9 +149,27 @@ const Room = () => {
         }));
     }
 
+
+    const handleJoinRoom = ({ status, response, error }) => {
+
+        if (response) {
+            localStorage.setItem("lastAccessRoomId", roomId);
+            seen();
+            setLoading(false);
+            setMembers(response.users)
+            setRoom(response.room);
+            setMessages(response.messages)
+        }
+
+        if (error) {
+            localStorage.clear("lastAccessRoomId");
+            navigate('/chat')
+        }
+    }
+
     useEffect(() => {
         if (socket.connected && roomId) {
-            socket.emit('join', roomId, onJoined);
+            socket.emit('join', roomId, handleJoinRoom);
         }
 
         const timeoutId = setTimeout(() => {
@@ -194,7 +193,7 @@ const Room = () => {
         socket.on('roomDispersion', onRoomDispersion);
         socket.on('addMember', onAddedMember);
         socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
-        
+
         socket.io.on("error", (error) => {
             console.log(error);
             socket.connect();
@@ -216,7 +215,9 @@ const Room = () => {
 
     useEffect(() => {
         if (socket.connected) {
-            socket.emit('join', roomId, onJoined);
+            socket.emit('join', roomId, handleJoinRoom);
+
+            // navigate to /chat/
         }
 
         return () => {
@@ -260,13 +261,11 @@ const Room = () => {
                         width: '100%',
                         paddingX: '10px'
                     }}>
-
                     {(members.length > 0 && userTypingIds.length > 0) &&
                         <MemberTyping
                             typingUserIds={userTypingIds}
                             members={members} />
                     }
-
                     {/* Msg from socket */}
                     {_.map(groupMsg(messages), (item, idx) => {
                         return (

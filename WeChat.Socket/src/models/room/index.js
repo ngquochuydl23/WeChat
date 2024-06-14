@@ -29,9 +29,13 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
     userConfigs: {
         type: [{
             userId: mongoose.ObjectId,
-            blocked: {
+            leaved: {
                 type: Boolean,
                 default: false
+            },
+            leavedAt: {
+                type: Date,
+                default: null   
             },
             chatDeletedAt: {
                 type: Date,

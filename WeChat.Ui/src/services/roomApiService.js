@@ -16,4 +16,4 @@ export const searchRoomChatByName = (name, skip = 0, limit = 10) => http.get("/r
     }
 })
 
-export const seenMsg = (roomId) => http.post("/room/" + roomId + '/seen');
+export const leaveRoom = (roomId) => http.post("/room/" + roomId + '/leave');

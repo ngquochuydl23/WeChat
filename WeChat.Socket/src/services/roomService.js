@@ -8,22 +8,17 @@ const Message = require('../models/message');
 const moment = require('moment');
 const { logger } = require('../logger');
 const { default: mongoose } = require("mongoose");
+const toObjectId = require('../utils/toObjectId');
 
 
 async function findSingleRoomByUserId(loggingUserId, toUserId) {
     return await findOneRoom({
         singleRoom: true,
         '$expr': {
-            '$setEquals': ['$members', [
-                new mongoose.Types.ObjectId(loggingUserId),
-                new mongoose.Types.ObjectId(toUserId)
-            ]]
+            '$setEquals': ['$members', [toObjectId(loggingUserId), toObjectId(toUserId)]]
         }
     });
 }
-
-
-
 
 async function findById(roomId) {
     return await Room.findById(roomId)
@@ -32,8 +27,6 @@ async function findById(roomId) {
 async function findOneRoom(whereObj = {}) {
     return await Room.findOne({ ...whereObj })
 }
-
-
 
 async function findRoomByUser(roomId, loggingUserId) {
     const room = await Room.findById(roomId);
@@ -54,26 +47,6 @@ async function findRoomByUser(roomId, loggingUserId) {
     };
 }
 
-async function findRoomJoinUser(roomId, loggingUserId) {
-    const room = await Room.findById(roomId);
-    const members = await User.find({
-        _id: { $in: room.members }
-    });
-    if (!room) {
-        throw new AppException("Room not found.");
-    }
-
-    if (!room.members.includes(loggingUserId)) {
-        throw new AppException("This account is not a member of this room");
-    }
-
-    return {
-        ...(room._doc),
-        users: members
-    };
-}
-
-
 async function initRoomChat(title = undefined, thumbnail = undefined, otherMemberIds, loggingUserId) {
     const memberIds = [...otherMemberIds, loggingUserId];
     const room = new Room({
@@ -83,7 +56,8 @@ async function initRoomChat(title = undefined, thumbnail = undefined, otherMembe
         creatorId: loggingUserId,
         singleRoom: memberIds.length === 2,
         userConfigs: _.map(memberIds, id => ({
-            userId: id
+            userId: toObjectId(id),
+            leaved: false
         }))
     });
 
@@ -91,15 +65,21 @@ async function initRoomChat(title = undefined, thumbnail = undefined, otherMembe
     return room;
 }
 
-async function updateRoom(roomId, mergeDoc) {
-    await Room.updateOne({ _id: roomId }, { $set: { ...mergeDoc } })
+async function updateRoom(roomId, mergeDoc, options) {
+    await Room.updateOne({ _id: roomId, }, { $set: { ...mergeDoc } }, options)
 }
 
 async function getRoomsCount(loggingUserId) {
     const count = await Room
         .find({
-            members: { $elemMatch: { $eq: new mongoose.Types.ObjectId(loggingUserId) } },
-            lastMsg: { $ne: null }
+            members: { $elemMatch: { $eq: toObjectId(loggingUserId) } },
+            lastMsg: { $ne: null },
+            userConfigs: {
+                $elemMatch: {
+                    userId: toObjectId(loggingUserId),
+                    leaved: false
+                }
+            }
         })
         .count();
     return count;
@@ -110,8 +90,14 @@ async function getRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0, li
         .aggregate([
             {
                 $match: {
-                    members: { $elemMatch: { $eq: new mongoose.Types.ObjectId(loggingUserId) } },
-                    lastMsg: { $ne: null }
+                    members: { $elemMatch: { $eq: toObjectId(loggingUserId) } },
+                    lastMsg: { $ne: null },
+                    userConfigs: {
+                        $elemMatch: {
+                            userId: toObjectId(loggingUserId),
+                            leaved: false
+                        }
+                    }
                 }
             },
             {
@@ -224,4 +210,10 @@ async function addMemberToRoom(loggingUserId, memberId, roomId) {
 }
 
 
-module.exports = { getRoomsCount, findById, findOneRoom, findSingleRoomByUserId, updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom }
+module.exports = {
+    getRoomsCount,
+    findById,
+    findOneRoom,
+    findSingleRoomByUserId,
+    updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom
+}

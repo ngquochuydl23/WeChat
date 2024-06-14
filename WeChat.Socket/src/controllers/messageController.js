@@ -58,6 +58,7 @@ exports.seenMsgs = async (req, res, next) => {
     const { roomId } = req.params;
 
     try {
+
         await updateManyMsg(
             {
                 roomId: roomId,

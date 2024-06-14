@@ -13,12 +13,15 @@ import { useState } from "react";
 import VolumeMuteRoundedIcon from '@mui/icons-material/VolumeMuteRounded';
 import IcPinRoom from "@/assets/icons/IcPinRoom";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { leaveRoom } from "@/services/roomApiService";
 
 const RoomChatItem = ({
     _id,
     lastMsg,
     title,
     avatar,
+    singleRoom,
     members,
     onClick,
     unreadMsgCount = 0,
@@ -43,6 +46,13 @@ const RoomChatItem = ({
 
     const pinRoom = () => {
 
+    }
+
+    const leaveRoomChat = () => {
+        setAnchorEl(null);
+        leaveRoom(_id)
+            .then(({ result }) => console.log(result.msg))
+            .catch((err) => console.log(err))
     }
 
     const deleteMsgInRoom = () => {
@@ -105,7 +115,7 @@ const RoomChatItem = ({
                     {lastMsg.creatorId === user._id && "Bạn:  "} <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
                 </Typography>
             )
-        }
+        } 
 
         const creator = members.find(x => x._id === lastMsg.creatorId);
         return (
@@ -118,6 +128,10 @@ const RoomChatItem = ({
                     display: "-webkit-box",
                     WebkitLineClamp: "2",
                     WebkitBoxOrient: "vertical",
+                    ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
+                        fontWeight: "600",
+                        color: '#000',
+                    }),
                 }}
                 fontSize="14px"
                 variant="body1">
@@ -264,6 +278,15 @@ const RoomChatItem = ({
                         <ListItemText
                             primary="Tắt thông báo"
                             primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
+                    </ListItemButton>
+                    <ListItemButton
+                        onClick={leaveRoomChat}>
+                        <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Rời nhóm"
+                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500', color: 'red' }} />
                     </ListItemButton>
                     <ListItemButton
                         onClick={deleteMsgInRoom}>

@@ -42,29 +42,56 @@ export const groupMsgWithThreshold = (messages) => {
             const timeDifference = message.createdAt - sortedMessages[index - 1].createdAt;
 
 
-
             if (message.type === 'system-notification') {
-                if (message.type === sortedMessages[index - 1].type) {
-                    currentGroup.push(message);
-                } else {
-                    currentGroup = [message]
-                }
 
-            } else {
-                if (
-                    timeDifference <= timeThreshold && message.creatorId === sortedMessages[index - 1].creatorId) {
+                if (sortedMessages[index - 1].type === 'system-notification') {
                     currentGroup.push(message);
                 } else {
-                    groupedMessages.push(currentGroup);
                     currentGroup = [message];
+                    groupedMessages.push(currentGroup);
+                }
+            } else {
+                if (timeDifference <= timeThreshold
+                    && message.creatorId === sortedMessages[index - 1].creatorId
+                    && sortedMessages[index - 1].type !== 'system-notification') {
+                    currentGroup.push(message);
+                } else {
+                    
+                    currentGroup = [message];
+                    groupedMessages.push(currentGroup);
                 }
             }
+
+            // if (message.type === 'system-notification') {
+
+            //     if (sortedMessages[index - 1] !== 'system-notification') {
+            //         currentGroup = []
+            //     }
+
+            //     if (message.type === sortedMessages[index - 1].type) {
+            //         currentGroup.push(message);
+            //     } else {
+            //         groupedMessages.push(currentGroup);
+            //         currentGroup = [message]
+            //     }
+
+            // } else {
+            //     if (sortedMessages[index - 1] === 'system-notification') {
+            //         currentGroup = []
+            //     }
+
+            // }
+
+
+
         }
     });
 
     if (currentGroup.length > 0) {
         groupedMessages.push(currentGroup);
     }
+
+
 
     // Output the grouped messages
     // groupedMessages.forEach((group, index) => {

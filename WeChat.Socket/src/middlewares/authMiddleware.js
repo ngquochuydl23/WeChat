@@ -106,7 +106,6 @@ const socketAuthMiddleware = async function (socket, next) {
         next();
     } catch (error) {
         console.log(error);
-
     }
 }
 

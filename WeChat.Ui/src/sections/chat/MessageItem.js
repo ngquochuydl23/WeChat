@@ -25,34 +25,22 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 export const NotificationMessage = ({ user, content, members }) => {
     return (
         <Stack px="15px" py="10px" justifyContent="center" spacing="15px" direction="row">
-            {content === "created this room." && (
-                <Chip
-                    sx={{ fontSize: "12px", justifyContent: "flex-start", color: "rgb(1,98,196)", fontWeight: "600" }}
-                    avatar={<Avatar src={readUrl(user.avatar)} />}
-                    label={
-                        <Typography fontSize="14px" fontWeight="600">
-                            {user.fullName}
-                            <span style={{ fontWeight: "400" }}>
-                                {filterMsgSystem(content)}
-                            </span>
-                        </Typography>
-                    }
-                />
-            )}
-            {/^add/.test(content) && (
-                <Chip
-                    sx={{ fontSize: "12px", justifyContent: "flex-start", color: "rgb(1,98,196)", fontWeight: "600", }}
-                    avatar={<Avatar src={user.avatar} />}
-                    label={
-                        <Typography fontSize="14px" fontWeight="600">
-                            {user.fullName}
-                            <span style={{ fontWeight: "400" }}>
-                                {filterMsgSystem(content, members)}
-                            </span>
-                        </Typography>
-                    }
-                />
-            )}
+            <Chip
+                sx={{ fontSize: "12px", justifyContent: "flex-start", color: "rgb(1,98,196)", fontWeight: "600" }}
+                avatar={
+                    <Avatar
+                        src={readUrl(user.avatar)}
+                        alt={user.fullName} />
+                }
+                label={
+                    <Typography fontSize="14px" fontWeight="600">
+                        {user.fullName}
+                        <span style={{ fontWeight: "400" }}>
+                            {filterMsgSystem(content)}
+                        </span>
+                    </Typography>
+                }
+            />
         </Stack>
     );
 };

@@ -12,6 +12,8 @@ export const filterMsgSystem = (content, members = []) => {
         return ` đã thêm ${newMember.fullName} vào nhóm`;
     } else if (content === 'redeemMsg.') {
         return " đã thu hồi tin nhắn"
+    } else if (content === 'leaved this room.') {
+        return " đã rời khỏi nhóm"
     }
     return " ";
 }
