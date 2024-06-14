@@ -62,7 +62,6 @@ const MenuRoomChat = () => {
     const onSubscribe = (response) => {
         if (response) {
             setRooms(response.rooms);
-            console.log(response.rooms);
         }
     }
 
@@ -209,6 +208,9 @@ const MenuRoomChat = () => {
                                 members={roomItem.users}
                                 loggingUserId={user._id}
                                 typing={roomItem.typing}
+                                onDeletedMsg={() => {
+
+                                }}
                             />
                         ))}
                     </Scrollbars>

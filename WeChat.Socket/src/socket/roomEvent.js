@@ -18,46 +18,14 @@ function roomEvent(io) {
                 try {
                     socket.join(loggingUserId);
                     const rooms = await getRooms(loggingUserId);
+
+                    console.log(rooms);
+
                     callback({ rooms });
                 } catch (error) {
                     console.log(error);
                 }
             });
-
-            socket.on('initRoomChat', async function (groupChatData, callback) {
-                const { title, members } = groupChatData;
-                try {
-                    if (members.length < 2) {
-                        throw new AppException("members must be at least two.")
-                    }
-
-                    const room = await initRoomChat(title, members, loggingUserId);
-                    const memsOfRoom = await User.find({ _id: { $in: room.members } });
-                    logger.info(`Room ${room._id} is created.`);
-
-                    callback({
-                        msg: 'Created room chat successfully.',
-                        room: {
-                            ...(room._doc),
-                            users: memsOfRoom
-                        }
-                    });
-
-                    members
-                        .forEach(member => {
-                            logger.info(`Broadcast to ${member} `);
-                            socket.broadcast
-                                .to(member)
-                                .emit('rooms.incomingMsg', room._id, {
-                                    ...(room._doc),
-                                    users: memsOfRoom
-                                });
-                        });
-
-                } catch (error) {
-                    console.log(error);
-                }
-            })
 
             socket.on('disconnect', function () {
                 console.log("disconnect: " + socket.id);

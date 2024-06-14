@@ -278,37 +278,6 @@ const Room = () => {
                                 groupsInDay={item.groupsInDay} />
                         )
                     })}
-                    {/* {_.map(messages, (message, idx) => {
-                        if (message.type === 'system-notification') {
-                            return <NotificationMessage
-                                key={idx}
-                                members={members}
-                                user={members.find(x => x._id === message.creatorId)}
-                                {...message}
-                            />
-                        } else {
-                            if (message.creatorId === user._id) {
-                                return (
-                                    <RightMessage
-                                        key={idx}
-                                        {...message}
-                                        msgId={message._id}
-                                        onRedeemMsg={redeemMsg}
-                                    />
-                                )
-                            }
-                            return (
-                                <LeftMessage
-                                    key={idx}
-                                    content={message.content}
-                                    redeem={message.redeem}
-                                    attachment={message.attachment}
-                                    type={message.type}
-                                    user={members.find(x => x._id === message.creatorId)}
-                                />
-                            )
-                        }
-                    })} */}
                     <Box mb="80px" />
                 </Stack>
                 {room?.dispersed

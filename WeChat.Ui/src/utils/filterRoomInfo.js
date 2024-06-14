@@ -19,7 +19,7 @@ export const filterRoomInfo = (loggingUserId, room, members) => {
         return {
             title: room.title,
             subtitle: members.length + ' thành viên',
-            avatar: ''
+            avatar: room.thumbnail
         };
     }
 
@@ -34,6 +34,6 @@ export const filterRoomInfo = (loggingUserId, room, members) => {
     return {
         title: title + ' và bạn',
         subtitle: members.length + ' thành viên',
-        avatar: ''
+        avatar: room.thumbnail
     };
 }

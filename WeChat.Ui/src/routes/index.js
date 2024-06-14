@@ -4,8 +4,7 @@ import MainLayout from "../layouts/mainLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import { DEFAULT_PATH } from "../config";
 import LoadingScreen from "../components/LoadingScreen";
-import ProfilePage from "../pages/chat/ProfilePage";
-import ContactPage from "@/pages/chat/ContactPage";
+import ContactPage from "@/pages/contacts/ContactPage";
 
 
 const Loadable = (Component) => (props) => {
@@ -15,6 +14,7 @@ const Loadable = (Component) => (props) => {
     </Suspense>
   );
 };
+
 const ChatPage = Loadable(
   lazy(() => import("../pages/chat/ChatPage"))
 );
@@ -40,7 +40,6 @@ export default function Router() {
         { path: "/chat/", element: <ChatPage /> },
         { path: "/chat/:roomId", element: <ChatPage /> },
         { path: "/contact", element: <ContactPage /> },
-        { path: "/user/:userId", element: <ProfilePage/>},
         { path: "/404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],

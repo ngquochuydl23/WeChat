@@ -9,6 +9,7 @@ import { socketManager } from '../../socket';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
+import SearchContactSidebar from "@/sections/contact/SearchContactSidebar";
 
 const ContactPage = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const ContactPage = () => {
     }
   }
 
-  const onReceiveIncomingMsg = (roomId, room) => {  
+  const onReceiveIncomingMsg = (roomId, room) => {
     setRooms((preState) => [room, ...(preState.filter(x => x._id !== roomId))]);
   }
 
@@ -77,10 +78,7 @@ const ContactPage = () => {
     <Stack
       direction="row"
       sx={{ height: '100%' }}>
-      {/* <MenuRoomChat
-        key={roomId}
-        rooms={rooms}
-        onCreateGroupChat={createGroupChat} /> */}
+      <SearchContactSidebar />
       <Divider
         orientation="vertical"
         flexItem />

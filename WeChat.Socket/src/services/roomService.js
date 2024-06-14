@@ -137,7 +137,8 @@ async function getRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0, li
                     lastMsg: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    title: 1
+                    title: 1,
+                    thumbnail: 1
                 }
             },
             // { $skip: skip },

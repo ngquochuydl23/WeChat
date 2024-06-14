@@ -141,7 +141,7 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
     const onCreateGroup = () => {
         const otherIds = _.map(selectedUsers, item => item._id);
 
-        initRoomChat(title, otherIds)
+        initRoomChat(title, otherIds, thumbnail)
             .then(({ result }) => {
                 console.log(result);
                 navigate('/chat/' + result.room._id);

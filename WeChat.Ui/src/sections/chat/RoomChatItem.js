@@ -1,4 +1,4 @@
-import { Box, Typography, Stack, Chip, AvatarGroup, } from "@mui/material";
+import { Box, Typography, Stack, Chip, AvatarGroup, Popover, List, ListItemButton, ListItemIcon, ListItemText, Icon, } from "@mui/material";
 import Avatar from '@mui/material/Avatar';
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
@@ -9,6 +9,10 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { readUrl } from "@/utils/readUrl";
 import Lottie from "react-lottie";
 import typingAnimation from '../../lotties/typing-lotties.json';
+import { useState } from "react";
+import VolumeMuteRoundedIcon from '@mui/icons-material/VolumeMuteRounded';
+import IcPinRoom from "@/assets/icons/IcPinRoom";
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 const RoomChatItem = ({
     _id,
@@ -18,12 +22,35 @@ const RoomChatItem = ({
     members,
     onClick,
     unreadMsgCount = 0,
-    typing
+    typing,
+    onDeletedMsg
 }) => {
-
 
     const param = useParams();
     const { user } = useSelector((state) => state.user);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
+    const onContextMenu = (event) => {
+        event.preventDefault();
+        setAnchorEl(event.currentTarget);
+    }
+
+    const muteRoom = () => {
+
+    }
+
+    const pinRoom = () => {
+
+    }
+
+    const deleteMsgInRoom = () => {
+        setAnchorEl(null);
+        if (true) {
+            onDeletedMsg();
+        }
+    }
 
     const fitlerLastMsgContent = () => {
         if (lastMsg.type === 'text') {
@@ -99,12 +126,12 @@ const RoomChatItem = ({
         )
     }
 
-
     return (
         <Stack
             component={Link}
             to={"/chat/" + _id}
             onClick={onClick}
+            onContextMenu={onContextMenu}
             px="15px"
             py="10px"
             spacing="15px"
@@ -161,7 +188,7 @@ const RoomChatItem = ({
                                 sx={{
                                     color: 'white',
                                     backgroundColor: '#07C160',
-                                   // aspectRatio: 1,
+                                    // aspectRatio: 1,
                                     '.MuiChip-label': {
                                         //fontSize: '9px'
                                     }
@@ -197,10 +224,59 @@ const RoomChatItem = ({
                             width={"100%"}
                         />
                     </Box>
-
                 }
-            </Box >
-        </Stack >
+            </Box>
+            <Popover
+                id={id}
+                open={open}
+                sx={{
+                    ml: '20px',
+                    '.MuiPopover-paper': {
+                        borderRadius: '5px',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)'
+                    }
+                }}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                transformOrigin={{ vertical: 'center', horizontal: 'center' }}>
+                <List sx={{ width: '200px' }}>
+                    <ListItemButton
+                        onClick={() => {
+
+                            setAnchorEl(null);
+                        }}>
+                        <ListItemIcon sx={{ minWidth: '34px' }}>
+                            <IcPinRoom />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Ghim hội thoại"
+                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
+                    </ListItemButton>
+                    <ListItemButton
+                        onClick={() => {
+
+                            setAnchorEl(null);
+                        }}>
+                        <ListItemIcon sx={{ minWidth: '34px' }}>
+                            <VolumeMuteRoundedIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Tắt thông báo"
+                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
+                    </ListItemButton>
+                    <ListItemButton
+                        onClick={deleteMsgInRoom}>
+                        <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>
+                            <DeleteOutlineOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Xóa đoạn chat"
+                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500', color: 'red' }} />
+                    </ListItemButton>
+                </List>
+            </Popover>
+        </Stack>
     )
 }
 

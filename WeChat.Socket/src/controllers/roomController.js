@@ -104,8 +104,7 @@ exports.getRoomsByMemberName = async (req, res, next) => {
         if (!name) {
             throw new AppException("name query is not provided.");
         }
-
-
+        
         const rooms = await getRooms(req.loggingUserId, {
             "users": {
                 "$elemMatch": {
