@@ -24,9 +24,10 @@ const RoomChatItem = ({
     singleRoom,
     members,
     onClick,
-    unreadMsgCount = 0,
+    unreadMsgCount,
     typing,
-    onDeletedMsg
+    onDeletedMsg,
+    onLeavedRoom,
 }) => {
 
     const param = useParams();
@@ -40,6 +41,10 @@ const RoomChatItem = ({
         setAnchorEl(event.currentTarget);
     }
 
+    const getCreatorLastMsg = () => {
+        return members?.find(mem => mem._id === lastMsg.creatorId);
+    }
+
     const muteRoom = () => {
 
     }
@@ -51,7 +56,10 @@ const RoomChatItem = ({
     const leaveRoomChat = () => {
         setAnchorEl(null);
         leaveRoom(_id)
-            .then(({ result }) => console.log(result.msg))
+            .then(({ result }) => {
+                console.log(result.msg);
+                onLeavedRoom();
+            })
             .catch((err) => console.log(err))
     }
 
@@ -61,85 +69,6 @@ const RoomChatItem = ({
             onDeletedMsg();
         }
     }
-
-    const fitlerLastMsgContent = () => {
-        if (lastMsg.type === 'text') {
-            return (
-                <Typography
-                    textOverflow="ellipsis"
-                    sx={{
-                        fontWeight: "500",
-                        color: '#696969',
-                        ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
-                            fontWeight: "600",
-                            color: '#000',
-                        }),
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        display: "-webkit-box",
-                        WebkitLineClamp: "1",
-                        WebkitBoxOrient: "vertical",
-                    }}
-                    fontSize="14px"
-                    variant="body1">
-                    {lastMsg.creatorId === user._id && "Bạn: "} {lastMsg.content}
-                </Typography>
-            )
-        } else if (lastMsg.type === 'image') {
-            return (
-                <Typography
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyItems: 'center',
-                        fontWeight: "500",
-                        color: '#696969',
-                    }}
-                    fontSize="14px"
-                    variant="body1">
-                    {lastMsg.creatorId === user._id && "Bạn:  "} <PhotoIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> Hình ảnh
-                </Typography>
-            )
-        } else if (lastMsg.type === 'file') {
-            return (
-                <Typography
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyItems: 'center',
-                        fontWeight: "500",
-                        color: '#696969',
-                    }}
-                    fontSize="14px"
-                    variant="body1">
-                    {lastMsg.creatorId === user._id && "Bạn:  "} <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
-                </Typography>
-            )
-        } 
-
-        const creator = members.find(x => x._id === lastMsg.creatorId);
-        return (
-            <Typography
-                textOverflow="ellipsis"
-                sx={{
-                    fontWeight: "500", color: '#696969',
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    display: "-webkit-box",
-                    WebkitLineClamp: "2",
-                    WebkitBoxOrient: "vertical",
-                    ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
-                        fontWeight: "600",
-                        color: '#000',
-                    }),
-                }}
-                fontSize="14px"
-                variant="body1">
-                {creator._id === user._id ? "Bạn" : creator.fullName} {filterMsgSystem(lastMsg.content, members)}
-            </Typography>
-        )
-    }
-
     return (
         <Stack
             component={Link}
@@ -195,7 +124,40 @@ const RoomChatItem = ({
                 </Stack>
                 {(!typing)
                     ? <Stack sx={{ width: '100%' }} justifyContent="space-between" spacing="10px" direction="row">
-                        {fitlerLastMsgContent()}
+                        <Typography
+                            textOverflow="ellipsis"
+                            sx={{
+                                fontWeight: "500",
+                                color: '#696969',
+                                ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
+                                    fontWeight: "600",
+                                    color: '#000',
+                                }),
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                display: "-webkit-box",
+                                WebkitLineClamp: "1",
+                                WebkitBoxOrient: "vertical",
+                            }}
+                            fontSize="14px"
+                            variant="body1">
+                            {lastMsg.creatorId === user._id
+                                ? "Bạn: "
+                                : (singleRoom ? "" : getCreatorLastMsg()?.firstName + ": " )}
+
+                            {lastMsg.type === 'text' && lastMsg.content}
+                            {lastMsg.type === 'image' &&
+                                <span>
+                                    <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
+                                </span>
+                            }
+                            {lastMsg.type === 'file' &&
+                                <span>
+                                    <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
+                                </span>
+                            }
+                            {lastMsg.type === 'system-notification' && filterMsgSystem(lastMsg.content, members)}
+                        </Typography>
                         {(Boolean(unreadMsgCount) && unreadMsgCount > 0 && lastMsg.creatorId !== user._id) &&
                             <Chip
                                 size="small"
@@ -258,7 +220,7 @@ const RoomChatItem = ({
                     <ListItemButton
                         onClick={() => {
 
-                            setAnchorEl(null);
+                            setAnchorEl(null)
                         }}>
                         <ListItemIcon sx={{ minWidth: '34px' }}>
                             <IcPinRoom />

@@ -207,6 +207,7 @@ const MenuRoomChat = () => {
                                 {...filterRoomInfo(user._id, roomItem, roomItem.users)}
                                 members={roomItem.users}
                                 loggingUserId={user._id}
+                                onLeavedRoom={() => setRooms(preState => preState.filter(x => x._id !== roomItem._id))}
                                 typing={roomItem.typing}
                                 onDeletedMsg={() => {
 

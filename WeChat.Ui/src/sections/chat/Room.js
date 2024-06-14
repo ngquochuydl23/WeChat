@@ -108,7 +108,8 @@ const Room = () => {
         setMessages((pre) => [msg, ...pre]);
     }
 
-    const seen = () => {
+    const seen = (roomId) => {
+        console.log("Seen in room: " + roomId);
         if (roomId)
             seenMsg(roomId)
                 .then(({ msg }) => { console.log(msg) })
@@ -154,7 +155,7 @@ const Room = () => {
 
         if (response) {
             localStorage.setItem("lastAccessRoomId", roomId);
-            seen();
+            seen(roomId);
             setLoading(false);
             setMembers(response.users)
             setRoom(response.room);
@@ -216,8 +217,6 @@ const Room = () => {
     useEffect(() => {
         if (socket.connected) {
             socket.emit('join', roomId, handleJoinRoom);
-
-            // navigate to /chat/
         }
 
         return () => {
