@@ -102,7 +102,7 @@ const Room = () => {
 
     const onReceiveIncomingMsg = async (roomId, msg) => {
         if (msg.creatorId !== user._id) {
-            seen();
+            seen(roomId);
         }
         console.log(msg);
         setMessages((pre) => [msg, ...pre]);
