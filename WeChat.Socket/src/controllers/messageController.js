@@ -1,13 +1,11 @@
-const _ = require('lodash');
-const app = require('../app');
 const { AppException } = require('../exceptions/AppException');
-const { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg, updateManyMsg, findOneMsg } = require('../services/messageService');
+const { getMsgByRoomId, deleteMsgInRoom, sendMsg, updateManyMsg, findOneMsg, findMsgById, updateOneMsgById } = require('../services/messageService');
 const { findRoomByUser, updateRoom, findById } = require('../services/roomService');
 const toObjectId = require('../utils/toObjectId');
 const { emitToRoomNsp } = require('../utils/socketUtils');
 const { logger } = require('../logger');
 const { getIo } = require('../socket');
-
+const moment = require('moment');
 
 exports.getMsgByRoomId = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
@@ -102,7 +100,7 @@ exports.sendMsg = async (req, res, next) => {
         });
 
         await updateRoom(roomId, { lastMsg: message });
-        
+
         getIo()
             .of('chatRoom')
             .to(roomId)
@@ -131,13 +129,51 @@ exports.redeemMsg = async (req, res, next) => {
     const loggingUserId = req.loggingUserId;
 
     try {
-        const message = await redeemMsg(loggingUserId, msgId);
+
+        const redeemMsg = await findMsgById(msgId);
+        const roomId = redeemMsg.roomId;
+
+        if (!redeemMsg) {
+            throw new AppException("RedeemMsg not found.");
+        }
+
+        if (redeemMsg.creatorId.toHexString() !== loggingUserId) {
+            throw new AppException("Message is not belong to this account.");
+        }
+
+        if ((redeemMsg.redeemed)) {
+            throw new AppException("Cannot not redeem this msg. It is redeemed before.");
+        }
+
+        await updateOneMsgById(msgId, {
+            $set: {
+                redeemed: true,
+                redeemedAt: moment()
+            }
+        });
+
+        const notifyMsg = await sendMsg({
+            type: 'system-notification',
+            content: 'redeemMsg.',
+            roomId: roomId,
+            creatorId: loggingUserId,
+            seenBys: [toObjectId(loggingUserId)]
+        });
+
+        await updateRoom(roomId, { lastMsg: notifyMsg });
+
+        getIo()
+            .of('chatRoom')
+            .to(roomId.toHexString())
+            .emit("incomingRedeemMsg", roomId, redeemMsg);
+
+        await emitToRoomNsp(roomId, 'redeemMsg');
 
         return res
             .status(201)
             .json({
                 statusCode: 201,
-                message
+                msg: "Msg is redeemed."
             });
 
     } catch (error) {

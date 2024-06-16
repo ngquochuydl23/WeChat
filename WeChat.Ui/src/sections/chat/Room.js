@@ -104,12 +104,10 @@ const Room = () => {
         if (msg.creatorId !== user._id) {
             seen(roomId);
         }
-        console.log(msg);
         setMessages((pre) => [msg, ...pre]);
     }
 
     const seen = (roomId) => {
-        console.log("Seen in room: " + roomId);
         if (roomId)
             seenMsg(roomId)
                 .then(({ msg }) => { console.log(msg) })
@@ -139,12 +137,11 @@ const Room = () => {
         setMessages(messages);
     }
 
-    const onIncomingRedeemMsg = async (msg) => {
-        console.log('incomingRedeemMsg: ' + msg._id);
+    const onIncomingRedeemMsg = async (roomId, msg) => {
         setMessages((pre) => pre.map(item => {
             if (item._id === msg._id) {
-                item.redeem = true;
-                return msg;
+                item.redeemed = true;
+                return item;
             }
             return item;
         }));
@@ -152,9 +149,11 @@ const Room = () => {
 
 
     const handleJoinRoom = ({ status, response, error }) => {
+        console.log("Join room: " + status);
 
         if (response) {
             localStorage.setItem("lastAccessRoomId", roomId);
+
             seen(roomId);
             setLoading(false);
             setMembers(response.users)
@@ -191,9 +190,12 @@ const Room = () => {
 
         socket.on('incomingMsg', onReceiveIncomingMsg);
         socket.on('incomingTyping', onReceiveIncomingTyping);
+        socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
+
+
         socket.on('roomDispersion', onRoomDispersion);
         socket.on('addMember', onAddedMember);
-        socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
+
 
         socket.io.on("error", (error) => {
             console.log(error);
@@ -208,9 +210,11 @@ const Room = () => {
             socket.off('join');
             socket.off('incomingMsg');
             socket.off('incomingTyping');
+            socket.off('incomingRedeemMsg');
+
             socket.off('roomDispersion');
             socket.off('addMember');
-            socket.off('incomingRedeemMsg');
+
         }
     }, []);
 
@@ -267,9 +271,10 @@ const Room = () => {
                     }
                     {/* Msg from socket */}
                     {_.map(groupMsg(messages), (item, idx) => {
+
                         return (
                             <GroupMsgItem
-                                key={idx}
+                                key={item.datetime}
                                 user={user}
                                 members={members}
                                 datetime={item.datetime}

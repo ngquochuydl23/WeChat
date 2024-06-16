@@ -50,7 +50,7 @@ const RoomChatItem = ({
     }
 
     const pinRoom = () => {
-
+        setAnchorEl(null);
     }
 
     const leaveRoomChat = () => {
@@ -143,7 +143,7 @@ const RoomChatItem = ({
                             variant="body1">
                             {lastMsg.creatorId === user._id
                                 ? "Bạn: "
-                                : (singleRoom ? "" : getCreatorLastMsg()?.firstName + ": " )}
+                                : (singleRoom ? "" : getCreatorLastMsg()?.firstName + ": ")}
 
                             {lastMsg.type === 'text' && lastMsg.content}
                             {lastMsg.type === 'image' &&
@@ -217,11 +217,7 @@ const RoomChatItem = ({
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 transformOrigin={{ vertical: 'center', horizontal: 'center' }}>
                 <List sx={{ width: '200px' }}>
-                    <ListItemButton
-                        onClick={() => {
-
-                            setAnchorEl(null)
-                        }}>
+                    <ListItemButton onClick={pinRoom}>
                         <ListItemIcon sx={{ minWidth: '34px' }}>
                             <IcPinRoom />
                         </ListItemIcon>
@@ -241,15 +237,16 @@ const RoomChatItem = ({
                             primary="Tắt thông báo"
                             primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
                     </ListItemButton>
-                    <ListItemButton
-                        onClick={leaveRoomChat}>
-                        <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>
-                            <LogoutIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Rời nhóm"
-                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500', color: 'red' }} />
-                    </ListItemButton>
+                    {!singleRoom &&
+                        <ListItemButton onClick={leaveRoomChat}>
+                            <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>
+                                <LogoutIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Rời nhóm"
+                                primaryTypographyProps={{ fontSize: '14px', fontWeight: '500', color: 'red' }} />
+                        </ListItemButton>
+                    }
                     <ListItemButton
                         onClick={deleteMsgInRoom}>
                         <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>

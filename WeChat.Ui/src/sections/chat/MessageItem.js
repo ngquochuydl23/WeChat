@@ -47,7 +47,7 @@ export const NotificationMessage = ({ user, content, members }) => {
 
 const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx }) => {
     return (
-        <Stack sx={{ maxWidth: "700px" }} direction="column">
+        <Stack sx={{ }} direction="column">
             {type === "image" && attachment && (
                 <img
                     alt={attachment.fileName}
@@ -55,7 +55,7 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx
                         objectFit: "cover",
                         marginTop: "10px",
                         borderRadius: content ? "12px 12px 0px 0px " : "12px",
-                        width: "200px",
+                 
                         height: "200px",
                         marginBottom: content ? "0px" : "10px",
                     }}
@@ -66,7 +66,6 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx
                     direction="row"
                     sx={{
                         height: '70px',
-                        minWidth: '300px',
                         padding: "10px",
                         alignItems: 'center',
                         borderRadius: content ? '15px 15px 0px 0px ' : '10px',
@@ -125,23 +124,21 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx
     );
 };
 
-export const LeftMessage = ({ user, content, redeem = false, type = "text", attachment, sx }) => {
-    return redeem ? (
+export const LeftMessage = ({ user, content, redeemed = false, type = "text", attachment, sx }) => {
+    return redeemed ? (
         <Box
             sx={{
                 display: "flex",
                 alignSelf: "flex-end",
                 marginInlineEnd: "15px",
-                borderRadius: "15px",
-                minWidth: "180px",
-                maxWidth: "350px",
+                borderRadius: '5px 20px 20px 5px',
                 justifyContent: "flex-end",
                 border: "2px solid #d3d3d3",
-                paddingX: "7px",
-                paddingY: "7px",
-                marginBottom: "10px",
+                paddingX: "10px",
+                paddingY: '7px',
+                ...sx
             }}>
-            <Typography color="black" fontWeight="500" fontStyle="italic" fontSize="15px" variant="body1">
+            <Typography color="black" fontWeight="500" fontStyle="italic" fontSize="14px" variant="body1">
                 {user.fullName} đã thu hồi tin nhắn.
             </Typography>
         </Box>
@@ -157,11 +154,9 @@ export const LeftMessage = ({ user, content, redeem = false, type = "text", atta
 export const RightMessage = ({
     sx,
     content,
-    seen = false,
-    sent = true,
     onRedeemMsg,
     msgId,
-    redeem = false,
+    redeemed = false,
     type,
     attachment,
 }) => {
@@ -197,33 +192,33 @@ export const RightMessage = ({
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
 
-    return redeem ? (
+    return redeemed ? (
         <Box
             sx={{
-                marginBottom: "10px",
                 display: "flex",
                 alignSelf: "flex-end",
-                borderRadius: "15px",
-                width: "180px",
+                width: "auto",
                 justifyContent: "flex-end",
                 border: "2px solid #d3d3d3",
-                paddingX: "7px",
-                paddingY: "7px",
+                paddingX: "10px",
+                paddingY: '7px',
+                borderRadius: '20px 5px 5px 20px',
+                ...sx
             }}>
-            <Typography textAlign="center" color="black" fontWeight="500" fontStyle="italic" fontSize="15px" variant="body1">
+            <Typography textAlign="center" color="black" fontWeight="500" fontStyle="italic" fontSize="14px" variant="body1">
                 {"Bạn đã thu hồi tin nhắn"}
             </Typography>
         </Box>
     ) : (
         <Stack justifyContent="flex-end" spacing="15px" direction="row">
-            {/* <IconButton
+            <IconButton
                 size="small"
                 sx={{ aspectRatio: 1 }}
                 aria-describedby={id}
                 variant="contained"
                 onClick={handleClick}>
                 <MoreHorizIcon />
-            </IconButton> */}
+            </IconButton>
             <Popover
                 id={id}
                 open={open}

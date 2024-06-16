@@ -30,8 +30,12 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
         userId: mongoose.ObjectId,
         pinnedAt: Date
     },
-    redeem: {
+    redeemed: {
         type: Boolean,
         default: false
+    },
+    redeemedAt: {
+        type: Date,
+        default: null
     }
 }))

@@ -7,9 +7,8 @@ const { authMiddleware } = require('../middlewares/authMiddleware');
 router.post('/:msgId/redeem', authMiddleware, messageController.redeemMsg);
 
 
-router.get('/room/:roomId', authMiddleware, messageController.getMsgByRoomId);
-router.delete('/room/:roomId', authMiddleware, messageController.deleteMsgByRoomId);
-
+router.get('/by-room/:roomId', authMiddleware, messageController.getMsgByRoomId);
+router.delete('/by-room/:roomId', authMiddleware, messageController.deleteMsgByRoomId);
 router.post('/by-room/:roomId/seen', authMiddleware, messageController.seenMsgs);
 router.post('/by-room/:roomId/sendMsg', authMiddleware, messageController.sendMsg);
 module.exports = router;

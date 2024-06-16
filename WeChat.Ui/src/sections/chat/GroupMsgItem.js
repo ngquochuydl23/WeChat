@@ -3,10 +3,19 @@ import { Avatar, Box, Chip, Stack, Typography } from "@mui/material";
 import _ from "lodash";
 import moment from "moment";
 import { LeftMessage, NotificationMessage, RightMessage } from "./MessageItem";
+import { redeemMsg } from "@/services/messagesApiService";
 
 const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
     if (_.isEmpty(groupsInDay)) {
         return null;
+    }
+
+    const redeem = (msgId) => {
+        redeemMsg(msgId)
+            .then(({ msg }) => { console.log(msg); })
+            .catch((err) => {
+                console.log();
+            })
     }
 
     return (
@@ -23,7 +32,13 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
 
                     if (isNotificationSystem) {
                         return (
-                            <Stack alignSelf="center" alignItems="center" my="10px" spacing="15px" direction="column">
+                            <Stack
+                                key={idx}
+                                alignSelf="center"
+                                alignItems="center"
+                                my="10px"
+                                spacing="15px"
+                                direction="column">
                                 {_.map(messages, (message, idx) => (
                                     <div style={{ display: 'flex' }} key={message._id}>
                                         <NotificationMessage
@@ -40,7 +55,7 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
 
                     if (creator._id !== user._id) {
                         return (
-                            <Stack mb="10px" spacing="15px" direction="row" alignSelf="flex-start">
+                            <Stack key={idx} mb="10px" spacing="15px" direction="row" alignSelf="flex-start">
                                 <Avatar
                                     alt={creator.fullName}
                                     src={readUrl(creator.avatar)} />
@@ -63,7 +78,7 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
                                                     })
                                                 }}
                                                 content={message.content}
-                                                redeem={message.redeem}
+                                                redeemed={message.redeemed}
                                                 attachment={message.attachment}
                                                 type={message.type}
                                                 user={creator}
@@ -93,7 +108,7 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
                                         }}
                                         {...message}
                                         msgId={message._id}
-                                    // onRedeemMsg={redeemMsg}
+                                        onRedeemMsg={redeem}
                                     />
                                 </div>
                             ))}

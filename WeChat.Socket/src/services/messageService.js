@@ -1,11 +1,7 @@
 const Room = require('../models/room');
 const Message = require('../models/message');
-const _ = require('lodash');
 const moment = require('moment');
-const { AppException } = require('../exceptions/AppException');
-const { io } = require('../app');
-const room = require('../models/room');
-const mongoose = require('mongoose');
+const toObjectId = require('../utils/toObjectId');
 
 async function getMsgByRoomId(
     roomId,
@@ -56,6 +52,11 @@ async function findOneMsg(whereObj = {}, sortObj = {}) {
     return msg;
 }
 
+async function findMsgById(id) {
+    const msg = await Message.findById(id);
+    return msg;
+}
+
 async function countMsgs(whereObj = {}) {
     const count = await Message
         .find({ ...whereObj })
@@ -76,41 +77,17 @@ async function sendMsg(msg) {
     return message;
 }
 
-async function redeemMsg(loggingUserId, msgId) {
-    const message = await Message.findById(msgId);
-    const room = await Room.findById(message.roomId);
-
-    if (!message) {
-        throw new AppException("Message not found.");
-    }
-
-    if (message.creatorId.toHexString() !== loggingUserId) {
-        throw new AppException("Message is not belong to this account.");
-    }
-
-    if ((message.redeem)) {
-        throw new AppException("Cannot not redeem this msg. It is redeemed before.");
-    }
-
-    message.redeem = true;
-    await message.save();
-
-
-    const notifyMsg = new Message({
-        type: 'system-notification',
-        content: 'redeemMsg.',
-        roomId: room._id,
-        createdAt: message.createdAt,
-        creatorId: loggingUserId
-    });
-
-    await notifyMsg.save();
-
-
-    room.lastMsg = notifyMsg;
-    await room.save();
-
-    return message;
+async function updateOneMsgById(msgId, option) {
+    await Message.updateOne({ _id: toObjectId(msgId) }, { ...option });
 }
 
-module.exports = { getMsgByRoomId, deleteMsgInRoom, sendMsg, redeemMsg, updateManyMsg, findOneMsg, countMsgs }
+module.exports = {
+    getMsgByRoomId,
+    deleteMsgInRoom,
+    sendMsg,
+    updateManyMsg,
+    findOneMsg,
+    countMsgs,
+    findMsgById,
+    updateOneMsgById
+}

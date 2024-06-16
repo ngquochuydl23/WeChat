@@ -14,6 +14,7 @@ export const groupMsg = (messages) => {
         .map(groupToDayForm)
         .value();
 
+
     return resultAsDays.map(({ datetime, messages }) => ({
         datetime,
         groupsInDay: groupMsgWithThreshold(messages)
@@ -29,7 +30,7 @@ export const groupMsgWithThreshold = (messages) => {
     });
 
     // Sort messages by createdAt time
-    const sortedMessages = _.sortBy(messages, 'createdAt');
+    const sortedMessages = _.sortBy(_.filter(messages, msg => msg !== 'system-notification' && msg.content !== 'redeemMsg.'), 'createdAt');
     // const sortedMessages = messages;
     // Group messages into arrays based on the time threshold
     const groupedMessages = [];
@@ -38,6 +39,7 @@ export const groupMsgWithThreshold = (messages) => {
     sortedMessages.forEach((message, index) => {
         if (index === 0) {
             currentGroup.push(message);
+            groupedMessages.push(currentGroup);
         } else {
             const timeDifference = message.createdAt - sortedMessages[index - 1].createdAt;
 
