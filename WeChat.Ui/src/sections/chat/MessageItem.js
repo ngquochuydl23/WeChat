@@ -171,22 +171,22 @@ export const RightMessage = ({
     };
 
     const copyToClipboard = (text) => {
-        navigator.clipboard
-            .writeText(text)
-            .then(() => {
-                enqueueSnackbar(`Sao chép vào clipboard thành công`, {
-                    variant: "success",
-                    anchorOrigin: {
-                        vertical: "bottom",
-                        horizontal: "right",
-                    },
-                });
+        // navigator.clipboard
+        //     .writeText(text)
+        //     .then(() => {
+        //         enqueueSnackbar(`Sao chép vào clipboard thành công`, {
+        //             variant: "success",
+        //             anchorOrigin: {
+        //                 vertical: "bottom",
+        //                 horizontal: "right",
+        //             },
+        //         });
 
-                handleClose();
-            })
-            .catch((error) => {
-                console.error("Lỗi khi sao chép tin nhắn vào clipboard: ", error);
-            });
+        //         handleClose();
+        //     })
+        //     .catch((error) => {
+        //         console.error("Lỗi khi sao chép tin nhắn vào clipboard: ", error);
+        //     });
     };
 
     const open = Boolean(anchorEl);

@@ -212,5 +212,9 @@ module.exports = {
     findById,
     findOneRoom,
     findSingleRoomByUserId,
-    updateRoom, findRoomByUser, initRoomChat, getRooms, addMemberToRoom
+    findRoomByUser,
+    updateRoom,
+    initRoomChat,
+    getRooms,
+    addMemberToRoom
 }

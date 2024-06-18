@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const { AppException } = require('../exceptions/AppException');
 const {
     initRoomChat,
@@ -7,6 +6,7 @@ const {
     getRooms,
     getRoomsCount,
     findById,
+    findOneRoom,
 } = require('../services/roomService');
 const { findUsersByIds } = require('../services/userService');
 const { sendMsg } = require('../services/messageService');
@@ -171,6 +171,41 @@ exports.leaveRoom = async (req, res, next) => {
                     msg: "Leaved room."
                 }
             });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.addMember = async (req, res, next) => {
+    const { roomId } = req.params;
+    const { loggingUserId } = req.loggingUserId;
+    const { otherIds } = req.body;
+
+    try {
+
+        const room = await findOneRoom({ _id: toObjectId(roomId) });
+        if (!room) {
+            throw new AppException("Room not found.");
+        }
+
+        if (room.singleRoom) {
+            throw new AppException("Cannot add member to single room.");
+        }
+
+        if (!room.members.includes(loggingUserId)) {
+            throw new AppException("This account is not a member of this room.");
+        }
+
+        // if (!room.members.includes(otherIds)) {
+        //     throw new AppException("This account is not a member of this room.");
+        // }
+
+        
+
+        getIo()
+            .of('chatRoom')
+            .to(roomId)
+            .emit('addMember', roomId, message);
     } catch (error) {
         next(error);
     }

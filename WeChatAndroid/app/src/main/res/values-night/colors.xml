@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="primaryColor">#06C167</color>
+    <color name="foregroundColor">#121212</color>
+    <color name="backgroundColor">#000</color>
+
+    <color name="trans50">#50000000</color>
+
+    <color name="gray">#606060</color>
+
+    <color name="textColorPrimary">#fff</color>
+    <color name="textColorSecondary">#f5f5f5</color>
+
+    <color name="icColorPrimary">#fff</color>
+    <color name="icColorSecondary">#606060</color>
+</resources>

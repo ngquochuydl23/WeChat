@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+      android:id="@+id/menuRoomChatTab"
+      android:icon="@drawable/ic_home_chat"
+      android:title="@string/chat_title" />
+
+  <item
+      android:id="@+id/contactTab"
+
+      android:title="@string/contact_title" />
+
+  <item
+      android:id="@+id/profileTab"
+      android:icon="@drawable/icon_profile"
+      android:title="@string/profile_title" />
+</menu>

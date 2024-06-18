@@ -124,32 +124,6 @@ function chatRoomEvent(io) {
 				});
 			});
 
-			// socket.on('user.redeemMsg', async (msgId, callback) => {
-			// 	const message = await redeemMsg(loggingUserId, msgId);
-			// 	socket
-			// 		.broadcast
-			// 		.to(message.roomId.toString())
-			// 		.emit('incomingRedeemMsg', message);
-
-			// 	emitToRoomNsp(roomId, 'redeemMsg');
-
-			// 	callback({ msg: "Message is redeemed successfully." });
-			// });
-
-			// socket.on('user.addMember', async (roomId, memberId, callback) => {
-			// 	const room = await addMemberToRoom(loggingUserId, memberId, roomId);
-			// 	logger.info(`Member ${memberId} has been added to room ${roomId}`);
-			// 	callback({
-			// 		roomId,
-			// 		memberId,
-			// 		lastMsg: room.lastMsg
-			// 	});
-			// 	console.log(room);
-			// 	socket.broadcast
-			// 		.to(roomId)
-			// 		.emit('addMember', room, room.lastMsg);
-			// })
-
 			socket.on("leave", (roomId) => {
 				socket.leave(roomId);
 				logger.info(roomId + " leaved room.");

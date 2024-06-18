@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">WeChat</string>
+    <string name="chat_title">Trò chuyện</string>
+    <string name="contact_title">Danh bạ</string>
+    <string name="profile_title">Tôi</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="addition">Addition</string>
+</resources>

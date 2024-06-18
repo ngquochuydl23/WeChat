@@ -92,6 +92,13 @@ const ProfileDialog = ({
 						alignItems: 'flex-start',
 						justifyContent: 'flex-end'
 					}}>
+					<input
+						onChange={onPickFile}
+						style={{ display: "none" }}
+						type="file"
+						multiple
+						accept="image/*"
+						id="pick.cover" />
 					<img
 						style={{
 							borderRadius: '15px',
