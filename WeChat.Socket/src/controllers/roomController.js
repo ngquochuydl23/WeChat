@@ -15,6 +15,7 @@ const { getIo } = require('../socket');
 const { emitToRoomNsp } = require('../utils/socketUtils');
 const toObjectId = require('../utils/toObjectId');
 const moment = require('moment');
+const _ = require('lodash');
 
 exports.findSingleRoom = async (req, res, next) => {
     try {
@@ -178,12 +179,12 @@ exports.leaveRoom = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
     const { roomId } = req.params;
-    const { loggingUserId } = req.loggingUserId;
+    const loggingUserId = req.loggingUserId;
     const { otherIds } = req.body;
 
     try {
+        var room = await findOneRoom({ _id: toObjectId(roomId) });
 
-        const room = await findOneRoom({ _id: toObjectId(roomId) });
         if (!room) {
             throw new AppException("Room not found.");
         }
@@ -192,20 +193,56 @@ exports.addMember = async (req, res, next) => {
             throw new AppException("Cannot add member to single room.");
         }
 
-        if (!room.members.includes(loggingUserId)) {
+        if (!room.members.includes(toObjectId(loggingUserId))) {
             throw new AppException("This account is not a member of this room.");
         }
 
-        // if (!room.members.includes(otherIds)) {
-        //     throw new AppException("This account is not a member of this room.");
-        // }
+        if ((await findUsersByIds(otherIds)).length !== otherIds.length) {
+            throw new AppException("Someone is not found to create a room.");
+        }
 
-        
+        const intersection = _
+            .map(room.members, memberId => memberId.toHexString())
+            .filter(value => otherIds.includes(value));
 
+        if (!_.isEmpty(intersection)) {
+            throw new AppException("Someone is already member of this room.");
+        }
+
+        otherIds.forEach((otherId) => {
+            room.members.push(toObjectId(otherId));
+            room.userConfigs.push({
+                userId: toObjectId(otherId)
+            });
+        });
+
+        var lastMsg = await sendMsg({
+            type: 'system-notification',
+            content: `added ['${otherIds}'] into room.`,
+            roomId: room._id,
+            creatorId: toObjectId(req.loggingUserId)
+        });
+
+        await updateRoom(roomId, {
+            members: room.members,
+            userConfigs: room.userConfigs
+        })
+
+        await emitToRoomNsp(room._id, 'addMember');
+
+        const members = await findUsersByIds(room.members);
         getIo()
             .of('chatRoom')
             .to(roomId)
-            .emit('addMember', roomId, message);
+            .emit('addMember', roomId, members, lastMsg);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                msg: 'add member successfully.'
+            });
+
     } catch (error) {
         next(error);
     }

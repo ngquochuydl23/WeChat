@@ -17,3 +17,7 @@ export const searchRoomChatByName = (name, skip = 0, limit = 10) => http.get("/r
 })
 
 export const leaveRoom = (roomId) => http.post("/room/" + roomId + '/leave');
+
+export const addMember = (roomId, otherIds) => http.post("/room/" + roomId + '/addMember', {
+    otherIds: otherIds
+});

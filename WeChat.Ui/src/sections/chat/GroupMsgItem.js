@@ -44,7 +44,8 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
                                         <NotificationMessage
                                             key={message._id}
                                             members={members}
-                                            user={members.find(x => x._id === message.creatorId)}
+                                            owned={message.creatorId === user._id}
+                                            creator={members.find(x => x._id === message.creatorId)}
                                             {...message}
                                         />
                                     </div>

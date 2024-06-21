@@ -18,25 +18,26 @@ import { useState } from "react";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { enqueueSnackbar } from "notistack";
-import { filterMsgSystem } from "../../utils/fitlerMsg";
 import { readUrl } from "../../utils/readUrl";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { filterMsgSystem } from "@/utils/filterMsg";
 
-export const NotificationMessage = ({ user, content, members }) => {
+
+export const NotificationMessage = ({ creator, content, members, owned }) => {
     return (
         <Stack px="15px" py="10px" justifyContent="center" spacing="15px" direction="row">
             <Chip
                 sx={{ fontSize: "12px", justifyContent: "flex-start", color: "rgb(1,98,196)", fontWeight: "600" }}
                 avatar={
                     <Avatar
-                        src={readUrl(user.avatar)}
-                        alt={user.fullName} />
+                        src={readUrl(creator.avatar)}
+                        alt={creator.fullName} />
                 }
                 label={
                     <Typography fontSize="14px" fontWeight="600">
-                        {user.fullName}
+                        {owned ? "Bạn " : creator.fullName + ' '}
                         <span style={{ fontWeight: "400" }}>
-                            {filterMsgSystem(content)}
+                            {filterMsgSystem(content, members)}
                         </span>
                     </Typography>
                 }
@@ -47,7 +48,7 @@ export const NotificationMessage = ({ user, content, members }) => {
 
 const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx }) => {
     return (
-        <Stack sx={{ }} direction="column">
+        <Stack sx={{}} direction="column">
             {type === "image" && attachment && (
                 <img
                     alt={attachment.fileName}
@@ -55,7 +56,7 @@ const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx
                         objectFit: "cover",
                         marginTop: "10px",
                         borderRadius: content ? "12px 12px 0px 0px " : "12px",
-                 
+
                         height: "200px",
                         marginBottom: content ? "0px" : "10px",
                     }}

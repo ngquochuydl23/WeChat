@@ -110,12 +110,12 @@ const MenuRoomChat = () => {
     }
 
     useEffect(() => {
-        socket.emit('subscribe', user._id, onSubscribe);
-        socket.on('rooms.incomingMsg', onReceiveIncomingMsg)
+        if (socket.connected) {
+            setLoading(false);
+            socket.emit('subscribe', user._id, onSubscribe);
+        }
 
         return () => {
-            socket.off('subscribe');
-            socket.off('rooms.incomingMsg')
             socket.emit('leave', user._id);
         }
     }, [socket.connected])
@@ -125,9 +125,12 @@ const MenuRoomChat = () => {
         setLoading(true);
         socket.on('connect', onConnected);
         socket.on('disconnect', onDisconnected);
+        socket.on('rooms.incomingMsg', onReceiveIncomingMsg);
 
         return () => {
             socket.off('connect', onConnected);
+            socket.off('subscribe');
+            socket.off('rooms.incomingMsg')
             socket.off('disconnect', onDisconnected);
         }
     }, [])

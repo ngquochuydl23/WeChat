@@ -3,7 +3,7 @@ import Avatar from '@mui/material/Avatar';
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { filterChatTime } from "../../utils/chatTimeUtil";
-import { filterMsgSystem } from "../../utils/fitlerMsg";
+import { filterMsgSystem } from "../../utils/filterMsg";
 import PhotoIcon from '@mui/icons-material/Photo';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { readUrl } from "@/utils/readUrl";
@@ -135,16 +135,18 @@ const RoomChatItem = ({
                                 }),
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                display: "-webkit-box",
+                                display: "block",
                                 WebkitLineClamp: "1",
                                 WebkitBoxOrient: "vertical",
                             }}
                             fontSize="14px"
                             variant="body1">
-                            {lastMsg.creatorId === user._id
-                                ? "Bạn: "
-                                : (singleRoom ? "" : getCreatorLastMsg()?.firstName + ": ")}
-
+                            <span>
+                                {lastMsg.creatorId === user._id
+                                    ? (lastMsg.type !== 'system-notification' ? "Bạn: " : "Bạn ")
+                                    : (singleRoom ? "" : getCreatorLastMsg()?.firstName + (lastMsg.type !== 'system-notification' ? ": " : " "))
+                                }
+                            </span>
                             {lastMsg.type === 'text' && lastMsg.content}
                             {lastMsg.type === 'image' &&
                                 <span>
@@ -156,7 +158,7 @@ const RoomChatItem = ({
                                     <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
                                 </span>
                             }
-                            {lastMsg.type === 'system-notification' && filterMsgSystem(lastMsg.content, members)}
+                            {lastMsg.type === 'system-notification' && <span>{filterMsgSystem(lastMsg.content, members)}</span>}
                         </Typography>
                         {(Boolean(unreadMsgCount) && unreadMsgCount > 0 && lastMsg.creatorId !== user._id) &&
                             <Chip

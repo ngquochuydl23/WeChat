@@ -116,9 +116,9 @@ const Room = () => {
                 })
     }
 
-    const onAddedMember = async (room, msg) => {
+    const onAddedMember = async (room, members, msg) => {
         setMessages((pre) => [msg, ...pre]);
-        setMembers(room.users)
+        setMembers(members)
         setRoom(room);
     }
 

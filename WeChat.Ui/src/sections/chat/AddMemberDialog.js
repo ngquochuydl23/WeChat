@@ -6,19 +6,16 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
-import { Avatar, Box, Checkbox, CircularProgress, Divider, Stack, TextField } from '@mui/material';
+import { Avatar, Box, Checkbox, Divider, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import Skeleton from '@mui/material/Skeleton';
 import _ from 'lodash';
 import Chip from '@mui/material/Chip';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import { uploadFile } from '@/services/storageApi';
 import { readUrl } from '@/utils/readUrl';
 import { getFriends } from '@/services/friendApiService';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { initRoomChat } from '@/services/roomApiService';
+import { addMember, initRoomChat } from '@/services/roomApiService';
 import { useNavigate } from 'react-router-dom';
 
 const SelectedUserItem = ({ user, onRemove }) => {
@@ -52,29 +49,36 @@ const SelectedUserItem = ({ user, onRemove }) => {
     )
 }
 
-const UserItem = ({ user, checked, onChange }) => {
+const UserItem = ({ user, checked, onChange, isinGroup }) => {
     const { fullName, avatar } = user;
     return (
         <Stack alignItems="center" direction="row" spacing="15px">
             <Avatar alt={fullName} src={readUrl(avatar)} />
-            <Typography fontWeight="600" fontSize="15px" sx={{ width: '100%' }}>
-                {fullName}
-            </Typography>
+            <Stack direction="column" sx={{ width: '100%' }}>
+                <Typography fontWeight="600" fontSize="15px">
+                    {fullName}
+                </Typography>
+                {isinGroup &&
+                    <Typography fontWeight="500" fontSize="12px" color="gray">
+                        Đã tham gia
+                    </Typography>
+                }
+            </Stack>
             <Checkbox
+                disabled={isinGroup}
                 icon={<RadioButtonUncheckedIcon />}
                 checkedIcon={<CheckCircleIcon />}
                 sx={{ mr: '20px', borderRadius: '300px' }}
-                checked={checked}
+                checked={isinGroup ? true : checked}
                 onChange={onChange} />
         </Stack>
     )
 }
 
-const CreateGroupChatDialog = ({ open, onClose }) => {
+const AddMemberDialog = ({ open, onClose, room, members }) => {
     const navigate = useNavigate();
 
     const [thumbnail, setThumbnail] = useState('');
-    const [uploading, setUploading] = useState(false);
     const [title, setTitle] = useState('');
     const [timer, setTimer] = useState();
     const [content, setContent] = useState("");
@@ -87,9 +91,9 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
     const searchUser = () => {
         setHasSearched(true);
         setSearchUserLoading(true);
+
         getFriends(content.trim())
             .then(({ result }) => {
-                console.log(result.friends);
                 setContacts(result.friends);
             })
             .catch(err => {
@@ -98,8 +102,8 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
 
             })
             .finally(() => {
-                setSearchUserLoading(false);
                 setHasSearched(false);
+                setSearchUserLoading(false);
             });
     }
 
@@ -114,6 +118,7 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
         }
     }
 
+
     const onEnterSearching = (e) => {
         if (!typing) {
             setSearchUserLoading(true);
@@ -126,42 +131,25 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
             setTyping(false);
             searchUser();
         }, 1000);
+
         setTimer(newTimer);
     }
 
-    const onCreateGroup = () => {
-        const otherIds = selectedUsers;
+    const onAddMembers = () => {
 
-        initRoomChat(title, otherIds, thumbnail)
-            .then(({ result }) => {
-                console.log(result);
-                navigate('/chat/' + result.room._id);
+        addMember(room._id, selectedUsers)
+            .then(({ msg }) => {
+                console.log(msg);
+                
             })
             .catch((err) => {
                 console.log(err)
             })
     }
 
-    const onPickFile = (event) => {
-        setUploading(true);
-        uploadFile(event.target.files[0])
-            .then(res => {
-                const { url } = res.data.files[0];
-                setThumbnail(url);
-            })
-            .catch(err => {
-                console.log(err);
-            })
-            .finally(() => {
-                setUploading(false);
-            })
-    }
-
-
     useEffect(() => {
         if (!open) {
             setThumbnail('');
-            setUploading(false);
             setTitle('');
             setTimer(null);
             setContent('');
@@ -169,14 +157,14 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
             setContacts([]);
             setSelectedUsers([]);
             setSearchUserLoading(false);
+        } else {
+
         }
     }, [open])
 
-
     useEffect(() => {
-        setTyping(false);
         searchUser();
-    }, [])
+    }, []);
 
     return (
         <Dialog
@@ -185,7 +173,7 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
             onClose={onClose}
             maxWidth="sm">
             <DialogTitle sx={{ fontWeight: '800', m: 0, p: 2 }}>
-                Tạo nhóm
+                Thêm thành viên
             </DialogTitle>
             <IconButton
                 aria-label="close"
@@ -194,54 +182,11 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
                 <CloseIcon />
             </IconButton>
             <DialogContent sx={{ py: 0 }}>
-                <Stack direction="row" display="flex">
-                    <Box
-                        onClick={() => document.getElementById('room.thumnail.picker')?.click()}
-                        alignItems="center"
-                        justifyContent="center"
-                        sx={{
-                            display: 'flex',
-                            height: '70px',
-                            position: 'relative',
-                            aspectRatio: 1,
-                            borderRadius: '200px',
-                            backgroundColor: uploading ? 'white' : '#f5f5f5',
-                            border: '2px solid #d3d3d3'
-                        }}>
-                        {!thumbnail &&
-                            <input
-                                onChange={onPickFile}
-                                style={{ display: "none" }}
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                id="room.thumnail.picker" />
-                        }
-                        {uploading &&
-                            <Box sx={{ display: 'flex', position: 'absolute', zIndex: 2 }}>
-                                <CircularProgress color="success" sx={{ color: 'white' }} />
-                            </Box>
-                        }
-                        {!thumbnail
-                            ? <CameraAltIcon sx={{ color: 'gray' }} />
-                            : <Avatar
-                                sx={{ height: '100%', width: '100%', margin: '2px' }}
-                                src={readUrl(thumbnail)} />
-                        }
-                    </Box>
-                    <TextField
-                        value={title}
-                        fullWidth
-                        onChange={(e) => setTitle(e.target.value)}
-                        sx={{ ml: '15px' }}
-                        label="Tên nhóm"
-                        variant="standard" />
-                </Stack>
                 <TextField
                     size='small'
                     onChange={onEnterSearching}
                     sx={{
-                        mt: '15px',
+                        mt: '5px',
                         fontSize: '14px',
                         '& .MuiOutlinedInput-root': {
                             '& fieldset': {
@@ -279,13 +224,15 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
                                 </Stack>
                             </Stack>
                             : <Stack sx={{ overflowY: 'auto' }} spacing="15px" py="10px">
-                                {_.map(contacts, ({ user }) => (
-                                    <UserItem
-                                        user={user}
-                                        checked={selectedUsers.find(x => x === user._id)}
-                                        onChange={(e) => onChangeUserItem(e, user)}
-                                    />
-                                ))}
+                                {_.map(contacts, ({ user }) => {
+                                    return (
+                                        <UserItem
+                                            isinGroup={room.members.includes(user._id)}
+                                            user={user}
+                                            checked={selectedUsers.find(x => x === user._id)}
+                                            onChange={(e) => onChangeUserItem(e, user)} />
+                                    )
+                                })}
                             </Stack>
                         }
                         {!contacts && hasSearch &&
@@ -319,7 +266,7 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
                 <Button
                     disabled={selectedUsers.length < 2}
                     onClick={() => {
-                        onCreateGroup();
+                        onAddMembers();
                         onClose();
                         setContent('');
                     }}
@@ -333,4 +280,4 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
     )
 }
 
-export default CreateGroupChatDialog;
+export default AddMemberDialog;
