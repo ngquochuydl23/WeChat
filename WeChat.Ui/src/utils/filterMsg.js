@@ -1,7 +1,7 @@
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { readUrl } from './readUrl';
-import { forEach } from 'lodash';
+import _ from 'lodash';
 
 export const filterMsgSystem = (content, members = []) => {
     if (content === 'created this room.') {
@@ -25,7 +25,12 @@ export const filterMsgSystem = (content, members = []) => {
                 temp.push(member.firstName);
             }
             const lastMember = members.find(({ _id }) => _id === ids[ids.length - 1])
-            title = temp.join(", ") + ' và ' + lastMember.firstName + ' ';
+
+            if (_.isEmpty(temp.join(", "))) {
+                title = lastMember.firstName + ' '
+            } else {
+                title = temp.join(", ") + ' và ' + lastMember.firstName + ' ';
+            }
         }
 
         return (

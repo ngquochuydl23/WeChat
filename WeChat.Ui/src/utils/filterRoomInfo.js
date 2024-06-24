@@ -16,9 +16,10 @@ export const filterRoomInfo = (loggingUserId, room, members) => {
     }
 
     if (Boolean(room.title) && room.title.length > 0) {
+        const memCount = room.userConfigs.filter(x => !x.leaved).length;
         return {
             title: room.title,
-            subtitle: members.length + ' thành viên',
+            subtitle: memCount + ' thành viên',
             avatar: room.thumbnail
         };
     }

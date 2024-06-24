@@ -5,7 +5,6 @@ import { readUrl } from "@/utils/readUrl";
 
 const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
     const info = filterRoomInfo(loggingUserId, room, members);
-
     return (
         <Stack
             sx={{

@@ -192,7 +192,6 @@ exports.addMember = async (req, res, next) => {
         if (room.singleRoom) {
             throw new AppException("Cannot add member to single room.");
         }
-
         if (!room.members.includes(toObjectId(loggingUserId))) {
             throw new AppException("This account is not a member of this room.");
         }
@@ -202,24 +201,39 @@ exports.addMember = async (req, res, next) => {
         }
 
         const intersection = _
-            .map(room.members, memberId => memberId.toHexString())
-            .filter(value => otherIds.includes(value));
+            .map(room.userConfigs, (user) => user)
+            .filter(value => otherIds.includes(value.userId) && value.leaved);
 
         if (!_.isEmpty(intersection)) {
             throw new AppException("Someone is already member of this room.");
         }
 
+
+        let nUserConfigs = [];
+
         otherIds.forEach((otherId) => {
-            room.members.push(toObjectId(otherId));
-            room.userConfigs.push({
-                userId: toObjectId(otherId)
-            });
+            if (room.members.includes(otherId)) {
+                room.userConfigs.map(uConfig => {
+                    if (uConfig.userId.toHexString() === otherId) {
+                        uConfig.leaved = false;
+                        return uConfig;
+                    } else {
+                        return uConfig;
+                    }
+                });
+                console.log(room.userConfigs);
+            } else {
+                room.members.push(toObjectId(otherId));
+                room.userConfigs.push({
+                    userId: toObjectId(otherId)
+                });
+            }
         });
 
         var lastMsg = await sendMsg({
             type: 'system-notification',
             content: `added ['${otherIds}'] into room.`,
-            roomId: room._id,   
+            roomId: room._id,
             creatorId: toObjectId(req.loggingUserId)
         });
 

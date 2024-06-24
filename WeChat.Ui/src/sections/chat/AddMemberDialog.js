@@ -15,14 +15,13 @@ import { readUrl } from '@/utils/readUrl';
 import { getFriends } from '@/services/friendApiService';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { addMember, initRoomChat } from '@/services/roomApiService';
+import { addMember } from '@/services/roomApiService';
 import { useNavigate } from 'react-router-dom';
 
 const SelectedUserItem = ({ user, onRemove }) => {
     const { fullName, avatar, _id } = user;
     const handleDelete = () => {
         onRemove(_id);
-        //alert(_id)
     };
     return (
         <Chip
@@ -136,11 +135,10 @@ const AddMemberDialog = ({ open, onClose, room, members }) => {
     }
 
     const onAddMembers = () => {
-
         addMember(room._id, selectedUsers)
             .then(({ msg }) => {
                 console.log(msg);
-                
+
             })
             .catch((err) => {
                 console.log(err)
@@ -227,7 +225,8 @@ const AddMemberDialog = ({ open, onClose, room, members }) => {
                                 {_.map(contacts, ({ user }) => {
                                     return (
                                         <UserItem
-                                            isinGroup={room.members.includes(user._id)}
+                                            isinGroup={room.members.includes(user._id)
+                                                && !room.userConfigs.find(x => x.userId === user._id).leaved}
                                             user={user}
                                             checked={selectedUsers.find(x => x === user._id)}
                                             onChange={(e) => onChangeUserItem(e, user)} />

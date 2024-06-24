@@ -2,7 +2,6 @@ const { AppException } = require('../exceptions/AppException');
 const Room = require('../models/room');
 const User = require('../models/user');
 const _ = require('lodash');
-const Message = require('../models/message');
 const toObjectId = require('../utils/toObjectId');
 
 
@@ -148,64 +147,6 @@ async function getRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0, li
     return rooms;
 }
 
-async function addMemberToRoom(loggingUserId, memberId, roomId) {
-    const room = await Room.findById(roomId);
-    if (!room) {
-        throw new AppException("Room not found.");
-    }
-
-    if (room.singleRoom) {
-        throw new AppException("Cannot add member to single room.");
-    }
-
-    if (!room.members.includes(loggingUserId)) {
-        throw new AppException("This account is not a member of this room.");
-    }
-
-    var members = await User.find({
-        _id: {
-            $in: room.members
-        }
-    });
-
-    let isMemberAlreadyInRoom = false;
-    for (const member of members) {
-        if (member._id.toString() === memberId) {
-            isMemberAlreadyInRoom = true;
-            break;
-        }
-    }
-    if (isMemberAlreadyInRoom) {
-        throw new AppException("This account is already in room.");
-    }
-
-    const lastMsg = new Message({
-        type: 'system-notification',
-        content: `added '${memberId}' into room.`,
-        roomId: room._id,
-        creatorId: loggingUserId
-    });
-
-    lastMsg.save();
-
-    room.lastMsg = lastMsg;
-    room.members.push(memberId);
-    room.userConfigs.push({
-        userId: memberId
-    });
-
-    await room.save();
-    members = await User.find({
-        _id: {
-            $in: room.members
-        }
-    });
-    return {
-        ...room._doc,
-        users: members
-    };
-}
-
 
 module.exports = {
     getRoomsCount,
@@ -215,6 +156,5 @@ module.exports = {
     findRoomByUser,
     updateRoom,
     initRoomChat,
-    getRooms,
-    addMemberToRoom
+    getRooms
 }
