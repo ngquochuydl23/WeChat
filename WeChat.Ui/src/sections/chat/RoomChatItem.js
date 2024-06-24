@@ -74,13 +74,14 @@ const RoomChatItem = ({
             component={Link}
             to={"/chat/" + _id}
             onClick={onClick}
-            onContextMenu={onContextMenu}
+            //    onContextMenu={onContextMenu}
             px="15px"
             py="10px"
             spacing="15px"
             direction="row"
             sx={{
                 textDecoration: 'none',
+                overflow: 'hidden',
                 width: '100%',
                 '&:hover': {
                     backgroundColor: "rgba(0, 0, 0, 0.05)",
@@ -96,8 +97,8 @@ const RoomChatItem = ({
                 sx={{ height: '50px', width: '50px', aspectRatio: 1 }}
                 alt={title}
                 src={readUrl(avatar)} />
-            <Box sx={{ width: '100%' }}>
-                <Stack direction="row" justifyContent="space-between" sx={{ width: '100%', overflow: 'none' }}>
+            <Box sx={{ width: '100%', overflow: 'hidden' }}>
+                <Stack direction="row" justifyContent="space-between" sx={{ width: '100%', overflow: 'hidden' }}>
                     <Typography
                         sx={{
                             color: 'black',
@@ -123,11 +124,21 @@ const RoomChatItem = ({
                     </Typography>
                 </Stack>
                 {(!typing)
-                    ? <Stack sx={{ width: '100%' }} justifyContent="space-between" spacing="10px" direction="row">
-                        <Typography
+                    ? <Stack
+                        flex="1"
+                        overflow="hidden"
+                        flexDirection="row"
+                        spacing="10px"
+                        direction="row">
+
+                        <Stack
+                            width="100%"
+                            direction="row"
                             textOverflow="ellipsis"
                             sx={{
                                 fontWeight: "500",
+                                wordWrap: "break-word",
+                                overflowWrap: 'break-word',
                                 color: '#696969',
                                 ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
                                     fontWeight: "600",
@@ -135,15 +146,17 @@ const RoomChatItem = ({
                                 }),
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                display: "block",
+                                display: "flex",
+                                flex: 1,
+                                lineClamp: "1",
                                 WebkitLineClamp: "1",
                                 WebkitBoxOrient: "vertical",
                             }}
                             fontSize="14px"
                             variant="body1">
-                            <span>
+                            <span style={{ marginRight: '2.5px', display: 'block' }}>
                                 {lastMsg.creatorId === user._id
-                                    ? (lastMsg.type !== 'system-notification' ? "Bạn: " : "Bạn ")
+                                    ? (lastMsg.type !== 'system-notification' ? `Bạn: ` : 'Bạn ')
                                     : (singleRoom ? "" : getCreatorLastMsg()?.firstName + (lastMsg.type !== 'system-notification' ? ": " : " "))
                                 }
                             </span>
@@ -158,8 +171,32 @@ const RoomChatItem = ({
                                     <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
                                 </span>
                             }
-                            {lastMsg.type === 'system-notification' && <span>{filterMsgSystem(lastMsg.content, members)}</span>}
-                        </Typography>
+                            {lastMsg.type === 'system-notification' &&
+                                <Typography
+                                    width="100%"
+                                    textOverflow="ellipsis"
+                                    sx={{
+                                        fontWeight: "500",
+                                        wordWrap: "break-word",
+                                        overflowWrap: 'break-word',
+                                        color: '#696969',
+                                        ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
+                                            fontWeight: "600",
+                                            color: '#000',
+                                        }),
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        display: "flex",
+                                        flex: 1,
+                                        lineClamp: "1",
+                                        WebkitLineClamp: "1",
+                                        WebkitBoxOrient: "vertical",
+                                    }}
+                                    fontSize="14px"
+                                    variant="body1">
+                                    {filterMsgSystem(lastMsg.content, members)}
+                                </Typography>}
+                        </Stack>
                         {(Boolean(unreadMsgCount) && unreadMsgCount > 0 && lastMsg.creatorId !== user._id) &&
                             <Chip
                                 size="small"
@@ -203,7 +240,7 @@ const RoomChatItem = ({
                         />
                     </Box>
                 }
-            </Box>
+            </Box >
             <Popover
                 id={id}
                 open={open}
@@ -260,7 +297,7 @@ const RoomChatItem = ({
                     </ListItemButton>
                 </List>
             </Popover>
-        </Stack>
+        </Stack >
     )
 }
 

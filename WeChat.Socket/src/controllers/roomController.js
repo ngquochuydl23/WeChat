@@ -219,7 +219,7 @@ exports.addMember = async (req, res, next) => {
         var lastMsg = await sendMsg({
             type: 'system-notification',
             content: `added ['${otherIds}'] into room.`,
-            roomId: room._id,
+            roomId: room._id,   
             creatorId: toObjectId(req.loggingUserId)
         });
 

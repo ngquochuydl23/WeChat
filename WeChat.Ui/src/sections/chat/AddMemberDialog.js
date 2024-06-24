@@ -264,7 +264,7 @@ const AddMemberDialog = ({ open, onClose, room, members }) => {
                     Hủy
                 </Button>
                 <Button
-                    disabled={selectedUsers.length < 2}
+                    disabled={selectedUsers.length < 1}
                     onClick={() => {
                         onAddMembers();
                         onClose();
