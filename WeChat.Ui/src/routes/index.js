@@ -5,47 +5,49 @@ import AuthLayout from "../layouts/AuthLayout";
 import { DEFAULT_PATH } from "../config";
 import LoadingScreen from "../components/LoadingScreen";
 import ContactPage from "@/pages/contacts/ContactPage";
+import LoginViaQrCode from "@/pages/auth/loginViaQrCode";
 
 
 const Loadable = (Component) => (props) => {
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <Component {...props} />
-    </Suspense>
-  );
+    return (
+        <Suspense fallback={<LoadingScreen />}>
+            <Component {...props} />
+        </Suspense>
+    );
 };
 
 const ChatPage = Loadable(
-  lazy(() => import("../pages/chat/ChatPage"))
+    lazy(() => import("../pages/chat/ChatPage"))
 );
 
 export default function Router() {
-  return useRoutes([
-    {
-      path: "/auth",
-      element: <AuthLayout />,
-      children: [
-        { element: <LoginPage />, path: "login" },
-        { element: <RegisterPage />, path: "register" },
-        { element: <VerifyPage />, path: "verify" },
-        { element: <ResetPassword />, path: "reset-Password" },
-        { element: <NewPassword />, path: "new-Password" },
-      ]
-    },
-    {
-      path: "/",
-      element: <MainLayout />,
-      children: [
-        { element: <Navigate to={DEFAULT_PATH} replace />, index: true },
-        { path: "/chat/", element: <ChatPage /> },
-        { path: "/chat/:roomId", element: <ChatPage /> },
-        { path: "/contact", element: <ContactPage /> },
-        { path: "/404", element: <Page404 /> },
+    return useRoutes([
+        {
+            path: "/auth",
+            element: <AuthLayout />,
+            children: [
+                { element: <LoginViaQrCode />, path: "login" },
+                { element: <LoginPage />, path: "loginViaPhoneNumber" },
+                { element: <RegisterPage />, path: "register" },
+                { element: <VerifyPage />, path: "verify" },
+                { element: <ResetPassword />, path: "reset-Password" },
+                { element: <NewPassword />, path: "new-Password" },
+            ]
+        },
+        {
+            path: "/",
+            element: <MainLayout />,
+            children: [
+                { element: <Navigate to={DEFAULT_PATH} replace />, index: true },
+                { path: "/chat/", element: <ChatPage /> },
+                { path: "/chat/:roomId", element: <ChatPage /> },
+                { path: "/contact", element: <ContactPage /> },
+                { path: "/404", element: <Page404 /> },
+                { path: "*", element: <Navigate to="/404" replace /> },
+            ],
+        },
         { path: "*", element: <Navigate to="/404" replace /> },
-      ],
-    },
-    { path: "*", element: <Navigate to="/404" replace /> },
-  ]);
+    ]);
 }
 
 const VerifyPage = Loadable(lazy(() => import("../pages/auth/verify")))

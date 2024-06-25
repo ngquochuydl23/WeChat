@@ -9,8 +9,6 @@ const AuthLayout = () => {
             alignItems="center"
             justifyContent="center">
             <Container maxWidth="sm">
-                <Stack spacing={5} mt="100px">
-                </Stack>
                 <Outlet />
             </Container>
         </Box>

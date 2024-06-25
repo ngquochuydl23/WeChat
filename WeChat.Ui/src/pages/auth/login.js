@@ -105,13 +105,8 @@ const Login = () => {
     });
 
     return (
-        <Stack
-            spacing={2}
-            sx={{
-                mb: 5,
-                position: "relative"
-            }}>
-            <Typography variant="h4">
+        <Stack spacing={2} sx={{ mb: 5, mt: '100px' }}>
+            <Typography variant="h4" mt="100px">
                 Đăng nhập
             </Typography>
             <Stack direction="row" spacing={0.5}>
@@ -175,7 +170,7 @@ const Login = () => {
                     Đăng nhập
                 </Button>
             </form>
-        </Stack>
+        </Stack >
     )
 }
 export default Login;
