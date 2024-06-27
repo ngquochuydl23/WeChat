@@ -43,7 +43,6 @@ const authMiddleware = async (req, res, next) => {
         }
 
         decodedToken = jwt.verify(token, 'secret');
-
         if (!decodedToken) {
             return res
                 .status(401)
@@ -92,13 +91,13 @@ const authMiddleware = async (req, res, next) => {
     }
 }
 
-
 const socketAuthMiddleware = async function (socket, next) {
     try {
-       
         const token = socket.handshake.headers['audience'] === 'Postman'
             ? socket.handshake.headers['access_token']
             : socket.handshake.auth.token
+
+        console.log(token);
 
         decodedToken = jwt.verify(token, 'secret');
         socket.loggingUserId = decodedToken.userId;

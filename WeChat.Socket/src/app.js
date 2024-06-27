@@ -55,10 +55,11 @@ app.use(function (err, req, res, next) {
 
 const server = require('http').createServer(app);
 const io = configureSocketIo(server);
-
 qrCodeAuthRoom(io);
+
 chatRoomEvent(io);
 roomEvent(io);
+
 
 module.exports = {
   server,

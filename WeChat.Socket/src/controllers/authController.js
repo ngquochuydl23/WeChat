@@ -107,10 +107,7 @@ exports.login = async (req, res, next) => {
             userId: user._id,
         });
 
-        const token = jwt.sign({
-            userId: user._id,
-            deviceId: device._id,
-        }, "secret", { expiresIn: "30d" });
+        const token = jwt.sign({ userId: user._id, deviceId: device._id, }, "secret", { expiresIn: "30d" });
 
         return res
             .status(200)
@@ -133,16 +130,52 @@ exports.loginViaQRCode = async (req, res, next) => {
     const { qrCodeToken } = req.body;
     try {
         const payload = jwt.verify(qrCodeToken, 'secret');
-
         if (payload.purpose !== 'authentication') {
-
+            throw new AppException("");
         }
 
         const user = await findUserById(req.loggingUserId);
-        console.log(user);
         getIo()
             .of('QRCodeAuth')
-            .to(decodedToken.qrCodeId)
+            .to(payload.qrCodeId)
+            .emit("mobile.scan", user, payload.device);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    payload
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.confirmLoginViaQRCode = async (req, res, next) => {
+    const { qrCodeToken } = req.body;
+    try {
+        const payload = jwt.verify(qrCodeToken, 'secret');
+        if (payload.purpose !== 'authentication') {
+            throw new AppException("");
+        }
+
+        const user = await findUserById(req.loggingUserId);
+        var device = await addDevice({
+            deviceToken,
+            deviceName,
+            platform,
+            appVersion: appversion,
+            appName: appname,
+            os,
+            userId: user._id,
+        });
+
+        const token = jwt.sign({ userId: user._id, deviceId: device._id, }, "secret", { expiresIn: "30d" });
+        getIo()
+            .of('QRCodeAuth')
+            .to(payload.qrCodeId)
             .emit("mobile.scan", user, payload.device);
 
         return res

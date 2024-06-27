@@ -11,8 +11,7 @@ function qrCodeAuthRoom(io) {
         .on("connection", (socket) => {
 
             socket.on('generateQRCode', async function (device, callback) {
-                //const qrCodeId = uuidv4();
-                const qrCodeId = 1234;
+                const qrCodeId = uuidv4();
                 const token = jwt.sign(
                     {
                         qrCodeId,
@@ -22,19 +21,13 @@ function qrCodeAuthRoom(io) {
                     "secret",
                     { expiresIn: "1h" });
 
-                //const qrCode = await QR.toDataURL(token);
 
                 socket.join(qrCodeId);
                 callback({ token });
             });
 
-            // fe -> onScanned -> show info
             socket.on('disconnect', function () {
                 console.log("disconnect: " + socket.id);
-            });
-
-            socket.on("leave", (qrCodeId) => {
-                socket.leave(qrCodeId);
             });
         })
 }
