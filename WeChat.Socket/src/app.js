@@ -18,6 +18,7 @@ const chatRoomEvent = require('./socket/chatRoomEvent');
 const _ = require('lodash');
 const roomEvent = require('./socket/roomEvent');
 const { configureSocketIo } = require('./socket');
+const qrCodeAuthRoom = require('./socket/qrCodeAuthRoom');
 
 
 
@@ -55,6 +56,7 @@ app.use(function (err, req, res, next) {
 const server = require('http').createServer(app);
 const io = configureSocketIo(server);
 
+qrCodeAuthRoom(io);
 chatRoomEvent(io);
 roomEvent(io);
 

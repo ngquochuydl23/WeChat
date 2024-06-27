@@ -160,14 +160,14 @@ exports.redeemMsg = async (req, res, next) => {
             seenBys: [toObjectId(loggingUserId)]
         });
 
-        await updateRoom(roomId, { lastMsg: notifyMsg });
+        //await updateRoom(roomId, { lastMsg: notifyMsg });
 
         getIo()
             .of('chatRoom')
             .to(roomId.toHexString())
             .emit("incomingRedeemMsg", roomId, redeemMsg);
 
-        await emitToRoomNsp(roomId, 'redeemMsg');
+        //await emitToRoomNsp(roomId, 'redeemMsg');
 
         return res
             .status(201)

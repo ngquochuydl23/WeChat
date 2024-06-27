@@ -7,8 +7,10 @@ const loginSchemaValidator = require('../validator/loginSchemaValidator');
 const { sendOtpViaEmail, verifyOtp } = require('../services/otpService');
 const { AppException, ValidationMongoException } = require('../exceptions/AppException');
 const { addDevice, terminateDevice } = require('../services/deviceService');
-const { findOneUser } = require('../services/userService');
+const { findOneUser, findUserById } = require('../services/userService');
 const { generateFromEmail } = require("unique-username-generator");
+const { getIo } = require('../socket');
+const { result } = require('lodash');
 
 exports.signup = async (req, res, next) => {
     try {
@@ -125,6 +127,36 @@ exports.login = async (req, res, next) => {
         next(error);
     }
 };
+
+
+exports.loginViaQRCode = async (req, res, next) => {
+    const { qrCodeToken } = req.body;
+    try {
+        const payload = jwt.verify(qrCodeToken, 'secret');
+
+        if (payload.purpose !== 'authentication') {
+
+        }
+
+        const user = await findUserById(req.loggingUserId);
+        console.log(user);
+        getIo()
+            .of('QRCodeAuth')
+            .to(decodedToken.qrCodeId)
+            .emit("mobile.scan", user, payload.device);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    payload
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
 
 exports.logout = async (req, res, next) => {
     const loggingDeviceId = req.loggingDeviceId;
