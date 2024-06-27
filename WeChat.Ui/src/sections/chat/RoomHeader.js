@@ -8,6 +8,7 @@ const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
     return (
         <Stack
             sx={{
+                width: '100%',
                 backgroundColor: 'rgba(255, 255, 255, 0.6)',
                 backdropFilter: 'blur(6px)',
               //  borderBottom: '1px solid #EBE9ED',

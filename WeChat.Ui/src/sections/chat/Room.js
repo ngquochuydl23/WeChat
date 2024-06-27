@@ -14,6 +14,8 @@ import _ from "lodash";
 import { seenMsg, sendMsg } from "@/services/messagesApiService";
 import { groupMsg } from "@/utils/groupMsg";
 import GroupMsgItem from "./GroupMsgItem";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Scrollbars from "react-custom-scrollbars-2";
 
 const socket = socketManager('chatRoom');
 
@@ -79,24 +81,11 @@ const Room = () => {
         });
     }
 
-    const redeemMsg = (msgId) => {
-        socket.emit('user.redeemMsg', msgId, (response) => {
-            setMessages((pre) => pre.map(item => {
-                if (item._id === msgId) {
-                    item.redeem = true;
-                }
-                return item;
-            }));
-        });
-    }
-
     const onConnected = () => {
-        console.log("onConnected");
         setLoading(false);
     }
 
     const onDisconnected = () => {
-        console.log("onDisconnected");
         setLoading(false);
     }
 
@@ -236,34 +225,54 @@ const Room = () => {
                     style={{ width: '100%', height: '100vh', position: 'relative' }}
                     src={require('@/assets/Illustration/room_background_green.png')} />
             }
-            <Stack sx={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'absolute', zIndex: 1 }}>
-                <Box sx={{ position: 'absolute', zIndex: 1, width: '100%' }}>
-                    <RoomHeader
-                        loading={loading}
-                        room={room}
-                        members={members}
-                        loggingUserId={user._id}
-                        onToggleRoomDetail={() => { setShowRoomInfo(!showRoomInfo) }} />
-                    <Box>
-                        {(!loading && !socket.connected) && <Alert severity="error">Mất kết nối</Alert>}
-                        {loading &&
-                            <Box>
-                                <Alert severity="info">Đang kết nối</Alert>
-                                <LinearProgress color="info" />
-                            </Box>
-                        }
-                    </Box>
-                </Box>
-                <Stack
-                    sx={{
-                        display: 'flex',
-                        overflowX: 'none',
-                        overflowY: 'auto',
-                        flexDirection: 'column-reverse',
-                        height: '100%',
-                        width: '100%',
-                        paddingX: '10px'
-                    }}>
+            <Stack
+                direction="row"
+                sx={{ width: '100%', height: '100vh', overflow: 'hidden', position: 'absolute', zIndex: 1 }}>
+                <Box sx={{ height: '100vh', display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}>
+                    <Stack sx={{ position: 'absolute', zIndex: 1, width: '100%' }}>
+                        <RoomHeader
+                            loading={loading}
+                            room={room}
+                            members={members}
+                            loggingUserId={user._id}
+                            onToggleRoomDetail={() => { setShowRoomInfo(!showRoomInfo) }} />
+                        <Box>
+                            {(!loading && !socket.connected) && <Alert severity="error">Mất kết nối</Alert>}
+                            {loading &&
+                                <Box>
+                                    <Alert severity="info">Đang kết nối</Alert>
+                                    <LinearProgress color="info" />
+                                </Box>
+                            }
+                        </Box>
+                    </Stack>
+                    <Stack
+                        sx={{
+                            display: 'flex',
+                            overflowX: 'none',
+                            overflowY: 'scroll',
+                            flexDirection: 'column-reverse',
+                            height: '100%',
+                            width: '100%',
+                            paddingX: '10px',
+                            '&::-webkit-scrollbar': {
+                                width: '7px'
+                            },
+                            "&::-webkit-scrollbar-track": {
+                                background: 'white'
+                            },
+                            ' ::-webkit-scrollbar-thumb': {
+                                borderRadius: '10px',
+                                background: 'rgba(136, 136, 136, 0.3)',
+                                width: '3px',
+                            }
+                              
+                        //       /* Handle on hover */
+                        //       ::-webkit-scrollbar-thumb:hover {
+                        // background: #555;
+                        //       }
+                        }}>
+
                     {(members.length > 0 && userTypingIds.length > 0) &&
                         <MemberTyping
                             typingUserIds={userTypingIds}
@@ -282,30 +291,41 @@ const Room = () => {
                         )
                     })}
                     <Box mb="80px" />
-                </Stack>
-                {room?.dispersed
-                    ? <DispersedComposer room={room} members={members} />
-                    : <Composer
-                        onTyping={() => typingMsg(true)}
-                        onStopTyping={() => typingMsg(false)}
-                        onSubmitMsg={onEnteredNewMsg}
-                        onSendFileMsg={sendFileMsg}
-                    />
-                }
-                <Drawer
-                    anchor="right"
-                    open={showRoomInfo}
-                    onClose={() => setShowRoomInfo(false)}>
-                    <RoomDetail
-                        loading={loading}
-                        room={room}
-                        members={members}
-                        loggingUserId={user._id}
-                        onDispersedRoom={dispersedRoom}
-                        onAddMember={addMember} />
-                </Drawer>
             </Stack>
-        </div>
+            {room?.dispersed
+                ? <DispersedComposer room={room} members={members} />
+                : <Composer
+                    onTyping={() => typingMsg(true)}
+                    onStopTyping={() => typingMsg(false)}
+                    onSubmitMsg={onEnteredNewMsg}
+                    onSendFileMsg={sendFileMsg}
+                />
+            }
+            {/* <Drawer
+                        anchor="right"
+                        open={showRoomInfo}
+                        onClose={() => setShowRoomInfo(false)}>
+                        <RoomDetail
+                            loading={loading}
+                            room={room}
+                            members={members}
+                            loggingUserId={user._id}
+                            onDispersedRoom={dispersedRoom}
+                            onAddMember={addMember} />
+                    </Drawer> */}
+        </Box>
+                {
+        showRoomInfo &&
+            <RoomDetail
+                loading={loading}
+                room={room}
+                members={members}
+                loggingUserId={user._id}
+                onDispersedRoom={dispersedRoom}
+                onAddMember={addMember} />
+    }
+            </Stack >
+        </div >
     )
 }
 

@@ -20,12 +20,12 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
 
     return (
         <Box sx={{ width: '100%', alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
-            <div>
+            <Box mb="20px">
                 <Typography fontSize="14px" fontWeight="600">
                     {moment(datetime).calendar()}
                 </Typography>
-            </div>
-            <Stack direction="column" sx={{ width: '100%' }}>
+            </Box>
+            <Stack direction="column" sx={{ width: '100%' }} spacing="20px">
                 {_.map((groupsInDay), (messages, idx) => {
                     const creator = _.find(members, x => x._id === messages[0].creatorId);
                     const isNotificationSystem = messages[0].type === 'system-notification';
@@ -56,7 +56,13 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
 
                     if (creator._id !== user._id) {
                         return (
-                            <Stack key={idx} mb="10px" spacing="15px" direction="row" alignSelf="flex-start">
+                            <Stack
+                                key={idx}
+                                mb="10px"
+                                spacing="15px"
+                                direction="row"
+                                alignSelf="flex-start"
+                                width="60%">
                                 <Avatar
                                     alt={creator.fullName}
                                     src={readUrl(creator.avatar)} />
@@ -92,7 +98,13 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
                     }
 
                     return (
-                        <Stack mb="10px" spacing="2px" direction="column" alignSelf="flex-end" alignItems="flex-end">
+                        <Stack
+                            mb="10px"
+                            spacing="2px"
+                            direction="column"
+                            alignSelf="flex-end"
+                            alignItems="flex-end"
+                            width="60%">
                             {_.map(messages, (message, idx) => (
                                 <div style={{ display: 'flex' }} key={message._id}>
                                     <RightMessage

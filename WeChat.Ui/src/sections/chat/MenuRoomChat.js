@@ -103,6 +103,7 @@ const MenuRoomChat = () => {
 
     const onConnected = () => {
         setLoading(false);
+        socket.emit('subscribe', user._id, onSubscribe);
     }
 
     const onDisconnected = () => {
@@ -112,7 +113,6 @@ const MenuRoomChat = () => {
     useEffect(() => {
         setLoading(false);
         if (socket.connected) {
-          
             socket.emit('subscribe', user._id, onSubscribe);
         }
 

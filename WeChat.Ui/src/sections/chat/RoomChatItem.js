@@ -130,7 +130,6 @@ const RoomChatItem = ({
                         flexDirection="row"
                         spacing="10px"
                         direction="row">
-
                         <Stack
                             width="100%"
                             direction="row"
@@ -160,7 +159,30 @@ const RoomChatItem = ({
                                     : (singleRoom ? "" : getCreatorLastMsg()?.firstName + (lastMsg.type !== 'system-notification' ? ": " : " "))
                                 }
                             </span>
-                            {lastMsg.type === 'text' && lastMsg.content}
+                            {lastMsg.type === 'text' &&
+                                <Typography
+                                    width="100%"
+                                    sx={{
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        fontWeight: "500",
+                                        wordWrap: "break-word",
+                                        overflowWrap: 'break-word',
+                                        color: '#696969',
+                                        ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
+                                            fontWeight: "600",
+                                            color: '#000',
+                                        }),
+                                        lineClamp: "1",
+                                        WebkitLineClamp: "1",
+                                        WebkitBoxOrient: "vertical",
+                                    }}
+                                    fontSize="14px"
+                                    variant="body1">
+                                    {lastMsg.content}
+                                </Typography>
+                            }
                             {lastMsg.type === 'image' &&
                                 <span>
                                     <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
