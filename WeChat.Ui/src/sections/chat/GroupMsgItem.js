@@ -20,7 +20,7 @@ const GroupMsgItem = ({ user, datetime, groupsInDay, members }) => {
 
     return (
         <Box sx={{ width: '100%', alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
-            <Box mb="20px">
+            <Box my="20px">
                 <Typography fontSize="14px" fontWeight="600">
                     {moment(datetime).calendar()}
                 </Typography>

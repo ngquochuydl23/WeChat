@@ -16,6 +16,7 @@ import { getFileType } from '../../utils/fileType';
 import { readUrl } from '../../utils/readUrl';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import LinearProgress from '@mui/material/LinearProgress';
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
 
 const Textarea = styled(BaseTextareaAutosize)(
     ({ theme }) => `
@@ -45,56 +46,42 @@ const Textarea = styled(BaseTextareaAutosize)(
     `
 );
 
-const SendFileMsgDialog = ({
-    open,
-    onClose,
-    file,
-    onSendMsg
-}) => {
+const SendFileMsgDialog = ({ open, onClose, file, onSendMsg }) => {
     const ref = useRef();
     const [content, setContent] = useState('');
     const [attachment, setAttachment] = useState(null);
 
     useEffect(() => {
-        if (file) {
-            console.log(file);
-            var bodyFormData = new FormData();
-            bodyFormData.append('', file);
+        // if (file) {
+        //     console.log(file);
+        //     var bodyFormData = new FormData();
+        //     bodyFormData.append('', file);
 
-            axios({
-                method: "post",
-                url: process.env.REACT_APP_API_ENDPOINT + 'storage/upload',
-                data: bodyFormData,
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": localStorage.getItem("accessToken")
-                },
-            })
-                .then(res => {
-                    setAttachment({
-                        ...(res.data.files[0]),
-                        fileName: file.name,
-                        fileSize: file.size
-                    });
-                })
-                .catch(err => console.log(err))
-        }
+        //     axios({
+        //         method: "post",
+        //         url: process.env.REACT_APP_API_ENDPOINT + 'storage/upload',
+        //         data: bodyFormData,
+        //         headers: {
+        //             "Content-Type": "multipart/form-data",
+        //             "Authorization": localStorage.getItem("accessToken")
+        //         },
+        //     })
+        //         .then(res => {
+        //             setAttachment({
+        //                 ...(res.data.files[0]),
+        //                 fileName: file.name,
+        //                 fileSize: file.size
+        //             });
+        //         })
+        //         .catch(err => console.log(err))
+        // }
     }, [file])
 
     return (
-        <Dialog
-            open={open}
-            scroll={"body"}
-            onClose={onClose}
-            maxWidth="md"
-            aria-labelledby="profile-modal-title"
-            aria-describedby="profile-modal-description">
-            <DialogTitle
-                sx={{ fontWeight: '800', m: 0, p: 2 }}
-                id="customized-dialog-title">
+        <Dialog open={open} scroll={"body"} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ fontWeight: '800', m: 0, p: 2 }}>
                 Gửi hình ảnh
             </DialogTitle>
-            <Divider />
             <IconButton
                 aria-label="close"
                 onClick={onClose}
@@ -106,34 +93,35 @@ const SendFileMsgDialog = ({
                 }}>
                 <CloseIcon />
             </IconButton>
-            <DialogContent
-                sx={{ p: 0 }}
-                dividers>
+            <DialogContent sx={{ p: 0 }}>
                 {(file && getFileType(file) === 'image') &&
-                    <img
-                        style={{
-                            marginLeft: '10px',
-                            marginRight: '10px',
-                            objectFit: 'cover',
-                            width: '400px',
-                            height: '400px',
-                            borderRadius: '20px'
-                        }}
-                        alt={file.name}
-                        src={attachment ? readUrl(attachment?.url) : URL.createObjectURL(file)}
-                    />
+                    <ResponsiveMasonry
+                        gutter="10px"
+                        columnsCountBreakPoints={{ 350: 2, 750: 2, 900: 2 }}  >
+                        <Masonry>
+                            <img
+                                style={{ width: '100%', borderRadius: '5px', objectFit: 'cover' }}
+                                alt={file.name}
+                                src={"https://khoavang.vn/resources/cache/800xx1/files/img_2608-57667.webp"}
+                            />
+                            <img
+                                style={{ width: '100%', borderRadius: '5px', objectFit: 'cover' }}
+                                alt={file.name}
+                                src={"https://preview.redd.it/qcbl4imyztk81.jpg?width=1080&crop=smart&auto=webp&s=cad3bac5a2e616ba48b589c9691b92284055a59d"}
+                            />
+                            <img
+                                style={{ width: '100%', borderRadius: '5px' }}
+                                alt={file.name}
+                                src={"https://images.squarespace-cdn.com/content/v1/5d6ff071845a0800018d2135/1678812639600-DIP5D6LD0H2JYBCA8KR7/IMG_8195.JPG"}
+                            />
+                        </Masonry>
+                    </ResponsiveMasonry>
+
                 }
                 {(file && getFileType(file) === 'file') &&
                     <Stack
                         direction="row"
-                        sx={{
-                            width: '400px',
-                            height: '70px',
-                            padding: "10px",
-                            alignItems: 'center',
-                            borderRadius: "10px",
-                            backgroundColor: "whitesmoke",
-                        }}>
+                        sx={{ width: '400px', height: '70px', padding: "10px", alignItems: 'center', borderRadius: "10px", backgroundColor: "whitesmoke" }}>
                         <Box
                             sx={{
                                 marginLeft: '10px',
@@ -151,14 +139,10 @@ const SendFileMsgDialog = ({
                         <Box
                             onClick={() => window.location.assign(attachment.url)}
                             sx={{ width: '100%', marginX: '10px' }}>
-                            <Typography
-                                fontWeight="700"
-                                fontSize="14px">
+                            <Typography fontWeight="700" fontSize="14px">
                                 {attachment ? attachment.fileName : file.name}
                             </Typography>
-                            <Typography
-                                fontWeight="500"
-                                fontSize="14px">
+                            <Typography fontWeight="500" fontSize="14px">
                                 {attachment ? attachment.fileSize : file.size}
                             </Typography>
                         </Box>
@@ -179,10 +163,7 @@ const SendFileMsgDialog = ({
             </DialogContent>
             <Divider />
             <DialogActions>
-                <Button
-                    onClick={onClose}
-                    variant='contained'
-                    color='error' >
+                <Button onClick={onClose} variant='text' color='error'>
                     Hủy
                 </Button>
                 <Button
@@ -197,7 +178,7 @@ const SendFileMsgDialog = ({
                         setContent('');
                         setAttachment(null);
                     }}
-                    variant='contained'
+                    variant='text'
                     color='info'
                     autoFocus >
                     Gửi

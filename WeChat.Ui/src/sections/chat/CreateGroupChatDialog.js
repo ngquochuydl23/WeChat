@@ -25,7 +25,6 @@ const SelectedUserItem = ({ user, onRemove }) => {
     const { fullName, avatar, _id } = user;
     const handleDelete = () => {
         onRemove(_id);
-        //alert(_id)
     };
     return (
         <Chip
@@ -52,7 +51,7 @@ const SelectedUserItem = ({ user, onRemove }) => {
     )
 }
 
-const UserItem = ({ user, checked, onChange }) => {
+const UserItem = ({ user, checked = false, onChange }) => {
     const { fullName, avatar } = user;
     return (
         <Stack alignItems="center" direction="row" spacing="15px">
@@ -172,7 +171,6 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
         }
     }, [open])
 
-
     useEffect(() => {
         setTyping(false);
         searchUser();
@@ -279,13 +277,16 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
                                 </Stack>
                             </Stack>
                             : <Stack sx={{ overflowY: 'auto' }} spacing="15px" py="10px">
-                                {_.map(contacts, ({ user }) => (
-                                    <UserItem
-                                        user={user}
-                                        checked={selectedUsers.find(x => x === user._id)}
-                                        onChange={(e) => onChangeUserItem(e, user)}
-                                    />
-                                ))}
+                                {_.map(contacts, ({ user }) => {
+                                    console.log(selectedUsers.find(x => x === user._id));
+                                    return (
+                                        <UserItem
+                                            user={user}
+                                            checked={selectedUsers.find(x => x === user._id)}
+                                            onChange={(e) => onChangeUserItem(e, user)}
+                                        />
+                                    )
+                                })}
                             </Stack>
                         }
                         {!contacts && hasSearch &&
@@ -301,7 +302,7 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
                             <Stack direction="column" py="10px" spacing="10px">
                                 {_.map(selectedUsers, item => (
                                     <SelectedUserItem
-                                        onRemove={() => {
+                                        onRemove={(id) => {
                                             setSelectedUsers(_.filter(selectedUsers, x => x !== item))
                                         }}
                                         user={contacts.find(x => x.user._id === item).user} />

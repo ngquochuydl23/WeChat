@@ -48,7 +48,7 @@ const SelectedUserItem = ({ user, onRemove }) => {
     )
 }
 
-const UserItem = ({ user, checked, onChange, isinGroup }) => {
+const UserItem = ({ user, checked = false, onChange, isinGroup }) => {
     const { fullName, avatar } = user;
     return (
         <Stack alignItems="center" direction="row" spacing="15px">
