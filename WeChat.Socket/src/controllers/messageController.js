@@ -93,7 +93,7 @@ exports.sendMsg = async (req, res, next) => {
         const message = await sendMsg({
             type: msg.type,
             content: msg.content,
-            attachments: msg.attachments,
+            attachment: msg.attachment,
             roomId: room._id,
             creatorId: loggingUserId,
             seenBys: [toObjectId(loggingUserId)]
