@@ -34,30 +34,11 @@ const Room = () => {
 
 
     const onEnteredNewMsg = async (msg) => {
-        if (messages.length >= 0) {
-
-            const newMsg = {
-                uuid: uuidv4(),
-                seen: false,
-                sent: false,
-                content: msg,
-                type: 'text',
-                creatorId: user._id,
-                roomId: roomId
-            }
-
-            sendMsg(roomId, newMsg)
-                .then(({ result, msg }) => { console.log(result) })
-                .catch((err) => {
-                    console.log(err);
-                })
-        }
-    }
-
-    const sendFileMsg = async (msg) => {
-        socket.emit('user.sendMsg', roomId, msg, ({ message }) => {
-            console.log(message);
-        });
+        sendMsg(roomId, msg)
+            .then(({ result, msg }) => { console.log(result) })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     const typingMsg = (typing) => {
@@ -266,42 +247,42 @@ const Room = () => {
                                 background: 'rgba(136, 136, 136, 0.3)',
                                 width: '3px',
                             }
-                              
-                        //       /* Handle on hover */
-                        //       ::-webkit-scrollbar-thumb:hover {
-                        // background: #555;
-                        //       }
+
+                            //       /* Handle on hover */
+                            //       ::-webkit-scrollbar-thumb:hover {
+                            // background: #555;
+                            //       }
                         }}>
 
-                    {(members.length > 0 && userTypingIds.length > 0) &&
-                        <MemberTyping
-                            typingUserIds={userTypingIds}
-                            members={members} />
-                    }
-                    {/* Msg from socket */}
-                    {_.map(groupMsg(messages), (item, idx) => {
+                        {(members.length > 0 && userTypingIds.length > 0) &&
+                            <MemberTyping
+                                typingUserIds={userTypingIds}
+                                members={members} />
+                        }
+                        {/* Msg from socket */}
+                        {_.map(groupMsg(messages), (item, idx) => {
 
-                        return (
-                            <GroupMsgItem
-                                key={item.datetime}
-                                user={user}
-                                members={members}
-                                datetime={item.datetime}
-                                groupsInDay={item.groupsInDay} />
-                        )
-                    })}
-                    <Box mb="80px" />
-            </Stack>
-            {room?.dispersed
-                ? <DispersedComposer room={room} members={members} />
-                : <Composer
-                    onTyping={() => typingMsg(true)}
-                    onStopTyping={() => typingMsg(false)}
-                    onSubmitMsg={onEnteredNewMsg}
-                    onSendFileMsg={sendFileMsg}
-                />
-            }
-            {/* <Drawer
+                            return (
+                                <GroupMsgItem
+                                    key={item.datetime}
+                                    user={user}
+                                    members={members}
+                                    datetime={item.datetime}
+                                    groupsInDay={item.groupsInDay} />
+                            )
+                        })}
+                        <Box mb="80px" />
+                    </Stack>
+                    {room?.dispersed
+                        ? <DispersedComposer room={room} members={members} />
+                        : <Composer
+                            roomId={roomId}
+                            onTyping={() => typingMsg(true)}
+                            onStopTyping={() => typingMsg(false)}
+                            onSubmitMsg={onEnteredNewMsg}
+                        />
+                    }
+                    {/* <Drawer
                         anchor="right"
                         open={showRoomInfo}
                         onClose={() => setShowRoomInfo(false)}>
@@ -313,17 +294,17 @@ const Room = () => {
                             onDispersedRoom={dispersedRoom}
                             onAddMember={addMember} />
                     </Drawer> */}
-        </Box>
+                </Box>
                 {
-        showRoomInfo &&
-            <RoomDetail
-                loading={loading}
-                room={room}
-                members={members}
-                loggingUserId={user._id}
-                onDispersedRoom={dispersedRoom}
-                onAddMember={addMember} />
-    }
+                    showRoomInfo &&
+                    <RoomDetail
+                        loading={loading}
+                        room={room}
+                        members={members}
+                        loggingUserId={user._id}
+                        onDispersedRoom={dispersedRoom}
+                        onAddMember={addMember} />
+                }
             </Stack >
         </div >
     )

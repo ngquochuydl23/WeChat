@@ -1,6 +1,4 @@
 // components
-import Image from '../components/Image';
-import Iconify from '../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -15,6 +13,11 @@ const FORMAT_ILLUSTRATOR = ['ai', 'esp'];
 
 export function getFileType(fileUrl = '') {
   return (fileUrl && fileUrl.split('.').pop()) || '';
+}
+
+export function getFileTypeFromMime(file) {
+  const type = file.type.substring(0, file.type.indexOf('/'));
+  return type === 'image' ? 'image' : 'file';
 }
 
 export function getFileName(fileUrl) {
@@ -60,43 +63,43 @@ export function getFileFormat(fileUrl) {
   return format;
 }
 
-const getIcon = (name) => (
-  <Image
-    src={`https://codingmonk/assets/icons/file/${name}.svg`}
-    alt={name}
-    sx={{ width: 28, height: 28 }}
-  />
-);
+// const getIcon = (name) => (
+//   <Image
+//     src={`https://codingmonk/assets/icons/file/${name}.svg`}
+//     alt={name}
+//     sx={{ width: 28, height: 28 }}
+//   />
+// );
 
-export function getFileThumb(fileUrl) {
-  let thumb;
-  switch (getFileFormat(fileUrl)) {
-    case 'video':
-      thumb = getIcon('format_video');
-      break;
-    case 'word':
-      thumb = getIcon('format_word');
-      break;
-    case 'excel':
-      thumb = getIcon('format_excel');
-      break;
-    case 'powerpoint':
-      thumb = getIcon('format_powerpoint');
-      break;
-    case 'pdf':
-      thumb = getIcon('format_pdf');
-      break;
-    case 'photoshop':
-      thumb = getIcon('format_photoshop');
-      break;
-    case 'illustrator':
-      thumb = getIcon('format_ai');
-      break;
-    case 'image':
-      thumb = <Image src={fileUrl} alt={fileUrl} sx={{ height: 1 }} />;
-      break;
-    default:
-      thumb = <Iconify icon={'eva:file-fill'} sx={{ width: 28, height: 28 }} />;
-  }
-  return thumb;
-}
+// export function getFileThumb(fileUrl) {
+//   let thumb;
+//   switch (getFileFormat(fileUrl)) {
+//     case 'video':
+//       thumb = getIcon('format_video');
+//       break;
+//     case 'word':
+//       thumb = getIcon('format_word');
+//       break;
+//     case 'excel':
+//       thumb = getIcon('format_excel');
+//       break;
+//     case 'powerpoint':
+//       thumb = getIcon('format_powerpoint');
+//       break;
+//     case 'pdf':
+//       thumb = getIcon('format_pdf');
+//       break;
+//     case 'photoshop':
+//       thumb = getIcon('format_photoshop');
+//       break;
+//     case 'illustrator':
+//       thumb = getIcon('format_ai');
+//       break;
+//     case 'image':
+//       thumb = <Image src={fileUrl} alt={fileUrl} sx={{ height: 1 }} />;
+//       break;
+//     default:
+//       thumb = <Iconify icon={'eva:file-fill'} sx={{ width: 28, height: 28 }} />;
+//   }
+//   return thumb;
+// }
