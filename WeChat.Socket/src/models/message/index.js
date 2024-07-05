@@ -16,8 +16,12 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
         type: String,
         required: [false],
     },
-    attachment: {
-        type: Object,
+    attachments: {
+        type: [{
+            url: String,
+            mime: String,
+            fileName: String
+        }],
         require: [false]
     },
     creatorId: mongoose.ObjectId,
