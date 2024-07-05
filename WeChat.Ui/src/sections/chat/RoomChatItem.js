@@ -15,6 +15,7 @@ import IcPinRoom from "@/assets/icons/IcPinRoom";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { leaveRoom } from "@/services/roomApiService";
+import ImageIcon from '@mui/icons-material/Image';
 
 const RoomChatItem = ({
     _id,
@@ -184,14 +185,40 @@ const RoomChatItem = ({
                                 </Typography>
                             }
                             {lastMsg.type === 'image' &&
-                                <span>
-                                    <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
-                                </span>
+                                <Stack direction="row">
+                                    <ImageIcon sx={{ color: '#d9d9d9', mr: '5px' }} />
+                                    <Typography
+                                        sx={{
+                                            fontWeight: "500",
+                                            color: '#696969',
+                                            ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
+                                                fontWeight: "600",
+                                                color: '#000',
+                                            }),
+                                        }}
+                                        fontSize="14px"
+                                        variant="body1">
+                                        hình ảnh
+                                    </Typography>
+                                </Stack>
                             }
                             {lastMsg.type === 'file' &&
-                                <span>
-                                    <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} /> tập tin
-                                </span>
+                                <Stack direction="row">
+                                    <FolderOpenIcon sx={{ color: '#d9d9d9', mr: '5px' }} />
+                                    <Typography
+                                        sx={{
+                                            fontWeight: "500",
+                                            color: '#696969',
+                                            ...((lastMsg.creatorId !== user._id && unreadMsgCount > 0) && {
+                                                fontWeight: "600",
+                                                color: '#000',
+                                            }),
+                                        }}
+                                        fontSize="14px"
+                                        variant="body1">
+                                        Tập tin
+                                    </Typography>
+                                </Stack>
                             }
                             {lastMsg.type === 'system-notification' &&
                                 <Typography
@@ -217,7 +244,8 @@ const RoomChatItem = ({
                                     fontSize="14px"
                                     variant="body1">
                                     {filterMsgSystem(lastMsg.content, members)}
-                                </Typography>}
+                                </Typography>
+                            }
                         </Stack>
                         {(Boolean(unreadMsgCount) && unreadMsgCount > 0 && lastMsg.creatorId !== user._id) &&
                             <Chip
