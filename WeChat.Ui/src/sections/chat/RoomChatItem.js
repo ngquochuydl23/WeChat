@@ -1,10 +1,9 @@
-import { Box, Typography, Stack, Chip, AvatarGroup, Popover, List, ListItemButton, ListItemIcon, ListItemText, Icon, } from "@mui/material";
+import { Box, Typography, Stack, Chip, AvatarGroup, Popover, List, ListItemButton, ListItemIcon, ListItemText, Icon, SvgIcon, } from "@mui/material";
 import Avatar from '@mui/material/Avatar';
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { filterChatTime } from "../../utils/chatTimeUtil";
 import { filterMsgSystem } from "../../utils/filterMsg";
-import PhotoIcon from '@mui/icons-material/Photo';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { readUrl } from "@/utils/readUrl";
 import Lottie from "react-lottie";
@@ -16,6 +15,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import LogoutIcon from '@mui/icons-material/Logout';
 import { leaveRoom } from "@/services/roomApiService";
 import ImageIcon from '@mui/icons-material/Image';
+import IcPicture from "@/assets/icons/IcPicture";
 
 const RoomChatItem = ({
     _id,
@@ -186,7 +186,7 @@ const RoomChatItem = ({
                             }
                             {lastMsg.type === 'image' &&
                                 <Stack direction="row">
-                                    <ImageIcon sx={{ color: '#d9d9d9', mr: '5px' }} />
+                                    <IcPicture sx={{ color: '#d9d9d9', mr: '5px', width: '20px', height: '20px' }} />
                                     <Typography
                                         sx={{
                                             fontWeight: "500",

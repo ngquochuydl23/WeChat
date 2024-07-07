@@ -3,7 +3,6 @@ import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAuto
 import { styled } from "@mui/system";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import IconButton from "@mui/material/IconButton";
-import CropOriginalIcon from "@mui/icons-material/CropOriginal";
 import TagFacesIcon from "@mui/icons-material/TagFaces";
 import SendIcon from "@mui/icons-material/Send";
 import { useRef, useState } from "react";
@@ -16,6 +15,7 @@ import uuidv4 from "@/utils/uuidv4";
 import { useSelector } from "react-redux";
 import { getFileType } from "@/utils/fileType";
 import { getFileFormat, getFileTypeFromMime } from "@/utils/getFileFormat";
+import IcPicture from "@/assets/icons/IcPicture";
 
 const Textarea = styled(BaseTextareaAutosize)(
     ({ theme }) => `
@@ -233,14 +233,14 @@ const Composer = ({ roomId, onSubmitMsg, onTyping, onStopTyping }) => {
                 <IconButton
                     onClick={() => document?.getElementById("pick-image")?.click()}
                     aria-label="photos">
-                    <CropOriginalIcon />
+                    <IcPicture />
                 </IconButton>
                 <IconButton
                     aria-label="emoji"
                     onClick={handleClick}>
                     <TagFacesIcon />
                 </IconButton>
-                {(content.length > 0 || attachments.length) && (
+                {(content.length > 0 || attachments.length > 0) && (
                     <IconButton
                         onClick={onEnter}
                         aria-label="emoji">

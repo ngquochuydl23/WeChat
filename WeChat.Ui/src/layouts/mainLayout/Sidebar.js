@@ -26,7 +26,6 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slices/userSlice";
 import ChangeCircleOutlinedIcon from "@mui/icons-material/ChangeCircleOutlined";
 import { enqueueSnackbar } from "notistack";
-import ChangePasswordModal from "../../dialog/ChangePasswordModal";
 import { Icon } from '@mui/material';
 
 const sideBarItems = [
@@ -198,8 +197,7 @@ const Sidebar = ({ onSettingClick }) => {
                 transformOrigin={{
                     vertical: "top",
                     horizontal: "left",
-                }}
-            >
+                }}  >
                 <List sx={{}}>
                     <ListItem
                         //  onClick={() => setOpenDialog(true)}
@@ -224,8 +222,7 @@ const Sidebar = ({ onSettingClick }) => {
                     <ListItemButton
                         button
                         onClick={handleLogout}
-                        style={{ margin: "0 6px 0 6px", color: "red" }}
-                    >
+                        style={{ margin: "0 6px 0 6px", color: "red" }}>
                         <ListItemIcon>
                             <PowerSettingsNew color="error" />
                         </ListItemIcon>
@@ -233,11 +230,6 @@ const Sidebar = ({ onSettingClick }) => {
                     </ListItemButton>
                 </List>
             </Popover>
-
-            <ChangePasswordModal
-                onClose={() => setOpenChangPWDialog(false)}
-                open={openChangPWDialog} />
-
         </Box >
     );
 };

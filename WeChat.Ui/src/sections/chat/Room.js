@@ -16,6 +16,7 @@ import { groupMsg } from "@/utils/groupMsg";
 import GroupMsgItem from "./GroupMsgItem";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Scrollbars from "react-custom-scrollbars-2";
+import MediaViewerDialog from "./MediaViewerDialog";
 
 const socket = socketManager('chatRoom');
 
@@ -26,7 +27,7 @@ const Room = () => {
     const { user } = useSelector((state) => state.user);
     const [loading, setLoading] = useState(false);
     const [showRoomInfo, setShowRoomInfo] = useState(false);
-
+    
     const [room, setRoom] = useState();
     const [members, setMembers] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -305,6 +306,7 @@ const Room = () => {
                         onDispersedRoom={dispersedRoom}
                         onAddMember={addMember} />
                 }
+                <MediaViewerDialog />
             </Stack >
         </div >
     )

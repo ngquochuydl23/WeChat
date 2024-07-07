@@ -12,6 +12,7 @@ services:
     ports:
       - 0.0.0.0:4000:4000
     restart: always
+    
   weChatWebUi:
     image: wechat-webui
     container_name: weChatWebUi
