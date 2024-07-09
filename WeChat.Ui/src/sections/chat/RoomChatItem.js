@@ -9,13 +9,12 @@ import { readUrl } from "@/utils/readUrl";
 import Lottie from "react-lottie";
 import typingAnimation from '../../lotties/typing-lotties.json';
 import { useState } from "react";
-import VolumeMuteRoundedIcon from '@mui/icons-material/VolumeMuteRounded';
 import IcPinRoom from "@/assets/icons/IcPinRoom";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { leaveRoom } from "@/services/roomApiService";
-import ImageIcon from '@mui/icons-material/Image';
 import IcPicture from "@/assets/icons/IcPicture";
+import IcRoomMute from "@/assets/icons/IcRoomMute";
 
 const RoomChatItem = ({
     _id,
@@ -306,7 +305,9 @@ const RoomChatItem = ({
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 transformOrigin={{ vertical: 'center', horizontal: 'center' }}>
                 <List sx={{ width: '200px' }}>
-                    <ListItemButton onClick={pinRoom}>
+                    <ListItemButton
+                        sx={{ height: '35px' }}
+                        onClick={pinRoom}>
                         <ListItemIcon sx={{ minWidth: '34px' }}>
                             <IcPinRoom />
                         </ListItemIcon>
@@ -315,19 +316,22 @@ const RoomChatItem = ({
                             primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
                     </ListItemButton>
                     <ListItemButton
+                        sx={{ height: '35px' }}
                         onClick={() => {
 
                             setAnchorEl(null);
                         }}>
-                        <ListItemIcon sx={{ minWidth: '34px' }}>
-                            <VolumeMuteRoundedIcon />
+                        <ListItemIcon sx={{ minWidth: '34px', color: 'gray' }}>
+                            <IcRoomMute />
                         </ListItemIcon>
                         <ListItemText
                             primary="Tắt thông báo"
                             primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
                     </ListItemButton>
                     {!singleRoom &&
-                        <ListItemButton onClick={leaveRoomChat}>
+                        <ListItemButton
+                            sx={{ height: '35px' }}
+                            onClick={leaveRoomChat}>
                             <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>
                                 <LogoutIcon />
                             </ListItemIcon>
@@ -337,6 +341,7 @@ const RoomChatItem = ({
                         </ListItemButton>
                     }
                     <ListItemButton
+                        sx={{ height: '35px' }}
                         onClick={deleteMsgInRoom}>
                         <ListItemIcon sx={{ minWidth: '34px', color: 'red' }}>
                             <DeleteOutlineOutlinedIcon />

@@ -1,93 +1,179 @@
-import { Stack, Divider } from "@mui/material";
-import React, { useState } from "react";
-import MenuRoomChat from "../../sections/chat/MenuRoomChat";
-import Room from "../../sections/chat/Room";
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import StartNewChat from "../../sections/chat/StartNewChat";
-import { socketManager } from '../../socket';
+import React, { Suspense, lazy, useState } from "react";
+import {
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogContent,
+    Icon,
+    IconButton,
+    Stack,
+    Typography,
+} from "@mui/material";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import _ from "lodash";
-import SearchContactSidebar from "@/sections/contact/SearchContactSidebar";
+import TranslateIcon from '@mui/icons-material/Translate';
+import Scrollbars from "react-custom-scrollbars-2";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PersonIcon from '@mui/icons-material/Person';
+import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import PeopleIcon from '@mui/icons-material/People';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { TabContext, TabPanel } from "@material-ui/lab";
+
+
+const settingSidebarItems = [
+    {
+        id: 'my-profile',
+        activeIcon: PersonIcon,
+        inactiveIcon: PermIdentityIcon,
+        title: "Danh sách bạn bè",
+        tabComponent: lazy(() => import("./ContactList")),
+    },
+    {
+        id: 'privacy-and-security',
+        activeIcon: PeopleIcon,
+        inactiveIcon: PeopleAltOutlinedIcon,
+        title: "Nhóm và cộng đồng",
+        tabComponent: lazy(() => import("./ContactList")),
+    },
+    {
+        id: 'notifications',
+        activeIcon: PersonAddIcon,
+        inactiveIcon: PersonAddOutlinedIcon,
+        title: "Lời mời kết bạn",
+        tabComponent: lazy(() => import("./ContactList")),
+    }
+]
 
 const ContactPage = () => {
-  const navigate = useNavigate();
-  const socket = socketManager('rooms');
+    const { user } = useSelector((state) => state.user);
+    const [tabId, setTabId] = useState(settingSidebarItems[0].id);
 
-  const { user } = useSelector((state) => state.user);
-  const { roomId } = useParams();
-
-  const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [connected, setConnected] = useState(false);
+    const getTabById = () => _.find(settingSidebarItems, x => x.id === tabId);
 
 
-  const onSubscribe = (response) => {
-    if (response) {
-      setRooms(response.rooms);
-      console.log(response.rooms);
-    }
-  }
+    return (
+        <Box sx={{ height: '100vh' }}>
+            <Stack direction="row" sx={{ height: '100%' }}>
+                <Box
+                    width="300px"
+                    px="15px"
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        backgroundColor: 'white',
+                        boxShadow: " 0px 0px 2px rgba(0, 0, 0, 0.25)",
+                        minHeight: '80vh',
+                        height: '100%'
+                    }}>
+                    <Typography
+                        fontSize="20px"
+                        fontWeight="900"
+                        mb="10px"
+                        px="10px"
+                        py="15px">
+                        Cài đặt
+                    </Typography>
+                    <Stack direction="column" spacing="10px">
+                        {_.map(settingSidebarItems, (item) => {
 
-  const onReceiveIncomingMsg = (roomId, room) => {
-    setRooms((preState) => [room, ...(preState.filter(x => x._id !== roomId))]);
-  }
+                            const active = (item.id === tabId);
+                            if (item.parentId) {
+                                return null;
+                            }
 
-  const onConnected = () => {
-    setConnected(true);
-    setLoading(false);
-  }
-
-  const onDisconnected = () => {
-    setLoading(false);
-    setConnected(false);
-  }
-
-  const createGroupChat = (data) => {
-    socket.emit('initRoomChat', data, ({ room }) => {
-      setRooms((preState) => [room, ...preState]);
-      navigate("/chat/" + room._id);
-    });
-  }
-
-  useEffect(() => {
-    socket.emit('subscribe', user._id, onSubscribe);
-    socket.on('rooms.incomingMsg', onReceiveIncomingMsg);
-
-    return () => {
-      socket.off('subscribe');
-      socket.off('rooms.incomingMsg');
-      socket.emit('leave', user._id);
-    }
-  }, [connected, loading])
-
-
-  useEffect(() => {
-    setLoading(true);
-    socket.on('connect', onConnected);
-    socket.on('disconnect', onDisconnected);
-
-    return () => {
-      socket.off('connect', onConnected);
-      socket.off('disconnect', onDisconnected);
-    }
-  }, [])
-
-  return (
-    <Stack
-      direction="row"
-      sx={{ height: '100%' }}>
-      <SearchContactSidebar />
-      <Divider
-        orientation="vertical"
-        flexItem />
-      {/* {(Boolean(roomId))
-        ? <Room />
-        : <StartNewChat />
-      } */}
-    </Stack>
-  );
+                            return (
+                                <Button
+                                    size="medium"
+                                    onClick={() => setTabId(item.id)}
+                                    startIcon={active ? <item.activeIcon /> : <item.inactiveIcon />}
+                                    disableElevation
+                                    variant={active ? "contained" : 'text'}
+                                    sx={{
+                                        justifyContent: 'flex-start',
+                                        boxShadow: 0,
+                                        borderRadius: '7px',
+                                        height: '35px',
+                                        color: 'gray',
+                                        padding: '10px 10px',
+                                        ...(active && {
+                                            backgroundColor: 'rgba(7, 193, 96, 0.2)',
+                                            color: 'rgba(7, 193, 96, 1)'
+                                        }),
+                                        '&:hover': {
+                                            backgroundColor: '#f5f5f5',
+                                            color: 'rgba(7, 193, 96, 1)'
+                                        },
+                                        '&.MuiButton-endIcon': {
+                                            marginLeft: 'auto',
+                                            alignSelf: 'flex-end'
+                                        }
+                                    }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            ...(active && {
+                                                fontWeight: '600',
+                                                color: 'rgba(7, 193, 96, 1)'
+                                            }),
+                                            fontWeight: '500'
+                                        }}>
+                                        {item.title}
+                                    </Typography>
+                                    <span>
+                                        <Chip
+                                            size="small"
+                                            sx={{
+                                                height: '20px',
+                                                width: '20px',
+                                                color: 'white',
+                                                backgroundColor: '#07C160',
+                                                '.MuiChip-label': {
+                                                    padding: 0,
+                                                    fontSize: '12px'
+                                                },
+                                            }}
+                                            label={4} />
+                                    </span>
+                                </Button>
+                            )
+                        })}
+                    </Stack>
+                </Box>
+                <Box
+                    flexDirection="column"
+                    display="flex"
+                    flex="1"
+                    ml="2px"
+                    bgcolor="white">
+                    <Typography fontWeight="900" fontSize="24px" mt="20px" ml="20px">
+                        {getTabById().title}
+                    </Typography>
+                    <Scrollbars style={{ width: '100%', height: '100%' }}>
+                        <TabContext value={tabId}>
+                            {_.map(settingSidebarItems, (item) => {
+                                return (
+                                    <TabPanel
+                                        itemID={item.id}
+                                        value={item.id}
+                                        style={{ paddingLeft: 0, paddingRight: 0, paddingTop: '24px', paddingBottom: '24px', width: "100%" }}>
+                                        <Suspense>
+                                            <item.tabComponent onNavigate={setTabId} />
+                                        </Suspense>
+                                    </TabPanel>
+                                )
+                            })}
+                        </TabContext>
+                    </Scrollbars>
+                </Box>
+            </Stack>
+        </Box>
+    );
 };
 
 export default ContactPage;
