@@ -172,8 +172,8 @@ async function getMsgRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0,
                             $match: {
                                 $and: [
                                     { $expr: { "$eq": ["$roomId", "$$roomId"] } },
-                                    { "creatorId": { $ne: toObjectId("6650bb07d51b54a5c039f3fb") } },
-                                    { "seenBys": { $nin: [toObjectId("6650bb07d51b54a5c039f3fb")] } }
+                                    { "creatorId": { $ne: toObjectId(loggingUserId) } },
+                                    { "seenBys": { $nin: [toObjectId(loggingUserId)] } }
                                 ]
                             }
                         },
