@@ -19,7 +19,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { findUserByPhone } from "@/services/userApiService";
 import PhoneInput from 'react-phone-input-2';
-import { acceptRequest, checkIsFriend, redeemRequest, sendRequest, unfriend } from "@/services/friendApiService";
+import { acceptRequest, checkContact, redeemRequest, sendRequest, unfriend } from "@/services/contactApiService";
 import { useSelector } from "react-redux";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -83,10 +83,9 @@ const FindUserDialog = ({ open, onClose }) => {
     }
 
     const checkFriend = (userId) => {
-        checkIsFriend(userId)
+        checkContact(userId)
             .then(({ result }) => {
-                console.log(result);
-                setFriend(result.friend);
+                setFriend(result.contact);
             })
             .catch((err) => {
                 setFriend(null);
@@ -192,10 +191,7 @@ const FindUserDialog = ({ open, onClose }) => {
                             autoFormat={false}
                             onKeyDown={onKeyDown}
                             placeholder="Nhập số điện thoại"
-                            containerStyle={{
-                                marginTop: '10px',
-                                width: '100%'
-                            }}
+                            containerStyle={{ marginTop: '10px', width: '100%' }}
                             searchPlaceholder="Nhập tên quốc gia"
                             inputProps={{
                                 name: 'Số điện thoại',

@@ -1,5 +1,5 @@
 const { AppException } = require("../exceptions/AppException");
-const { addFriend, findFriendByUserId, getCount, findManyAsQueryable, findByFriendId, updateOne } = require("../services/friendService");
+const { addFriend, findContactByUserId, getCount, findManyAsQueryable, findByContactId, updateOne } = require("../services/contactService");
 const { findUserById } = require("../services/userService");
 const { paginate, getPaginateQuery } = require("../utils/paginate");
 const moment = require('moment');
@@ -11,18 +11,18 @@ exports.sendRequest = async (req, res, next) => {
             throw new AppException("Destination user does not exist.");
         }
 
-        if (await findFriendByUserId(req.loggingUserId, req.body.toUserId)) {
+        if (await findContactByUserId(req.loggingUserId, req.body.toUserId)) {
             throw new AppException("This relationship is established.");
         }
 
-        const friend = await addFriend(req.loggingUserId, req.body.toUserId);
+        const contact = await addFriend(req.loggingUserId, req.body.toUserId);
 
         return res
             .status(200)
             .json({
                 statusCode: 200,
                 msg: 'Send request successfully.',
-                result: { friend }
+                result: { contact }
             });
     } catch (error) {
         next(error);
@@ -31,13 +31,13 @@ exports.sendRequest = async (req, res, next) => {
 
 exports.redeemRequest = async (req, res, next) => {
     try {
-        const friend = await findByFriendId(req.params.friendId);
+        const contact = await findByContactId(req.params.contactId);
 
-        if (!friend) {
+        if (!contact) {
             throw new AppException("This relationship is not established.");
         }
 
-        await updateOne(req.params.friendId, {
+        await updateOne(req.params.contactId, {
             redeemed: true,
             redeemedAt: moment(),
             isDeleted: true
@@ -65,7 +65,7 @@ exports.getReceivedRequests = async (req, res, next) => {
 
         const requests = await findManyAsQueryable(
             req.loggingUserId,
-            friendConditionObj = {
+            contactConditionObj = {
                 accepted: false,
                 sendingRequestUserId: { $ne: req.loggingUserId }
             },
@@ -86,14 +86,14 @@ exports.getReceivedRequests = async (req, res, next) => {
     }
 }
 
-exports.checkFriend = async (req, res, next) => {
+exports.checkContact = async (req, res, next) => {
     try {
         if (!req.query.toUserId) {
             throw new AppException("`toUserId` query does not provided.")
         }
-        const friend = await findFriendByUserId(req.loggingUserId, req.query.toUserId);
+        const contact = await findContactByUserId(req.loggingUserId, req.query.toUserId);
 
-        if (!friend) {
+        if (!contact) {
             throw new AppException("This relationship is not established.")
         }
 
@@ -102,7 +102,7 @@ exports.checkFriend = async (req, res, next) => {
             .json({
                 statusCode: 200,
                 result: {
-                    friend
+                    contact
                 }
             });
     } catch (error) {
@@ -110,16 +110,16 @@ exports.checkFriend = async (req, res, next) => {
     }
 }
 
-exports.getFriends = async (req, res, next) => {
+exports.getContacts = async (req, res, next) => {
     const searchText = req.query.searchText;
     const { skip, limit } = getPaginateQuery(req);
 
     try {
         const total = await getCount(req.loggingUserId, { accepted: true });
 
-        const friends = await findManyAsQueryable(
+        const contacts = await findManyAsQueryable(
             req.loggingUserId,
-            friendConditionObj = {
+            contactConditionObj = {
                 accepted: true,
                 blocked: false
             },
@@ -142,7 +142,7 @@ exports.getFriends = async (req, res, next) => {
             .json({
                 statusCode: 200,
                 result: {
-                    ...paginate({ friends }, total, limit, skip)
+                    ...paginate({ contacts }, total, limit, skip)
                 }
             });
     } catch (error) {
@@ -152,20 +152,20 @@ exports.getFriends = async (req, res, next) => {
 
 exports.acceptRequest = async (req, res, next) => {
     try {
-        const friend = await findByFriendId(req.params.friendId);
-        if (!friend) {
+        const contact = await findBycontactId(req.params.contactId);
+        if (!contact) {
             throw new AppException("This relationship is not established.")
         }
 
-        if (friend.sendingRequestUserId === req.loggingUserId) {
+        if (contact.sendingRequestUserId === req.loggingUserId) {
             throw new AppException("This is not your request.");
         }
 
-        if (friend.accepted) {
+        if (contact.accepted) {
             throw new AppException("This relationship is already accepted.");
         }
 
-        await updateOne(req.params.friendId, { accepted: true });
+        await updateOne(req.params.contactId, { accepted: true });
         return res
             .status(200)
             .json({
@@ -179,7 +179,7 @@ exports.acceptRequest = async (req, res, next) => {
 
 exports.unfriend = async (req, res, next) => {
     try {
-        await updateOne(req.params.friendId, { isDeleted: true });
+        await updateOne(req.params.contactId, { isDeleted: true });
         return res
             .status(200)
             .json({

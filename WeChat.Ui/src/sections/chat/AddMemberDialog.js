@@ -12,7 +12,7 @@ import Skeleton from '@mui/material/Skeleton';
 import _ from 'lodash';
 import Chip from '@mui/material/Chip';
 import { readUrl } from '@/utils/readUrl';
-import { getFriends } from '@/services/friendApiService';
+import { getContacts } from '@/services/contactApiService';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { addMember } from '@/services/roomApiService';
@@ -76,9 +76,6 @@ const UserItem = ({ user, checked = false, onChange, isinGroup }) => {
 
 const AddMemberDialog = ({ open, onClose, room, members }) => {
     const navigate = useNavigate();
-
-    const [thumbnail, setThumbnail] = useState('');
-    const [title, setTitle] = useState('');
     const [timer, setTimer] = useState();
     const [content, setContent] = useState("");
     const [typing, setTyping] = useState(false);
@@ -91,9 +88,9 @@ const AddMemberDialog = ({ open, onClose, room, members }) => {
         setHasSearched(true);
         setSearchUserLoading(true);
 
-        getFriends(content.trim())
+        getContacts(content.trim())
             .then(({ result }) => {
-                setContacts(result.friends);
+                setContacts(result.contacts);
             })
             .catch(err => {
                 console.log(err);
@@ -138,7 +135,6 @@ const AddMemberDialog = ({ open, onClose, room, members }) => {
         addMember(room._id, selectedUsers)
             .then(({ msg }) => {
                 console.log(msg);
-
             })
             .catch((err) => {
                 console.log(err)
@@ -147,8 +143,6 @@ const AddMemberDialog = ({ open, onClose, room, members }) => {
 
     useEffect(() => {
         if (!open) {
-            setThumbnail('');
-            setTitle('');
             setTimer(null);
             setContent('');
             setHasSearched(false);

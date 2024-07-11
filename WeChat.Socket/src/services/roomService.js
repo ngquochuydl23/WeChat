@@ -63,7 +63,7 @@ async function updateRoom(roomId, mergeDoc, options) {
     await Room.updateOne({ _id: roomId, }, { $set: { ...mergeDoc } }, options)
 }
 
-async function getRoomsCount(loggingUserId) {
+async function getRoomsCount(loggingUserId, whereObj = {}) {
     const count = await Room
         .find({
             members: { $elemMatch: { $eq: toObjectId(loggingUserId) } },
@@ -73,13 +73,33 @@ async function getRoomsCount(loggingUserId) {
                     userId: toObjectId(loggingUserId),
                     leaved: false
                 }
-            }
+            },
+            ...whereObj
         })
         .count();
     return count;
 }
 
-async function getRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0, limit = 10) {
+async function findManyRoom(loggingUserId, whereObj = {}, sortObj = {}, skip = 0, limit = 10) {
+    const rooms = await Room
+        .find({
+            members: { $elemMatch: { $eq: toObjectId(loggingUserId) } },
+            lastMsg: { $ne: null },
+            userConfigs: {
+                $elemMatch: {
+                    userId: toObjectId(loggingUserId),
+                    leaved: false
+                }
+            },
+            ...whereObj
+        })
+        .sort({ ...sortObj })
+        .skip(skip)
+        .limit(limit);
+    return rooms;
+}
+
+async function getMsgRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0, limit = 10) {
     const rooms = await Room
         .aggregate([
             {
@@ -143,7 +163,46 @@ async function getRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0, li
                     "as": "users"
                 }
             },
-            { "$match": { ...matchObj } }])
+            {
+                $lookup: {
+                    from: 'Messages',
+                    let: { roomId: "$_id", creatorId: loggingUserId },
+                    pipeline: [
+                        {
+                            $match: {
+                                $and: [
+                                    { $expr: { "$eq": ["$roomId", "$$roomId"] } },
+                                    { "creatorId": { $ne: toObjectId("6650bb07d51b54a5c039f3fb") } },
+                                    { "seenBys": { $nin: [toObjectId("6650bb07d51b54a5c039f3fb")] } }
+                                ]
+                            }
+                        },
+                        {
+                            $project: {
+                                creatorId: 1,
+                                roomId: 1,
+                                seenBys: 1,
+                            }
+                        }
+                    ],
+                    "as": "msgs"
+                }
+            },
+            {
+                "$project": {
+                    singleRoom: 1,
+                    userConfigs: 1,
+                    lastMsg: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    title: 1,
+                    thumbnail: 1,
+                    members: 1,
+                    users: 1,   
+                    unreadMsgCount: { $size: "$msgs" }
+                }
+            },
+            { "$match": { ...matchObj } }]);
     return rooms;
 }
 
@@ -154,7 +213,8 @@ module.exports = {
     findOneRoom,
     findSingleRoomByUserId,
     findRoomByUser,
+    findManyRoom,
     updateRoom,
     initRoomChat,
-    getRooms
+    getMsgRooms
 }

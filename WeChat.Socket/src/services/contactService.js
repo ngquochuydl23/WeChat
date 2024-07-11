@@ -1,32 +1,30 @@
 const { default: mongoose } = require("mongoose");
-const Friend = require("../models/friend");
+const Contact = require("../models/contact");
+const toObjectId = require("../utils/toObjectId");
 
 async function addFriend(loggingUserId, toUserId) {
-    const friend = new Friend({
-        friends: [loggingUserId, toUserId],
+    const contact = new Contact({
+        users: [loggingUserId, toUserId],
         sendingRequestUserId: loggingUserId,
         accepted: false
     });
 
-    await friend.save();
-    return friend;
+    await contact.save();
+    return contact;
 }
 
-async function findFriendByUserId(loggingUserId, toUserId) {
-    return await Friend.findOne({
+async function findContactByUserId(loggingUserId, toUserId) {
+    return await Contact.findOne({
         '$expr': {
-            '$setEquals': ['$friends', [
-                new mongoose.Types.ObjectId(loggingUserId),
-                new mongoose.Types.ObjectId(toUserId)
-            ]]
+            '$setEquals': ['$users', [toObjectId(loggingUserId), toObjectId(toUserId)]]
         }
     });
 }
 
 async function getCount(loggingUserId, condition) {
-    return await Friend
+    return await Contact
         .find({
-            friends: { $in: [loggingUserId] },
+            users: { $in: [loggingUserId] },
             isDeleted: false,
             ...condition
         })
@@ -34,31 +32,31 @@ async function getCount(loggingUserId, condition) {
 }
 
 async function updateOne(id, mergeDoc) {
-    await Friend.updateOne({ _id: id }, { $set: { ...mergeDoc } });
+    await Contact.updateOne({ _id: id }, { $set: { ...mergeDoc } });
 }
 
-async function findByFriendId(friendId) {
-    return await Friend.findOne({ _id: new mongoose.Types.ObjectId(friendId) });
+async function findByContactId(contactId) {
+    return await Contact.findOne({ _id: toObjectId(contactId) });
 }
 
-async function findManyAsQueryable(loggingUserId, friendConditionObj, userConditionObj, skip, limit) {
-    return await Friend
+async function findManyAsQueryable(loggingUserId, contactConditionObj, userConditionObj, skip, limit) {
+    return await Contact
         .aggregate([
             {
                 $match: {
-                    friends: { $in: [new mongoose.Types.ObjectId(loggingUserId)] },
+                    users: { $in: [new toObjectId(loggingUserId)] },
                     isDeleted: false,
-                    ...friendConditionObj
+                    ...contactConditionObj
                 }
             },
-            { $unwind: '$friends' },
-            { $match: { friends: { $ne: new mongoose.Types.ObjectId(loggingUserId) } } },
+            { $unwind: '$users' },
+            { $match: { users: { $ne: toObjectId(loggingUserId) } } },
             { $skip: skip },
             { $limit: limit },
             {
                 $lookup: {
                     from: "Users",
-                    localField: "friends",
+                    localField: "users",
                     foreignField: "_id",
                     pipeline: [{
                         $project: {
@@ -86,9 +84,9 @@ async function findManyAsQueryable(loggingUserId, friendConditionObj, userCondit
 
 module.exports = {
     addFriend,
-    findFriendByUserId,
+    findContactByUserId,
     getCount,
     updateOne,
-    findByFriendId,
+    findByContactId,
     findManyAsQueryable
 }

@@ -21,3 +21,13 @@ export const leaveRoom = (roomId) => http.post("/room/" + roomId + '/leave');
 export const addMember = (roomId, otherIds) => http.post("/room/" + roomId + '/addMember', {
     otherIds: otherIds
 });
+
+export const getRoomList = (skip, limit) => http.get('/room/groups', {
+    params: {
+        skip, limit
+    }
+});
+
+export const patchThumnail = (roomId, thumbnail) => http.patch("/room/" + roomId + '/uploadThumbnail', {
+    thumbnail
+});

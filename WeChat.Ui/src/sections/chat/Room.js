@@ -87,10 +87,9 @@ const Room = () => {
                 })
     }
 
-    const onAddedMember = async (room, members, msg) => {
+    const onAddedMember = async (roomId, members, msg) => {
         setMessages((pre) => [msg, ...pre]);
-        setMembers(members)
-        setRoom(room);
+        setMembers(members);
     }
 
     const onReceiveIncomingTyping = async (roomId, isTyping, typingUserId) => {
@@ -118,6 +117,9 @@ const Room = () => {
         }));
     }
 
+    const onUpdateRoom = async (room) => {
+        setRoom(room)
+    }
 
     const handleJoinRoom = ({ status, response, error }) => {
         console.log("Join room: " + status);
@@ -153,6 +155,8 @@ const Room = () => {
         };
     }, [socket.connected]);
 
+
+    
     useEffect(() => {
         setLoading(true);
 
@@ -162,11 +166,11 @@ const Room = () => {
         socket.on('incomingMsg', onReceiveIncomingMsg);
         socket.on('incomingTyping', onReceiveIncomingTyping);
         socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
-
+       
 
         socket.on('roomDispersion', onRoomDispersion);
         socket.on('addMember', onAddedMember);
-
+        socket.on('updateRoom', onUpdateRoom);
 
         socket.io.on("error", (error) => {
             console.log(error);
@@ -185,7 +189,7 @@ const Room = () => {
 
             socket.off('roomDispersion');
             socket.off('addMember');
-
+            socket.off('v');
         }
     }, []);
 

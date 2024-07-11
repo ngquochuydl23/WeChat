@@ -74,7 +74,7 @@ const RoomChatItem = ({
             component={Link}
             to={"/chat/" + _id}
             onClick={onClick}
-            onContextMenu={onContextMenu}
+            //      onContextMenu={onContextMenu}
             px="15px"
             py="10px"
             spacing="15px"
@@ -153,15 +153,16 @@ const RoomChatItem = ({
                             }}
                             fontSize="14px"
                             variant="body1">
-                            <span style={{ marginRight: '2.5px', display: 'block' }}>
+                            <p style={{ marginRight: '2.5px', display: 'flex', marginBlockStart: 0, marginBlockEnd: 0 }}>
                                 {lastMsg.creatorId === user._id
                                     ? (lastMsg.type !== 'system-notification' ? `Bạn: ` : 'Bạn ')
                                     : (singleRoom ? "" : getCreatorLastMsg()?.firstName + (lastMsg.type !== 'system-notification' ? ": " : " "))
                                 }
-                            </span>
+                            </p>
                             {lastMsg.type === 'text' &&
                                 <Typography
-                                    width="100%"
+                                    display="flex"
+                                    flex="1"
                                     sx={{
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',

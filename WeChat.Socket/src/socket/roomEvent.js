@@ -1,6 +1,6 @@
 const { socketAuthMiddleware } = require('../middlewares/authMiddleware');
 const _ = require('lodash');
-const { getRooms } = require('../services/roomService');
+const { getMsgRooms } = require('../services/roomService');
 const { logger } = require('../logger');
 const { AppException } = require('../exceptions/AppException');
 const User = require('../models/user'); 
@@ -17,7 +17,7 @@ function roomEvent(io) {
 
                 try {
                     socket.join(loggingUserId);
-                    const rooms = await getRooms(loggingUserId);
+                    const rooms = await getMsgRooms(loggingUserId);
 
                     callback({ rooms });
                 } catch (error) {

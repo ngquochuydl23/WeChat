@@ -1,19 +1,20 @@
 import { Box, Typography, Stack, IconButton, Skeleton } from "@mui/material";
 import { useSelector } from "react-redux";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-import CreateGroupChatDialog from "./CreateGroupChatDialog";
+import CreateGroupChatDialog from "../CreateGroupChatDialog";
 import _ from "lodash";
-import RoomChatItem from "./RoomChatItem";
+import RoomChatItem from "../RoomChatItem";
 import { useEffect, useState } from "react";
-import { filterRoomInfo } from "../../utils/filterRoomInfo";
+import { filterRoomInfo } from "@/utils/filterRoomInfo";
 import ReactSearchBox from "react-search-box";
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 import Scrollbars from "react-custom-scrollbars-2";
 import UserSkeleton from "@/components/UserSkeleton";
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
-import FindUserDialog from "./FindUserDialog";
+import FindUserDialog from "../FindUserDialog";
 import { searchRoomChatByName } from "@/services/roomApiService";
 import { socketManager } from "@/socket";
+import './searchBoxOverrideStyle.scss';
 
 const socket = socketManager('rooms');
 
@@ -152,20 +153,24 @@ const MenuRoomChat = () => {
                 </IconButton>
             </Stack>
             <Box px="15px">
-                <ReactSearchBox
-                    clearOnSelect
-                    autoFocus={false}
-                    iconBoxSize="40px"
-                    data={[]}
-                    leftIcon={
-                        <Box pt="5px" color="#d3d3d3" justifyContent="center" alignItems="center">
-                            <SearchTwoToneIcon />
-                        </Box>
-                    }
-                    placeholder="Tìm kiếm"
-                    value={search}
-                    onChange={onChange}
-                />
+                <div className="searchBox">
+                    <ReactSearchBox
+                        clearOnSelect
+                        autoFocus={false}
+                        iconBoxSize="40px"
+
+
+                        data={[]}
+                        leftIcon={
+                            <Box pt="5px" color="#d3d3d3" justifyContent="center" alignItems="center">
+                                <SearchTwoToneIcon />
+                            </Box>
+                        }
+                        placeholder="Tìm kiếm"
+                        value={search}
+                        onChange={onChange}
+                    />
+                </div>
             </Box>
             {search.length > 0
                 ? <Stack sx={{ height: "100%", overflowY: "none" }}>

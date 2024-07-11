@@ -7,6 +7,9 @@ import { filterRoomInfo } from "../../utils/filterRoomInfo";
 import { readUrl } from "@/utils/readUrl";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Scrollbars from "react-custom-scrollbars-2";
+import IcCamera from "@/assets/icons/IcCamera";
+import { uploadFile } from "@/services/storageApi";
+import { patchThumnail } from "@/services/roomApiService";
 
 const RoomDetail = ({
     room,
@@ -18,17 +21,53 @@ const RoomDetail = ({
     const info = filterRoomInfo(loggingUserId, room, members);
     const [open, setOpen] = useState(false);
 
+    const onPickFile = (event) => {
+        uploadFile(event.target.files[0])
+            .then(res => {
+                const { url } = res.data.files[0];
+                patchThumnail(room._id, url)
+                    .then(({ result }) => { console.log(result) })
+                    .catch((err) => console.log(err))
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+
     return (
         <Scrollbars style={{ width: "350px", height: '100vh' }}>
             <Box sx={{ width: "350px", height: "100%", display: "flex", flexDirection: "column", borderLeft: '0.5px solid #d3d3d3' }} >
                 <Box
                     py="30px"
                     sx={{ width: "100%", justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column" }} >
-                    <Avatar
-                        sx={{ width: "90px", height: "90px", border: '5px solid #d3d3d3' }}
-                        alt={info.title}
-                        src={readUrl(info.avatar)}
-                    />
+                    <Box sx={{ position: 'relative', height: "90px", display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
+                        <Avatar
+                            sx={{ width: "90px", height: "90px", border: '5px solid #d3d3d3', position: 'relative' }}
+                            alt={info.title}
+                            src={readUrl(info.avatar)} />
+                        {!room.singleRoom &&
+                            <IconButton
+                                size="small"
+                                sx={{
+                                    position: 'absolute',
+                                    zIndex: 1,
+                                    backgroundColor: 'whitesmoke',
+                                    '&:hover': {
+                                        backgroundColor: 'white'
+                                    }
+                                }}
+                                onClick={() => document?.getElementById('thumbnail.picker')?.click()}>
+                                <IcCamera />
+                            </IconButton>
+                        }
+                        <input
+                            onChange={onPickFile}
+                            style={{ display: "none" }}
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            id="thumbnail.picker" />
+                    </Box>
                     {room.singleRoom ? (
                         <Box sx={{ width: "100%", justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column" }}>
                             <Typography mt="10px" fontSize="18px" fontWeight="800">{info.title}</Typography>

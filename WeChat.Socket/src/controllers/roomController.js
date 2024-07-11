@@ -3,10 +3,11 @@ const {
     initRoomChat,
     findSingleRoomByUserId,
     updateRoom,
-    getRooms,
+    getMsgRooms,
     getRoomsCount,
     findById,
     findOneRoom,
+    findManyRoom,
 } = require('../services/roomService');
 const { findUsersByIds } = require('../services/userService');
 const { sendMsg } = require('../services/messageService');
@@ -16,6 +17,7 @@ const { emitToRoomNsp } = require('../utils/socketUtils');
 const toObjectId = require('../utils/toObjectId');
 const moment = require('moment');
 const _ = require('lodash');
+const room = require('../models/room');
 
 exports.findSingleRoom = async (req, res, next) => {
     try {
@@ -84,7 +86,7 @@ exports.getLastRooms = async (req, res, next) => {
 
     try {
         const total = await getRoomsCount(req.loggingUserId);
-        const rooms = await getRooms(req.loggingUserId, null, null, skip, limit);
+        const rooms = await getMsgRooms(req.loggingUserId, null, null, skip, limit);
 
         return res
             .status(200)
@@ -221,7 +223,6 @@ exports.addMember = async (req, res, next) => {
                         return uConfig;
                     }
                 });
-                console.log(room.userConfigs);
             } else {
                 room.members.push(toObjectId(otherId));
                 room.userConfigs.push({
@@ -257,6 +258,71 @@ exports.addMember = async (req, res, next) => {
                 msg: 'add member successfully.'
             });
 
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.listGroups = async (req, res, next) => {
+    const { skip, limit } = getPaginateQuery(req);
+
+    try {
+        const total = await getRoomsCount(req.loggingUserId, { singleRoom: false });
+        const rooms = await findManyRoom(
+            req.loggingUserId,
+            { singleRoom: false },
+            { createdAt: -1 },
+            skip,
+            limit);
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    ...paginate({ rooms }, total, limit, skip)
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.uploadThumbnail = async (req, res, next) => {
+    const { roomId } = req.params;
+    const loggingUserId = req.loggingUserId;
+    const { thumbnail } = req.body;
+
+    try {
+        const room = await findById(roomId);
+        if (!room) {
+            throw new AppException("Room not found.");
+        }
+
+        if (!room.members.includes(toObjectId(loggingUserId))) {
+            throw new AppException("This account is not a member of this room.");
+        }
+
+        if (room.singleRoom) {
+            throw new AppException("Cannot patch thumbnail to single room.");
+        }
+
+        await updateRoom(roomId, { thumbnail });
+        await emitToRoomNsp(room._id, 'updateRoom');
+
+        getIo()
+            .of('chatRoom')
+            .to(roomId)
+            .emit('updateRoom', { ...room._doc, thumbnail });
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    msg: 'Uploaded thumbnail successfully.'
+                }
+            });
     } catch (error) {
         next(error);
     }

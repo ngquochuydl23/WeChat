@@ -12,12 +12,16 @@
         height: 55px !important;
         width: 100% !important;
         //background-color: red;
-
+        border-radius: 50px;
         &:focus {
             //border: 1px solid #07C160;
             border-color: #07C160 !important;
             box-shadow: none;
         }
+    }
+
+    .selected-flag {
+        margin-left: 10px;
     }
 
 }

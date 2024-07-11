@@ -3,13 +3,13 @@ const schemeConstants = require('./schemeConstant');
 const { BaseSchema, whereNotDeleted } = require('../share.model');
 
 const schema = BaseSchema(schemeConstants.Collection, {
-    friends: {
+    users: {
         type: [{
             type: mongoose.Types.ObjectId,
             ref: 'User'
         }],
         //validate: [friends.length == 2, '{PATH} exceeds the limit of 2'],
-        required: [true, 'friends must not be null'],
+        required: [true, 'users must not be null'],
     },
     accepted: {
         type: Boolean,

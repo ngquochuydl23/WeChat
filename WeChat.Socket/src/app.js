@@ -6,7 +6,7 @@ const roomRoute = require('./routes/roomRoute');
 const authRoute = require('./routes/authRoute');
 const userRoute = require('./routes/userRoute');
 const deviceRoute = require('./routes/deviceRoute');
-const friendRoute = require('./routes/friendRoute');
+const contactRoute = require('./routes/contactRoute');
 const profileRoute = require('./routes/profileRoute');
 const pingRoute = require('./routes/pingRoute');
 const bodyParser = require('body-parser');
@@ -37,7 +37,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
 app.use('/api/room', roomRoute);
 app.use('/api/device', deviceRoute);
-app.use('/api/friend', friendRoute);
+app.use('/api/contact', contactRoute);
 app.use('/api/profile', profileRoute);
 
 app.use(logError)

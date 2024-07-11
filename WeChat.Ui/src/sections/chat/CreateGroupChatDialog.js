@@ -8,14 +8,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import { Avatar, Box, Checkbox, CircularProgress, Divider, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import Skeleton from '@mui/material/Skeleton';
 import _ from 'lodash';
 import Chip from '@mui/material/Chip';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { uploadFile } from '@/services/storageApi';
 import { readUrl } from '@/utils/readUrl';
-import { getFriends } from '@/services/friendApiService';
+import { getContacts } from '@/services/contactApiService';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { initRoomChat } from '@/services/roomApiService';
@@ -86,15 +85,12 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
     const searchUser = () => {
         setHasSearched(true);
         setSearchUserLoading(true);
-        getFriends(content.trim())
+        getContacts(content)
             .then(({ result }) => {
-                console.log(result.friends);
-                setContacts(result.friends);
+                setContacts(result.contacts);
             })
             .catch(err => {
                 console.log(err);
-
-
             })
             .finally(() => {
                 setSearchUserLoading(false);
