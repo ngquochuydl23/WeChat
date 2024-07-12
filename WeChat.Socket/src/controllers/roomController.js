@@ -8,16 +8,17 @@ const {
     findById,
     findOneRoom,
     findManyRoom,
+    updateOneRoom,
+    updateMemberCount,
 } = require('../services/roomService');
 const { findUsersByIds } = require('../services/userService');
-const { sendMsg } = require('../services/messageService');
+const { sendMsg, countMsgs } = require('../services/messageService');
 const { getPaginateQuery, paginate } = require('../utils/paginate');
 const { getIo } = require('../socket');
 const { emitToRoomNsp } = require('../utils/socketUtils');
 const toObjectId = require('../utils/toObjectId');
 const moment = require('moment');
 const _ = require('lodash');
-const room = require('../models/room');
 
 exports.findSingleRoom = async (req, res, next) => {
     try {
@@ -161,6 +162,8 @@ exports.leaveRoom = async (req, res, next) => {
             arrayFilters: [{ "idx.userId": toObjectId(req.loggingUserId) }]
         });
 
+        await updateMemberCount(roomId);
+
         getIo()
             .of('chatRoom')
             .to(roomId)
@@ -242,7 +245,7 @@ exports.addMember = async (req, res, next) => {
             members: room.members,
             userConfigs: room.userConfigs
         })
-
+        await updateMemberCount(roomId);
         await emitToRoomNsp(room._id, 'addMember');
 
         const members = await findUsersByIds(room.members);
@@ -321,6 +324,63 @@ exports.uploadThumbnail = async (req, res, next) => {
                 statusCode: 200,
                 result: {
                     msg: 'Uploaded thumbnail successfully.'
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.pinRoom = async (req, res, next) => {
+    const { roomId } = req.params;
+    const loggingUserId = req.loggingUserId;
+
+    try {
+        const room = await findById(roomId);
+        if (!room) {
+            throw new AppException("Room not found.");
+        }
+
+        const userConfig = room
+            .userConfigs
+            .find(x => x.userId.toHexString() === loggingUserId);
+
+        if (userConfig.pinned) {
+            throw new AppException("Cannot pinned. This room is already be.");
+        }
+
+        const pinnedAt = moment();
+        await updateOneRoom(
+            { _id: room._id, },
+            {
+                '$set': {
+                    'userConfigs.$[elem].pinned': true,
+                    'userConfigs.$[elem].pinnedAt': pinnedAt
+                }
+            },
+            {
+                multi: true,
+                strict: false,
+                arrayFilters: [
+                    { "elem.userId": toObjectId(loggingUserId) }
+                ]
+            });
+
+        getIo()
+            .of('rooms')
+            .to(loggingUserId)
+            .emit('rooms.incomingPinRoom', roomId, {
+                userConfig: {
+                    pinned: true,
+                    pinnedAt
+                }
+            });
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    msg: 'Pinned successfully.'
                 }
             });
     } catch (error) {

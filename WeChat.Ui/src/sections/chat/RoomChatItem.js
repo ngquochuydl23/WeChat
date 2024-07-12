@@ -12,9 +12,10 @@ import { useState } from "react";
 import IcPinRoom from "@/assets/icons/IcPinRoom";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { leaveRoom } from "@/services/roomApiService";
+import { leaveRoom, pinRoom } from "@/services/roomApiService";
 import IcPicture from "@/assets/icons/IcPicture";
 import IcRoomMute from "@/assets/icons/IcRoomMute";
+import IcPinRoomFilled from "@/assets/icons/IcPinRoomFilled";
 
 const RoomChatItem = ({
     _id,
@@ -28,6 +29,7 @@ const RoomChatItem = ({
     typing,
     onDeletedMsg,
     onLeavedRoom,
+    userConfig
 }) => {
 
     const param = useParams();
@@ -49,8 +51,13 @@ const RoomChatItem = ({
 
     }
 
-    const pinRoom = () => {
+    const doPinRoom = () => {
         setAnchorEl(null);
+        pinRoom(_id)
+            .then(({ result }) => {
+                console.log(result.msg);
+            })
+            .catch((err) => console.log(err))
     }
 
     const leaveRoomChat = () => {
@@ -276,6 +283,9 @@ const RoomChatItem = ({
                             </AvatarGroup>
 
                         }
+                        {userConfig.pinned &&
+                            <IcPinRoomFilled />
+                        }
                     </Stack>
                     : <Box sx={{ height: '20px', width: '40px', backgroundColor: 'whitesmoke', borderRadius: '20px' }}>
                         <Lottie
@@ -308,7 +318,7 @@ const RoomChatItem = ({
                 <List sx={{ width: '200px' }}>
                     <ListItemButton
                         sx={{ height: '35px' }}
-                        onClick={pinRoom}>
+                        onClick={doPinRoom}>
                         <ListItemIcon sx={{ minWidth: '34px' }}>
                             <IcPinRoom />
                         </ListItemIcon>

@@ -27,7 +27,7 @@ const Room = () => {
     const { user } = useSelector((state) => state.user);
     const [loading, setLoading] = useState(false);
     const [showRoomInfo, setShowRoomInfo] = useState(false);
-    
+
     const [room, setRoom] = useState();
     const [members, setMembers] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -156,7 +156,7 @@ const Room = () => {
     }, [socket.connected]);
 
 
-    
+
     useEffect(() => {
         setLoading(true);
 
@@ -166,7 +166,7 @@ const Room = () => {
         socket.on('incomingMsg', onReceiveIncomingMsg);
         socket.on('incomingTyping', onReceiveIncomingTyping);
         socket.on('incomingRedeemMsg', onIncomingRedeemMsg);
-       
+
 
         socket.on('roomDispersion', onRoomDispersion);
         socket.on('addMember', onAddedMember);

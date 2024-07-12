@@ -11,6 +11,7 @@ router.get('/groups', authMiddleware, roomController.listGroups);
 
 
 router.post('/:roomId/leave', authMiddleware, roomController.leaveRoom);
+router.post('/:roomId/pin', authMiddleware, roomController.pinRoom)
 router.post('/:roomId/addMember', authMiddleware, roomController.addMember);
 router.patch('/:roomId/uploadThumbnail', authMiddleware, roomController.uploadThumbnail);
 module.exports = router;

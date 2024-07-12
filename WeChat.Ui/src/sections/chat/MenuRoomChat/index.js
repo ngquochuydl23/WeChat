@@ -66,15 +66,47 @@ const MenuRoomChat = () => {
         }
     }
 
+    const onIncomingPinRoom = async (roomId, { userConfig }) => {
+        setRooms((preState) => {
+            return preState
+                .map(room => {
+                    if (room._id === roomId) {
+                        return {
+                            ...room,
+                            userConfig: {
+                                ...room.userConfig,
+                                ...userConfig
+                            }
+                        }
+                    }
+                    return room;
+                })
+                .sort((a, b) => {
+                    if (a.userConfig.pinned === b.userConfig.pinned) {
+                        return new Date(b.userConfig.pinnedAt) - new Date(a.userConfig.pinnedAt);
+                    }
+                    return a.userConfig.pinned ? -1 : 1;
+                });
+        });
+    }
+
     const onReceiveIncomingMsg = (roomId, action, data) => {
         if (action === 'newMsg') {
-            setRooms((preState) => [
-                {
-                    ...data.room,
-                    unreadMsgCount: data.unreadMsgCount
-                },
-                ...(preState.filter(x => x._id !== roomId))
-            ]);
+            setRooms((preState) => {
+                const rooms = [
+                    {
+                        ...data.room,
+                        unreadMsgCount: data.unreadMsgCount
+                    },
+                    ...(preState.filter(x => x._id !== roomId))
+                ]
+                return rooms.sort((a, b) => {
+                    if (a.userConfig.pinned === b.userConfig.pinned) {
+                        return new Date(b.userConfig.pinnedAt) - new Date(a.userConfig.pinnedAt);
+                    }
+                    return a.userConfig.pinned ? -1 : 1;
+                });
+            });
 
         } else if (action === 'typing') {
 
@@ -128,10 +160,12 @@ const MenuRoomChat = () => {
         socket.on('connect', onConnected);
         socket.on('disconnect', onDisconnected);
         socket.on('rooms.incomingMsg', onReceiveIncomingMsg);
+        socket.on('rooms.incomingPinRoom', onIncomingPinRoom);
 
         return () => {
             socket.off('connect', onConnected);
             socket.off('rooms.incomingMsg')
+            socket.off('rooms.incomingPinRoom');
             socket.off('disconnect', onDisconnected);
         }
     }, [])

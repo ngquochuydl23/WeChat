@@ -7,18 +7,26 @@ async function emitToRoomNsp(roomId, action) {
     const room = await findById(roomId);
     const users = await findUsersByIds(room.members);
 
-    room.userConfigs.forEach(async ({ userId, leaved }) => {
-        if (!leaved) {
+    room.userConfigs.forEach(async (userConfig) => {
+        if (!userConfig.leaved) {
             const unreadMsgCount = await countMsgs({
                 roomId: room._id,
-                seenBys: { $nin: [userId] }
+                seenBys: { $nin: [userConfig.userId] }
             });
+
+            const copyRoom = room.toObject();
+            delete copyRoom['userConfigs'];
 
             getIo()
                 .of('rooms')
-                .to(userId.toHexString())
+                .to(userConfig.userId.toHexString())
                 .emit('rooms.incomingMsg', roomId, action, {
-                    room: { ...room.toObject(), users: users },
+                    room: {
+                        ...copyRoom,
+                        userConfig,
+                        users: users
+                        
+                    },
                     unreadMsgCount
                 })
         }

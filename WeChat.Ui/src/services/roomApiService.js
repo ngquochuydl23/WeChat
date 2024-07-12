@@ -31,3 +31,5 @@ export const getRoomList = (skip, limit) => http.get('/room/groups', {
 export const patchThumnail = (roomId, thumbnail) => http.patch("/room/" + roomId + '/uploadThumbnail', {
     thumbnail
 });
+
+export const pinRoom = (roomId) => http.post("/room/" + roomId + '/pin');

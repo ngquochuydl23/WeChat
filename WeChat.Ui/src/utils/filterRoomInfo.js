@@ -16,7 +16,7 @@ export const filterRoomInfo = (loggingUserId, room, members) => {
     }
 
     if (Boolean(room.title) && room.title.length > 0) {
-        const memCount = room.userConfigs.filter(x => !x.leaved).length;
+        const memCount = room.memberCount;
         return {
             title: room.title,
             subtitle: memCount + ' thành viên',

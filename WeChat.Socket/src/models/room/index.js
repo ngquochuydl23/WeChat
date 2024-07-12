@@ -35,13 +35,21 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
             },
             leavedAt: {
                 type: Date,
-                default: null   
+                default: null
             },
             chatDeletedAt: {
                 type: Date,
                 default: null
             },
             joinedAt: {
+                type: Date,
+                default: moment()
+            },
+            pinned: {
+                type: Boolean,
+                default: false
+            },
+            pinnedAt: {
                 type: Date,
                 default: moment()
             }
@@ -56,5 +64,9 @@ module.exports = mongoose.model(schemeConstants.Model, BaseSchema(schemeConstant
     dispersedAt: {
         type: Date,
         default: null
+    },
+    memberCount: {
+        type: Number,
+        required: [true, 'memberCount must not be null'],
     }
 })); 

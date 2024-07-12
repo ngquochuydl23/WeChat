@@ -63,6 +63,10 @@ async function updateRoom(roomId, mergeDoc, options) {
     await Room.updateOne({ _id: roomId, }, { $set: { ...mergeDoc } }, options)
 }
 
+async function updateOneRoom(whereObj, update, options) {
+    await Room.updateOne({ ...whereObj }, { ...update }, { ...options })
+}
+
 async function getRoomsCount(loggingUserId, whereObj = {}) {
     const count = await Room
         .find({
@@ -115,13 +119,6 @@ async function getMsgRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0,
                 }
             },
             {
-                $sort: {
-                    'lastMsg.createdAt': -1,
-                    'createdAt': -1,
-                    ...sortObj
-                }
-            },
-            {
                 $project: {
                     members: {
                         "$map": {
@@ -133,14 +130,21 @@ async function getMsgRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0,
                         },
                     },
                     singleRoom: 1,
-                    userConfigs: 1,
                     lastMsg: 1,
                     createdAt: 1,
                     updatedAt: 1,
                     title: 1,
-                    thumbnail: 1
+                    thumbnail: 1,
+                    userConfig: {
+                        $filter: {
+                            input: "$userConfigs",
+                            as: "item",
+                            cond: { $eq: ["$$item.userId", toObjectId(loggingUserId)] }
+                        }
+                    },
                 }
             },
+            { $unwind: "$userConfig" },
             // { $skip: skip },
             // { $limit: limit },
             {
@@ -191,21 +195,36 @@ async function getMsgRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0,
             {
                 "$project": {
                     singleRoom: 1,
-                    userConfigs: 1,
+                    userConfig: 1,
                     lastMsg: 1,
                     createdAt: 1,
                     updatedAt: 1,
                     title: 1,
                     thumbnail: 1,
                     members: 1,
-                    users: 1,   
+                    users: 1,
                     unreadMsgCount: { $size: "$msgs" }
+                }
+            },
+            {
+                $sort: {
+                    'userConfig.pinned': -1,
+                    'userConfig.pinnedAt': -1,
+                    'lastMsg.createdAt': -1,
+                    'createdAt': -1,
+                    ...sortObj
                 }
             },
             { "$match": { ...matchObj } }]);
     return rooms;
 }
 
+async function updateMemberCount(roomId) {
+    const room = await Room.findById(roomId);
+    const count = room.userConfigs.filter(x => !x.leaved).length;
+
+    await Room.updateOne({ _id: room._id }, { $set: { memberCount: count } });
+}
 
 module.exports = {
     getRoomsCount,
@@ -215,6 +234,8 @@ module.exports = {
     findRoomByUser,
     findManyRoom,
     updateRoom,
+    updateOneRoom,
     initRoomChat,
-    getMsgRooms
+    getMsgRooms,
+    updateMemberCount
 }
