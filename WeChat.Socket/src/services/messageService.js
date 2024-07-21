@@ -7,12 +7,16 @@ async function getMsgByRoomId(
     roomId,
     loggingUserId,
     skipDays = 0,
-    lastLimitDays = 30
+    lastLimitDays = 30,
+    msgWhereObj = {},
+    limit,
+    skip,
 ) {
 
     const messages = await Message
         .find({
             roomId: roomId,
+            ...msgWhereObj
             // createdAt: {
             //   $gte: moment()
             //     .subtract(
@@ -30,7 +34,9 @@ async function getMsgByRoomId(
             //     .format()
             // }
         })
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
 
     return messages;
 }

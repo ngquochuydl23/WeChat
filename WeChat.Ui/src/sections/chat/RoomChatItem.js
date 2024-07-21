@@ -101,9 +101,20 @@ const RoomChatItem = ({
                 })
             }}>
             <Avatar
-                sx={{ height: '50px', width: '50px', aspectRatio: 1 }}
+                sx={{
+                    height: '50px',
+                    width: '50px',
+                    aspectRatio: 1,
+                    border: '1px solid #d3d3d3',
+                    ...((avatar) ? {
+                        padding: 0
+                    } : {
+                        padding: '7px',
+                        backgroundColor: 'whitesmoke'
+                    }),
+                }}
                 alt={title}
-                src={readUrl(avatar)} />
+                src={avatar ? readUrl(avatar) : require('@/assets/Illustration/no_thumbnail_room.png')} />
             <Box sx={{ width: '100%', overflow: 'hidden' }}>
                 <Stack direction="row" justifyContent="space-between" sx={{ width: '100%', overflow: 'hidden' }}>
                     <Typography

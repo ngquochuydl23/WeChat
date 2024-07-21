@@ -5,8 +5,6 @@ const { findById, updateRoom } = require('../services/roomService');
 const { getMsgByRoomId, sendMsg, updateManyMsg, findOneMsg } = require('../services/messageService');
 const { default: mongoose } = require("mongoose");
 const { findUsersByIds } = require('../services/userService');
-const { response } = require('express');
-
 
 function chatRoomEvent(io) {
 	async function emitToRoomNsp(roomId, action, extraData) {
@@ -53,7 +51,7 @@ function chatRoomEvent(io) {
 					const users = await findUsersByIds(room.members);
 
 					const userConfig = room.userConfigs.find(x => x.userId.toHexString() === loggingUserId);
-					
+
 					if (userConfig.leaved) {
 						return callback({
 							status: 'refuse',
@@ -68,6 +66,10 @@ function chatRoomEvent(io) {
 					// await seenAllMessages(loggingUserId, roomId);
 					// Get all messages in the room for 30 days from now.
 					const messages = await getMsgByRoomId(room, loggingUserId);
+					const medias = await getMsgByRoomId(room, loggingUserId, undefined, undefined, {
+						attachment: { $ne: null },
+						'attachment.mime': /^image/
+					}, 6, 0);
 					// Get all medias from msgDocs
 					// const medias = _.filter(msgDocs, ({ _doc }) => _doc.type === 'media');
 					callback({
@@ -76,7 +78,7 @@ function chatRoomEvent(io) {
 							room,
 							users,
 							messages: messages,
-							medias: [],
+							medias: medias,
 							pinnedMsgs: [],
 							links: [],
 						}

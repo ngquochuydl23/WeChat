@@ -32,4 +32,8 @@ export const patchThumnail = (roomId, thumbnail) => http.patch("/room/" + roomId
     thumbnail
 });
 
+export const patchRoomTitle = (roomId, title) => http.patch("/room/" + roomId + '/renameTitle', {
+    title
+});
+
 export const pinRoom = (roomId) => http.post("/room/" + roomId + '/pin');

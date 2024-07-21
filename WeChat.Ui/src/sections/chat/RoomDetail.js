@@ -1,4 +1,4 @@
-import { Box, Typography, Avatar, Button, Accordion, AccordionSummary, AccordionDetails, AccordionActions, Grid } from "@mui/material";
+import { Box, Typography, Avatar, Button, Accordion, AccordionSummary, AccordionDetails, AccordionActions, Grid, Stack } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { useState } from "react";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
@@ -10,16 +10,22 @@ import Scrollbars from "react-custom-scrollbars-2";
 import IcCamera from "@/assets/icons/IcCamera";
 import { uploadFile } from "@/services/storageApi";
 import { patchThumnail } from "@/services/roomApiService";
+import _ from "lodash";
+import IcIditName from "@/assets/icons/IcIditName";
+import RenameRoomDialog from "./RenameRoomDialog";
 
 const RoomDetail = ({
     room,
     members,
     loggingUserId,
     onDispersedRoom,
-    onAddMember
+    onAddMember,
+    medias = []
 }) => {
     const info = filterRoomInfo(loggingUserId, room, members);
     const [open, setOpen] = useState(false);
+    const [openRenameRoomDialog, setOpenRenameRoomDialog] = useState(false);
+
 
     const onPickFile = (event) => {
         uploadFile(event.target.files[0])
@@ -42,9 +48,22 @@ const RoomDetail = ({
                     sx={{ width: "100%", justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column" }} >
                     <Box sx={{ position: 'relative', height: "90px", display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
                         <Avatar
-                            sx={{ width: "90px", height: "90px", border: '5px solid #d3d3d3', position: 'relative' }}
+                            sx={{
+                                width: "90px",
+                                height: "90px",
+                                border: '5px solid #d3d3d3',
+                                position: 'relative',
+                                ...((info.avatar) ? {
+                                    padding: 0,
+                                    border: '5px solid #d3d3d3',
+                                } : {
+                                    padding: '7px',
+                                    backgroundColor: 'whitesmoke',
+                                    border: '1px solid #d3d3d3',
+                                }),
+                            }}
                             alt={info.title}
-                            src={readUrl(info.avatar)} />
+                            src={info.avatar ? readUrl(info.avatar) : require('@/assets/Illustration/no_thumbnail_room.png')} />
                         {!room.singleRoom &&
                             <IconButton
                                 size="small"
@@ -68,14 +87,20 @@ const RoomDetail = ({
                             accept="image/*"
                             id="thumbnail.picker" />
                     </Box>
-                    {room.singleRoom ? (
-                        <Box sx={{ width: "100%", justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column" }}>
-                            <Typography mt="10px" fontSize="18px" fontWeight="800">{info.title}</Typography>
-                        </Box>
-                    ) : (
-                        <Box sx={{ width: "100%", justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column" }}>
-                            <Typography mt="10px" fontSize="18px" fontWeight="800">{info.title}</Typography>
-                            <Typography mt="10px" fontSize="16px" fontWeight="500">
+                    <Box sx={{ width: "100%", justifyContent: "center", alignItems: "center", display: "flex", flexDirection: "column" }}>
+                        <Typography mt="10px" fontSize="18px" fontWeight="800">
+                            {info.title}
+                            <span>
+                                <IconButton
+                                    size="small"
+                                    sx={{ marginLeft: '10px', backgroundColor: 'whitesmoke' }}
+                                    onClick={() => setOpenRenameRoomDialog(true)}>
+                                    <IcIditName />
+                                </IconButton>
+                            </span>
+                        </Typography>
+                        {!room.singleRoom
+                            ? <Typography mt="10px" fontSize="16px" fontWeight="500">
                                 {info.subtitle}
                                 {!room.singleRoom &&
                                     <IconButton onClick={() => setOpen(true)}>
@@ -83,13 +108,11 @@ const RoomDetail = ({
                                     </IconButton>
                                 }
                             </Typography>
-                        </Box>
-                    )}
-                    {room.singleRoom && (
-                        <Button sx={{ marginTop: "20px", borderRadius: '20px' }} variant="outlined" size="small">
-                            Xem trang cá nhân
-                        </Button>
-                    )}
+                            : <Button sx={{ marginTop: "20px", borderRadius: '20px' }} variant="outlined" size="small">
+                                Xem trang cá nhân
+                            </Button>
+                        }
+                    </Box>
                 </Box>
                 <Box sx={{ display: "flex", flex: 1, flexGrow: 1, flexDirection: 'column' }}>
                     <Accordion elevation={0} defaultExpanded>
@@ -101,32 +124,27 @@ const RoomDetail = ({
                                 {`Hình ảnh và video`}
                             </Typography>
                         </AccordionSummary>
-                        <AccordionDetails>
+                        <AccordionDetails sx={{ paddingY: 0 }}>
                             <Grid container spacing={'5px'}>
-                                <Grid item xs={4} md={4}>
-                                    <img
-                                        style={{ width: '100%', height: '100%', aspectRatio: 1, objectFit: 'cover', borderRadius: '5px' }}
-                                        key={1}
-                                        alt="file"
-                                        src="https://lh3.googleusercontent.com/pw/AP1GczOZil3-Thc07VmjpIdQXnbpE7JGd4noxwpX5YLkOJLM4AU3eStsUeopVGMIikLTNnKhZ-tGr_6G7RFO0sa4Gt5m1oUQcUIdwIOe3O4vqLd_jlK57i8USar2Nlu20mtvPV2K5ykRwTkpmhZdN6KozcgRxvTPK6TPhLqVAq_vw-L5GPVtRwEqxiGuKiEBDekw12BMWIo5uPaL-rv-GIBK_C2xUiK16l6ImQxARXjVEV0M5CEYBefbMuEe_g7XlDiWj3y-OVGEU8hO_VS3U84aAHUNaZssff51kLtzhy83eZirX_26n1CYP7dQnF5s3AFKNW0WskGN8P0UF5t8GkLk87sbW9KHZ84repj0QSuhq3dBzEkYUygGnfP6XS1xcbYZdPMkNbTrmdbd3Yh_vcYwGX8rBbKZimoiCw2ksXFIo6zMDu2fgh1gGTNegAZkEYads8pGt2Ia5uGDM5axyS0FtxMsNGfYm8HF6Cfcpe0KuX0xrpwaWXJWVHSLl0rj8NkZK2D2xyBThKtSQlaIrN_-osJ4gzzBbQ1CnB9o1BEflf4m5d8ntp0d7dBKc_LYfJRm9Go99vtXe7E39Oko7B_RP1fZvFQ0sEIXo7g6HczfHS-CVpVxLENZqjLTObncHPCnwu-6EYEIleGvmUsnyJa5DOC3hpQX2vxt5Ltw6yJGyu1WaUqDLLTJt8zGCOxUQD5RdCko49iFVqHZV8XI9Vtq7ox1RO6DMNeKOx6aqchn5IkO2Zs5f3Z99tEWukQwSfYjt1NYB9AUtKWLZdjlGWeJH4KP0RGNjHHD2-qkx9_BBTrx57yFwYv7NiSYmPiP-b-K5glHzLHFP-tpAXHKAyVVnQuLOaOwP6tVMbG7abfW5muk57ILUmpLk6DxkX29lPVO3yyZ-pM_TU0R69rOQMq_h5BUmA=w489-h869-s-no-gm?authuser=0"
-                                    />
-                                </Grid>
-                                <Grid item xs={4} md={4}>
-                                    <img
-                                        style={{ width: '100%', height: '100%', aspectRatio: 1, objectFit: 'cover', borderRadius: '5px' }}
-                                        key={1}
-                                        alt="file"
-                                        src="https://lh3.googleusercontent.com/pw/AP1GczOZil3-Thc07VmjpIdQXnbpE7JGd4noxwpX5YLkOJLM4AU3eStsUeopVGMIikLTNnKhZ-tGr_6G7RFO0sa4Gt5m1oUQcUIdwIOe3O4vqLd_jlK57i8USar2Nlu20mtvPV2K5ykRwTkpmhZdN6KozcgRxvTPK6TPhLqVAq_vw-L5GPVtRwEqxiGuKiEBDekw12BMWIo5uPaL-rv-GIBK_C2xUiK16l6ImQxARXjVEV0M5CEYBefbMuEe_g7XlDiWj3y-OVGEU8hO_VS3U84aAHUNaZssff51kLtzhy83eZirX_26n1CYP7dQnF5s3AFKNW0WskGN8P0UF5t8GkLk87sbW9KHZ84repj0QSuhq3dBzEkYUygGnfP6XS1xcbYZdPMkNbTrmdbd3Yh_vcYwGX8rBbKZimoiCw2ksXFIo6zMDu2fgh1gGTNegAZkEYads8pGt2Ia5uGDM5axyS0FtxMsNGfYm8HF6Cfcpe0KuX0xrpwaWXJWVHSLl0rj8NkZK2D2xyBThKtSQlaIrN_-osJ4gzzBbQ1CnB9o1BEflf4m5d8ntp0d7dBKc_LYfJRm9Go99vtXe7E39Oko7B_RP1fZvFQ0sEIXo7g6HczfHS-CVpVxLENZqjLTObncHPCnwu-6EYEIleGvmUsnyJa5DOC3hpQX2vxt5Ltw6yJGyu1WaUqDLLTJt8zGCOxUQD5RdCko49iFVqHZV8XI9Vtq7ox1RO6DMNeKOx6aqchn5IkO2Zs5f3Z99tEWukQwSfYjt1NYB9AUtKWLZdjlGWeJH4KP0RGNjHHD2-qkx9_BBTrx57yFwYv7NiSYmPiP-b-K5glHzLHFP-tpAXHKAyVVnQuLOaOwP6tVMbG7abfW5muk57ILUmpLk6DxkX29lPVO3yyZ-pM_TU0R69rOQMq_h5BUmA=w489-h869-s-no-gm?authuser=0"
-                                    />
-                                </Grid>
-                                <Grid item xs={4} md={4}>
-                                    <img
-                                        style={{ width: '100%', height: '100%', aspectRatio: 1, objectFit: 'cover', borderRadius: '5px' }}
-                                        key={1}
-                                        alt="file"
-                                        src="https://lh3.googleusercontent.com/pw/AP1GczOZil3-Thc07VmjpIdQXnbpE7JGd4noxwpX5YLkOJLM4AU3eStsUeopVGMIikLTNnKhZ-tGr_6G7RFO0sa4Gt5m1oUQcUIdwIOe3O4vqLd_jlK57i8USar2Nlu20mtvPV2K5ykRwTkpmhZdN6KozcgRxvTPK6TPhLqVAq_vw-L5GPVtRwEqxiGuKiEBDekw12BMWIo5uPaL-rv-GIBK_C2xUiK16l6ImQxARXjVEV0M5CEYBefbMuEe_g7XlDiWj3y-OVGEU8hO_VS3U84aAHUNaZssff51kLtzhy83eZirX_26n1CYP7dQnF5s3AFKNW0WskGN8P0UF5t8GkLk87sbW9KHZ84repj0QSuhq3dBzEkYUygGnfP6XS1xcbYZdPMkNbTrmdbd3Yh_vcYwGX8rBbKZimoiCw2ksXFIo6zMDu2fgh1gGTNegAZkEYads8pGt2Ia5uGDM5axyS0FtxMsNGfYm8HF6Cfcpe0KuX0xrpwaWXJWVHSLl0rj8NkZK2D2xyBThKtSQlaIrN_-osJ4gzzBbQ1CnB9o1BEflf4m5d8ntp0d7dBKc_LYfJRm9Go99vtXe7E39Oko7B_RP1fZvFQ0sEIXo7g6HczfHS-CVpVxLENZqjLTObncHPCnwu-6EYEIleGvmUsnyJa5DOC3hpQX2vxt5Ltw6yJGyu1WaUqDLLTJt8zGCOxUQD5RdCko49iFVqHZV8XI9Vtq7ox1RO6DMNeKOx6aqchn5IkO2Zs5f3Z99tEWukQwSfYjt1NYB9AUtKWLZdjlGWeJH4KP0RGNjHHD2-qkx9_BBTrx57yFwYv7NiSYmPiP-b-K5glHzLHFP-tpAXHKAyVVnQuLOaOwP6tVMbG7abfW5muk57ILUmpLk6DxkX29lPVO3yyZ-pM_TU0R69rOQMq_h5BUmA=w489-h869-s-no-gm?authuser=0"
-                                    />
-                                </Grid>
+                                {_.map(medias, ({ attachment }, index) => {
+                                    return (
+                                        <Grid item xs={3} md={3}>
+                                            <img
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    aspectRatio: 1,
+                                                    objectFit: 'cover',
+                                                    borderRadius: '10px',
+                                                    border: '1px solid #d3d3d3'
+                                                }}
+                                                key={index}
+                                                alt="file"
+                                                src={readUrl(attachment.url)}
+                                            />
+                                        </Grid>
+                                    )
+                                })}
                             </Grid>
                         </AccordionDetails>
                     </Accordion>
@@ -161,10 +179,10 @@ const RoomDetail = ({
                 </Box>
                 {(loggingUserId === room.creatorId && !room.singleRoom) && (
                     <Button
-                        sx={{ marginX: "15px", marginY: "10px" }}
+                        sx={{ marginX: "15px", marginY: "10px", borderRadius: '20px' }}
                         onClick={() => onDispersedRoom(room._id)}
                         color="error"
-                        variant="contained">
+                        variant="outlined">
                         Giải tán nhóm
                     </Button>
                 )}
@@ -178,6 +196,12 @@ const RoomDetail = ({
                     />
                 }
             </Box>
+            <RenameRoomDialog
+                room={room}
+                members={members}
+                loggingUserId={loggingUserId}
+                open={openRenameRoomDialog}
+                onClose={() => setOpenRenameRoomDialog(false)} />
         </Scrollbars >
     );
 };

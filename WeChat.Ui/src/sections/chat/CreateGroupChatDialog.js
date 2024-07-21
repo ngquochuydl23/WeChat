@@ -274,7 +274,6 @@ const CreateGroupChatDialog = ({ open, onClose }) => {
                             </Stack>
                             : <Stack sx={{ overflowY: 'auto' }} spacing="15px" py="10px">
                                 {_.map(contacts, ({ user }) => {
-                                    console.log(selectedUsers.find(x => x === user._id));
                                     return (
                                         <UserItem
                                             user={user}

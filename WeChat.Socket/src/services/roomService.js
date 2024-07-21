@@ -52,7 +52,8 @@ async function initRoomChat(title = undefined, thumbnail = undefined, otherMembe
         userConfigs: _.map(memberIds, id => ({
             userId: toObjectId(id),
             leaved: false
-        }))
+        })),
+        memberCount: memberIds.length
     });
 
     await room.save();
@@ -209,7 +210,7 @@ async function getMsgRooms(loggingUserId, matchObj = {}, sortObj = {}, skip = 0,
             {
                 $sort: {
                     'userConfig.pinned': -1,
-                    'userConfig.pinnedAt': -1,
+                    'userConfig.pinnedAt': 1,
                     'lastMsg.createdAt': -1,
                     'createdAt': -1,
                     ...sortObj

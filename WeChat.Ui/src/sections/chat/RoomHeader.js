@@ -11,8 +11,8 @@ const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
                 width: '100%',
                 backgroundColor: 'rgba(255, 255, 255, 0.6)',
                 backdropFilter: 'blur(6px)',
-              //  borderBottom: '1px solid #EBE9ED',
-              //  boxShadow: '0px -4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)'
+                //  borderBottom: '1px solid #EBE9ED',
+                //  boxShadow: '0px -4px 8px rgba(0, 0, 0, 0.16) ,0 0px 4px rgba(0, 0, 0, 0.05)'
             }}
             px="15px"
             py="10px"
@@ -25,15 +25,26 @@ const RoomHeader = ({ room, members, loggingUserId, onToggleRoomDetail }) => {
                     </Skeleton>
                 </Stack>
                 : <Avatar
-                    sx={{ aspectRatio: 1, width: '50px', height: '50px' }}
+                    sx={{
+                        aspectRatio: 1,
+                        width: '50px',
+                        height: '50px',
+                        border: '1px solid #d3d3d3',
+                        ...((info?.avatar) ? {
+                            padding: 0
+                        } : {
+                            padding: '7px',
+                            backgroundColor: 'whitesmoke'
+                        }),
+                    }}
                     alt={info?.title}
-                    src={readUrl(info?.avatar)} />
+                    src={info?.avatar ? readUrl(info?.avatar) : require('@/assets/Illustration/no_thumbnail_room.png')} />
             }
             <Box sx={{ width: '100%' }}>
                 <Typography sx={{ width: '100%', color: 'black', fontSize: "16px" }} variant="subtitle1">
                     {info?.title || <Skeleton width="30%" />}
                 </Typography>
-                
+
                 <Typography
                     sx={{ fontWeight: "500", color: '#696969' }}
                     fontSize="14px"

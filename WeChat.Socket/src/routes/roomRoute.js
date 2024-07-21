@@ -14,4 +14,5 @@ router.post('/:roomId/leave', authMiddleware, roomController.leaveRoom);
 router.post('/:roomId/pin', authMiddleware, roomController.pinRoom)
 router.post('/:roomId/addMember', authMiddleware, roomController.addMember);
 router.patch('/:roomId/uploadThumbnail', authMiddleware, roomController.uploadThumbnail);
+router.patch('/:roomId/renameTitle', authMiddleware, roomController.renameRoomGroupTitle);
 module.exports = router;

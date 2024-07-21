@@ -32,7 +32,7 @@ const Room = () => {
     const [members, setMembers] = useState([]);
     const [messages, setMessages] = useState([]);
     const [userTypingIds, setUserTypingIds] = useState([]);
-
+    const [medias, setMedias] = useState([]);
 
     const onEnteredNewMsg = async (msg) => {
         sendMsg(roomId, msg)
@@ -126,12 +126,14 @@ const Room = () => {
 
         if (response) {
             localStorage.setItem("lastAccessRoomId", roomId);
+            console.log(response.medias)
 
             seen(roomId);
             setLoading(false);
-            setMembers(response.users)
+            setMembers(response.users);
             setRoom(response.room);
-            setMessages(response.messages)
+            setMessages(response.messages);
+            setMedias(response.medias);
         }
 
         if (error) {
@@ -303,6 +305,7 @@ const Room = () => {
                 {
                     showRoomInfo &&
                     <RoomDetail
+                        medias={medias}
                         loading={loading}
                         room={room}
                         members={members}

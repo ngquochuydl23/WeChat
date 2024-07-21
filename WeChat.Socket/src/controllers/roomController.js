@@ -110,16 +110,23 @@ exports.getRoomsByMemberName = async (req, res, next) => {
         if (!name) {
             throw new AppException("name query is not provided.");
         }
-
-        const rooms = await getRooms(req.loggingUserId, {
-            "users": {
-                "$elemMatch": {
-                    $or: [
-                        { "fullName": { "$regex": name } },
-                        { "userName": { "$regex": name } }
-                    ]
+        let regex = new RegExp(`^${name}`);
+        const rooms = await getMsgRooms(req.loggingUserId, {
+            $or: [
+                {
+                    title: { "$regex": regex }
+                },
+                {
+                    "users": {
+                        "$elemMatch": {
+                            $or: [
+                                { "fullName": { "$regex": regex } },
+                                { "userName": { "$regex": regex } }
+                            ]
+                        }
+                    }
                 }
-            }
+            ]
         }, null, skip, limit);
 
         return res
@@ -154,7 +161,6 @@ exports.leaveRoom = async (req, res, next) => {
             roomId: room._id,
             creatorId: toObjectId(req.loggingUserId)
         });
-
         await updateRoom(roomId, {
             "userConfigs.$[idx].leaved": true,
             "userConfigs.$[idx].leavedAt": moment()
@@ -324,6 +330,46 @@ exports.uploadThumbnail = async (req, res, next) => {
                 statusCode: 200,
                 result: {
                     msg: 'Uploaded thumbnail successfully.'
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.renameRoomGroupTitle = async (req, res, next) => {
+    const { roomId } = req.params;
+    const { title } = req.body;
+    const loggingUserId = req.loggingUserId;
+
+    try {
+        const room = await findById(roomId);
+        if (!room) {
+            throw new AppException("Room not found.");
+        }
+
+        if (!room.members.includes(toObjectId(loggingUserId))) {
+            throw new AppException("This account is not a member of this room.");
+        }
+
+        if (room.singleRoom) {
+            throw new AppException("Cannot update title to single room.");
+        }
+
+        await updateRoom(room._id, { title: title });
+        await emitToRoomNsp(room._id, 'updateRoom');
+
+        getIo()
+            .of('chatRoom')
+            .to(roomId)
+            .emit('updateRoom', { ...room._doc, title });
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    msg: 'Updated title successfully.'
                 }
             });
     } catch (error) {

@@ -4,6 +4,7 @@ import MenuRoomChat from "../../sections/chat/MenuRoomChat";
 import Room from "../../sections/chat/Room";
 import { useParams } from "react-router-dom";
 import StartNewChat from "../../sections/chat/StartNewChat";
+import MediaViewerDialog from "@/sections/chat/MediaViewerDialog";
 
 const Chats = () => {
     const { roomId } = useParams();
@@ -12,6 +13,8 @@ const Chats = () => {
             <MenuRoomChat />
             <Divider orientation="vertical" flexItem />
             {(Boolean(roomId)) ? <Room /> : <StartNewChat />}
+            {/* <MediaViewerDialog
+                open={true} /> */}
         </Stack>
     );
 };
