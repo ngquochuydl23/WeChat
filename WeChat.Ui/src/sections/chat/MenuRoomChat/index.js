@@ -83,7 +83,7 @@ const MenuRoomChat = () => {
                 })
                 .sort((a, b) => {
                     if (a.userConfig.pinned === b.userConfig.pinned) {
-                        return new Date(b.userConfig.pinnedAt) - new Date(a.userConfig.pinnedAt);
+                        return new Date(a.userConfig.pinnedAt) - new Date(b.userConfig.pinnedAt);
                     }
                     return a.userConfig.pinned ? -1 : 1;
                 });
@@ -102,7 +102,7 @@ const MenuRoomChat = () => {
                 ]
                 return rooms.sort((a, b) => {
                     if (a.userConfig.pinned === b.userConfig.pinned) {
-                        return new Date(b.userConfig.pinnedAt) - new Date(a.userConfig.pinnedAt);
+                        return new Date(a.userConfig.pinnedAt) - new Date(b.userConfig.pinnedAt);
                     }
                     return a.userConfig.pinned ? -1 : 1;
                 });

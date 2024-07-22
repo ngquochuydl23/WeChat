@@ -1,35 +1,38 @@
 import React, { useEffect, useState } from "react";
 import {
-    Avatar,
     Box,
-    Button,
-    CircularProgress,
     Dialog,
-    DialogActions,
     DialogContent,
-    DialogTitle,
-    Divider,
     IconButton,
     Stack,
-    Typography,
 } from "@mui/material";
 import { readUrl } from "@/utils/readUrl";
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CloseIcon from '@mui/icons-material/Close';
-import { uploadFile } from "@/services/storageApi";
-import { changeAvatar } from "@/services/profileApiService";
-import { useDispatch } from "react-redux";
-import { setUser } from "@/redux/slices/userSlice";
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import moment from "moment/";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { mediaViewerSubject } from "@/pages/chat/ChatPage";
+import _ from "lodash";
 
-const MediaViewerDialog = ({ open, onClose, medias }) => {
+
+const MediaViewerDialog = ({ open, onClose }) => {
     const [selectPosition, setSelectPosition] = useState(0);
+    const [medias, setMedias] = useState([]);
+
+    mediaViewerSubject.subscribe({
+        next: (medias) => {
+            setMedias(medias)
+        }
+    });
+
+    const closeDialog = () => {
+        setMedias([]);
+        setSelectPosition(0);
+        onClose();
+    }
+
     useEffect(() => {
         const close = (e) => {
             if (e.keyCode === 27) {
-                onClose()
+                closeDialog()
             }
         }
         window.addEventListener('keydown', close)
@@ -49,7 +52,7 @@ const MediaViewerDialog = ({ open, onClose, medias }) => {
             fullScreen
             sx={{ backgroundColor: 'transparent' }}
             scroll={"body"}
-            onClose={onClose}>
+            onClose={closeDialog}>
             <DialogContent sx={{ padding: 0 }}>
                 <Box
                     sx={{
@@ -62,51 +65,48 @@ const MediaViewerDialog = ({ open, onClose, medias }) => {
                         alignItems: 'center',
                         backgroundColor: 'rgba(0, 0, 0, 0.7)'
                     }}>
-                    <Box sx={{ maxHeight: '70vh', overflow: 'hidden', borderRadius: '20px', maxWidth: '70vw' }}>
-                        <TransformWrapper>
-                            <TransformComponent>
-                                <img
-                                    alt=""
-                                    src={readUrl('/api/bucket/665084baa340536c521c22b1/MWE3YWY5MDMzOTMxZjlkOWE3Yjg3MGY3OTA4Y2UyNjIuanBn')}
-                                    style={{ height: '100%', width: '100%' }}
-                                />
-                            </TransformComponent>
-                        </TransformWrapper>
+                    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                        <IconButton
+                            sx={{ position: 'relative', color: 'white', display: 'flex', mr: '15px', backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+                            onClick={closeDialog}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                    <Box sx={{ height: '70vh', overflow: 'hidden', borderRadius: '20px', maxWidth: '70vw' }}>
+                        {(medias && medias.length > 0) &&
+                            <TransformWrapper>
+                                <TransformComponent>
+                                    <img
+                                        alt=""
+                                        src={readUrl(medias[selectPosition].url)}
+                                        style={{ height: '70vh', objectFit: 'fill' }}
+                                    />
+                                </TransformComponent>
+                            </TransformWrapper>
+                        }
                     </Box>
                     <Stack direction="row" mt="20px">
-                        <Box
-                            sx={{
-                                position: 'relative',
-                                display: 'flex',
-                                height: '80px',
-                                width: '80px',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '10px',
-                                border: '3px solid #07C160'
-                            }}>
-                            <img
-                                alt=""
-                                src={readUrl('/api/bucket/665084baa340536c521c22b1/MWE3YWY5MDMzOTMxZjlkOWE3Yjg3MGY3OTA4Y2UyNjIuanBn')}
-                                style={{ height: '70px', width: '70px', objectFit: 'cover', borderRadius: '7.5px' }}
-                            />
-                        </Box>
-                        <Box
-                            sx={{
-                                position: 'relative',
-                                display: 'flex',
-                                height: '80px',
-                                width: '80px',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '10px',
-                            }}>
-                            <img
-                                alt=""
-                                src={readUrl('/api/bucket/665084baa340536c521c22b1/MWE3YWY5MDMzOTMxZjlkOWE3Yjg3MGY3OTA4Y2UyNjIuanBn')}
-                                style={{ height: '70px', width: '70px', objectFit: 'cover', borderRadius: '7.5px' }}
-                            />
-                        </Box>
+                        {_.map(medias, (media, index) => {
+                            return (
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        display: 'flex',
+                                        height: '80px',
+                                        width: '80px',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '10px',
+                                        border: index === selectPosition ? '3px solid #07C160' : 'none'
+                                    }}>
+                                    <img
+                                        alt=""
+                                        src={readUrl(media.url)}
+                                        style={{ height: '70px', width: '70px', objectFit: 'cover', borderRadius: '7.5px' }}
+                                    />
+                                </Box>
+                            )
+                        })}
                     </Stack>
                 </Box>
             </DialogContent>

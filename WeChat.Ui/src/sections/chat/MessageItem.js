@@ -21,6 +21,7 @@ import { enqueueSnackbar } from "notistack";
 import { readUrl } from "../../utils/readUrl";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { filterMsgSystem } from "@/utils/filterMsg";
+import { mediaViewerSubject } from "@/pages/chat/ChatPage";
 
 
 export const NotificationMessage = ({ creator, content, members, owned }) => {
@@ -47,10 +48,15 @@ export const NotificationMessage = ({ creator, content, members, owned }) => {
 };
 
 const MsgContent = ({ type = "text", content, attachment, isRightMsg = false, sx }) => {
+    const imgClick = () => {
+        mediaViewerSubject.next([attachment]);
+    }
+
     return (
         <Stack sx={{}} direction="column">
             {type === "image" && attachment && (
                 <img
+                    onClick={imgClick}
                     alt={attachment.fileName}
                     style={{
                         objectFit: "cover",
