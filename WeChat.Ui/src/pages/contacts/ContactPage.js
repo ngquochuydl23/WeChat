@@ -30,21 +30,24 @@ const settingSidebarItems = [
         activeIcon: PersonIcon,
         inactiveIcon: PermIdentityIcon,
         title: "Danh sách bạn bè",
-        tabComponent: lazy(() => import("./ContactList")),
+        tabComponent: lazy(() => import("../../sections/contact/ContactList")),
+        enableBadge: false,
     },
     {
         id: 'privacy-and-security',
         activeIcon: PeopleIcon,
         inactiveIcon: PeopleAltOutlinedIcon,
         title: "Nhóm và cộng đồng",
-        tabComponent: lazy(() => import("./ContactList")),
+        tabComponent: lazy(() => import("../../sections/contact/GroupList")),
+        enableBadge: false,
     },
     {
         id: 'notifications',
         activeIcon: PersonAddIcon,
         inactiveIcon: PersonAddOutlinedIcon,
         title: "Lời mời kết bạn",
-        tabComponent: lazy(() => import("./ContactList")),
+        tabComponent: lazy(() => import("../../sections/contact/ContactList")),
+        enableBadge: true,
     }
 ]
 
@@ -125,21 +128,23 @@ const ContactPage = () => {
                                         }}>
                                         {item.title}
                                     </Typography>
-                                    <span>
-                                        <Chip
-                                            size="small"
-                                            sx={{
-                                                height: '20px',
-                                                width: '20px',
-                                                color: 'white',
-                                                backgroundColor: '#07C160',
-                                                '.MuiChip-label': {
-                                                    padding: 0,
-                                                    fontSize: '12px'
-                                                },
-                                            }}
-                                            label={4} />
-                                    </span>
+                                    {item.enableBadge &&
+                                        <span>
+                                            <Chip
+                                                size="small"
+                                                sx={{
+                                                    height: '20px',
+                                                    width: '20px',
+                                                    color: 'white',
+                                                    backgroundColor: '#07C160',
+                                                    '.MuiChip-label': {
+                                                        padding: 0,
+                                                        fontSize: '12px'
+                                                    },
+                                                }}
+                                                label={4} />
+                                        </span>
+                                    }
                                 </Button>
                             )
                         })}

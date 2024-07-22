@@ -10,7 +10,6 @@ const { addDevice, terminateDevice } = require('../services/deviceService');
 const { findOneUser, findUserById } = require('../services/userService');
 const { generateFromEmail } = require("unique-username-generator");
 const { getIo } = require('../socket');
-const { result } = require('lodash');
 
 exports.signup = async (req, res, next) => {
     try {

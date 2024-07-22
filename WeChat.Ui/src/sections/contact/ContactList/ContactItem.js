@@ -6,28 +6,49 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PersonRemoveOutlinedIcon from '@mui/icons-material/PersonRemoveOutlined';
 import BlockIcon from '@mui/icons-material/Block';
 import PersonIcon from '@mui/icons-material/Person';
+import { unfriend } from "@/services/contactApiService";
 
-const ContactItem = ({ user }) => {
+const ContactItem = ({ contactId, user, onDoneUnfriend }) => {
+
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
         event.stopPropagation();
     };
 
+    const viewProfile = (event) => {
+        event.stopPropagation();
+    }
+
     const handleClose = () => {
         setAnchorEl(null);
     };
 
-    const doUnfriend = () => {
+    const doUnfriend = (event) => {
+        event.stopPropagation();
 
+        unfriend(contactId)
+            .then(({ msg }) => {
+                console.log(msg);
+                onDoneUnfriend(contactId);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }
+
+    const doBlock = (event) => {
+        event.stopPropagation();
     }
 
     return (
         <Stack
-            onClick={() => navigate('/chat/666e73486a05bacb3157dc36')}
+            //onClick={() => navigate('/chat/666e73486a05bacb3157dc36')}
+            onClick={viewProfile}
             direction="row"
             py="5px"
             sx={{
@@ -43,14 +64,13 @@ const ContactItem = ({ user }) => {
                 <Avatar
                     sx={{ width: '45px', height: '45px', border: '3px solid #d3d3d3' }}
                     alt="contact.avatar"
-                    src={readUrl("/api/bucket/665084baa340536c521c22b1/MGM5YTg0YWQ2YmFlY2MwYTI1MDYzMmRkNzRmMTZkMGMuanBn")} />
-
+                    src={readUrl(user.avatar)} />
                 <Box sx={{ width: '100%' }} ml="15px">
-                    <Typography fontWeight="600" fontSize="16px" p="0px">
-                        {`Nguyễn Ngọc Bảo Ngân`}
+                    <Typography fontWeight="600" fontSize="15px" p="0px">
+                        {user.fullName}
                     </Typography>
                     <Typography fontWeight="400" fontSize="13px" color="gray">
-                        {`@hyomin`}
+                        @{user.userName}
                     </Typography>
                 </Box>
             </Stack>
@@ -76,14 +96,21 @@ const ContactItem = ({ user }) => {
                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
                 <List sx={{ width: '150px' }}>
                     <ListItemButton
-                        onClick={doUnfriend}
+                        onClick={viewProfile}
                         sx={{ height: '35px' }}>
                         <ListItemText
                             primary="Xem hồ sơ"
                             primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
                     </ListItemButton>
                     <ListItemButton
-                        onClick={doUnfriend}
+                       // onClick={doBlock}
+                        sx={{ height: '35px' }}>
+                        <ListItemText
+                            primary="Nhắn tin"
+                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
+                    </ListItemButton>
+                    <ListItemButton
+                        onClick={doBlock}
                         sx={{ height: '35px' }}>
                         <ListItemText
                             primary="Chặn"

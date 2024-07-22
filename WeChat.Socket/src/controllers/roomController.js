@@ -19,6 +19,7 @@ const { emitToRoomNsp } = require('../utils/socketUtils');
 const toObjectId = require('../utils/toObjectId');
 const moment = require('moment');
 const _ = require('lodash');
+const Room = require('../models/room');
 
 exports.findSingleRoom = async (req, res, next) => {
     try {
@@ -277,13 +278,85 @@ exports.listGroups = async (req, res, next) => {
 
     try {
         const total = await getRoomsCount(req.loggingUserId, { singleRoom: false });
-        const rooms = await findManyRoom(
-            req.loggingUserId,
-            { singleRoom: false },
-            { createdAt: -1 },
-            skip,
-            limit);
+        const rooms = await Room
+            .aggregate([
+                {
+                    $match: {
+                        members: { $elemMatch: { $eq: toObjectId(req.loggingUserId) } },
+                        lastMsg: { $ne: null },
+                        userConfigs: {
+                            $elemMatch: {
+                                userId: toObjectId(req.loggingUserId),
+                                leaved: false
+                            }
+                        },
+                        singleRoom: false
+                    }
+                },
+                {
+                    $project: {
+                        members: {
+                            "$map": {
+                                "input": "$members",
+                                "as": "member",
+                                "in": {
+                                    "$toObjectId": "$$member"
+                                }
+                            },
+                        },
+                        singleRoom: 1,
+                        lastMsg: 1,
+                        createdAt: 1,
+                        updatedAt: 1,
+                        title: 1,
+                        thumbnail: 1,
+                        userConfig: {
+                            $filter: {
+                                input: "$userConfigs",
+                                as: "item",
+                                cond: { $eq: ["$$item.userId", toObjectId(req.loggingUserId)] }
+                            }
+                        },
+                    }
+                },
+                { $unwind: "$userConfig" },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: 'Users',
+                        let: { member: "$members" },
+                        pipeline: [
+                            { $match: { $expr: { "$in": ["$_id", "$$member"] } } },
+                            {
+                                $project: {
+                                    fullName: 1,
+                                    userName: 1,
+                                    avatar: 1,
+                                    gender: 1,
+                                    firstName: 1,
+                                    lastName: 1
+                                }
+                            }
+                        ],
+                        "as": "users"
+                    }
+                },
 
+                {
+                    "$project": {
+                        singleRoom: 1,
+                        userConfig: 1,
+                        createdAt: 1,
+                        updatedAt: 1,
+                        title: 1,
+                        thumbnail: 1,
+                        members: 1,
+                        users: 1,
+                    }
+                },
+                { $sort: { createdAt: -1 } },
+                { "$match": {  } }]);
         return res
             .status(200)
             .json({
