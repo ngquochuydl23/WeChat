@@ -63,7 +63,7 @@ const FindUserDialog = ({ open, onClose }) => {
         sendRequest(foundUser._id)
             .then(({ result, msg }) => {
                 console.log(msg);
-                setFriend(result.friend);
+                setFriend(result.contact);
             })
             .catch((err) => console.log(err))
             .finally(() => {

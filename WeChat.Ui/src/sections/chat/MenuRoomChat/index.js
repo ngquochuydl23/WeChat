@@ -54,10 +54,16 @@ const MenuRoomChat = () => {
     }
 
     const onChange = (value) => {
-        setSearching(value.length > 0);
-        setSearch(value);
-        clearTimeout(timer);
-        setTimer(setTimeout(() => doSearch(value), 500));
+        if (value.length > 0) {
+            setSearching(true);
+            setSearch(value);
+            clearTimeout(timer);
+            setTimer(setTimeout(() => doSearch(value), 500));
+        } else {
+            clearTimeout(timer);
+            setSearching(false);
+            setSearch('');
+        }
     }
 
     const onSubscribe = (response) => {
@@ -228,7 +234,11 @@ const MenuRoomChat = () => {
                                                 {...filterRoomInfo(user._id, roomItem, roomItem.users)}
                                                 members={roomItem.users}
                                                 loggingUserId={user._id}
-                                                onClick={() => setSearchResult({ roomSearchings: [], conversation: [] })}
+                                                onClick={() => {
+                                                    setSearch('');
+                                                    setSearching(false);
+                                                    setSearchResult({ roomSearchings: [], conversation: [] })
+                                                }}
                                             />
                                         ))}
                                     </Scrollbars>
