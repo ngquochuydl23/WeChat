@@ -37,3 +37,5 @@ export const patchRoomTitle = (roomId, title) => http.patch("/room/" + roomId + 
 });
 
 export const pinRoom = (roomId) => http.post("/room/" + roomId + '/pin');
+
+export const removePinRoom = (roomId) => http.post("/room/" + roomId + '/removePinRoom');

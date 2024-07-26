@@ -96,6 +96,33 @@ const MenuRoomChat = () => {
         });
     }
 
+    const incomingRemovePinRoom = async (roomId, { lastMsg, userConfig }) => {
+        setRooms((preState) => {
+            return preState
+                .map(room => {
+                    if (room._id === roomId) {
+                        return {
+                            ...room,
+                            userConfig: {
+                                ...room.userConfig,
+                                ...userConfig
+                            }
+                        }
+                    }
+                    return room;
+                })
+                .sort((a, b) => {
+                    return new Date(b.lastMsg.createdAt) - new Date(a.lastMsg.createdAt);
+                })
+                .sort((a, b) => {
+                    if (a.userConfig.pinned === b.userConfig.pinned) {
+                        return new Date(a.userConfig.pinnedAt) - new Date(b.userConfig.pinnedAt);
+                    }
+                    return a.userConfig.pinned ? -1 : 1;
+                });
+        });
+    }
+
     const onReceiveIncomingMsg = (roomId, action, data) => {
         if (action === 'newMsg') {
             setRooms((preState) => {
@@ -167,11 +194,12 @@ const MenuRoomChat = () => {
         socket.on('disconnect', onDisconnected);
         socket.on('rooms.incomingMsg', onReceiveIncomingMsg);
         socket.on('rooms.incomingPinRoom', onIncomingPinRoom);
-
+        socket.on('rooms.incomingRemovePinRoom', incomingRemovePinRoom);
         return () => {
             socket.off('connect', onConnected);
             socket.off('rooms.incomingMsg')
             socket.off('rooms.incomingPinRoom');
+            socket.off('rooms.incomingRemovePinRoom');
             socket.off('disconnect', onDisconnected);
         }
     }, [])
@@ -198,8 +226,6 @@ const MenuRoomChat = () => {
                         clearOnSelect
                         autoFocus={false}
                         iconBoxSize="40px"
-
-
                         data={[]}
                         leftIcon={
                             <Box pt="5px" color="#d3d3d3" justifyContent="center" alignItems="center">

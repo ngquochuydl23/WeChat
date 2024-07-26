@@ -12,10 +12,11 @@ import { useState } from "react";
 import IcPinRoom from "@/assets/icons/IcPinRoom";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { leaveRoom, pinRoom } from "@/services/roomApiService";
+import { leaveRoom, pinRoom, removePinRoom } from "@/services/roomApiService";
 import IcPicture from "@/assets/icons/IcPicture";
 import IcRoomMute from "@/assets/icons/IcRoomMute";
 import IcPinRoomFilled from "@/assets/icons/IcPinRoomFilled";
+import IcUnpinRoom from "@/assets/icons/IcUnpinRoom";
 
 const RoomChatItem = ({
     _id,
@@ -54,6 +55,15 @@ const RoomChatItem = ({
     const doPinRoom = () => {
         setAnchorEl(null);
         pinRoom(_id)
+            .then(({ result }) => {
+                console.log(result.msg);
+            })
+            .catch((err) => console.log(err))
+    }
+
+    const doRemovePinRoom = () => {
+        setAnchorEl(null);
+        removePinRoom(_id)
             .then(({ result }) => {
                 console.log(result.msg);
             })
@@ -292,7 +302,6 @@ const RoomChatItem = ({
                                         )
                                     })}
                             </AvatarGroup>
-
                         }
                         {userConfig.pinned &&
                             <IcPinRoomFilled />
@@ -327,16 +336,28 @@ const RoomChatItem = ({
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 transformOrigin={{ vertical: 'center', horizontal: 'center' }}>
                 <List sx={{ width: '200px' }}>
-                    <ListItemButton
-                        sx={{ height: '35px' }}
-                        onClick={doPinRoom}>
-                        <ListItemIcon sx={{ minWidth: '34px' }}>
-                            <IcPinRoom />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Ghim hội thoại"
-                            primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
-                    </ListItemButton>
+                    {userConfig.pinned
+                        ? <ListItemButton
+                            sx={{ height: '35px' }}
+                            onClick={doRemovePinRoom}>
+                            <ListItemIcon sx={{ minWidth: '34px' }}>
+                                <IcUnpinRoom />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Bỏ ghim hội thoại"
+                                primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
+                        </ListItemButton>
+                        : <ListItemButton
+                            sx={{ height: '35px' }}
+                            onClick={doPinRoom}>
+                            <ListItemIcon sx={{ minWidth: '34px' }}>
+                                <IcPinRoom />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Ghim hội thoại"
+                                primaryTypographyProps={{ fontSize: '14px', fontWeight: '500' }} />
+                        </ListItemButton>
+                    }
                     <ListItemButton
                         sx={{ height: '35px' }}
                         onClick={() => {

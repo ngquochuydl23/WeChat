@@ -356,7 +356,7 @@ exports.listGroups = async (req, res, next) => {
                     }
                 },
                 { $sort: { createdAt: -1 } },
-                { "$match": {  } }]);
+                { "$match": {} }]);
         return res
             .status(200)
             .json({
@@ -485,10 +485,14 @@ exports.pinRoom = async (req, res, next) => {
                 ]
             });
 
+        const copyRoom = room.toObject();
+        delete copyRoom['userConfigs'];
+
         getIo()
             .of('rooms')
             .to(loggingUserId)
             .emit('rooms.incomingPinRoom', roomId, {
+                ...copyRoom,
                 userConfig: {
                     pinned: true,
                     pinnedAt
@@ -500,6 +504,70 @@ exports.pinRoom = async (req, res, next) => {
                 statusCode: 200,
                 result: {
                     msg: 'Pinned successfully.'
+                }
+            });
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.removePinRoom = async (req, res, next) => {
+    const { roomId } = req.params;
+    const loggingUserId = req.loggingUserId;
+
+    try {
+        const room = await findById(roomId);
+        if (!room) {
+            throw new AppException("Room not found.");
+        }
+
+        const userConfig = room
+            .userConfigs
+            .find(x => x.userId.toHexString() === loggingUserId);
+
+        if (!userConfig.pinned) {
+            throw new AppException("Cannot remove pinned. This room is not pinned before.");
+        }
+
+        await updateOneRoom(
+            { _id: room._id, },
+            {
+                '$set': {
+                    'userConfigs.$[elem].pinned': false,
+                    'userConfigs.$[elem].pinnedAt': null
+                }
+            },
+            {
+                multi: true,
+                strict: false,
+                arrayFilters: [
+                    {
+                        "elem.userId": toObjectId(loggingUserId),
+                        "elem.pinned": true
+                    }
+                ]
+            });
+
+        const copyRoom = room.toObject();
+        delete copyRoom['userConfigs'];
+
+        getIo()
+            .of('rooms')
+            .to(loggingUserId)
+            .emit('rooms.incomingRemovePinRoom', roomId, {
+                ...copyRoom,
+                userConfig: {
+                    pinned: false,
+                    pinnedAt: null
+                }
+            });
+
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                result: {
+                    msg: 'Remove pinned successfully.'
                 }
             });
     } catch (error) {
