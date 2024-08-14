@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Box,
     Dialog,
@@ -11,9 +11,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { mediaViewerSubject } from "@/pages/chat/ChatPage";
 import _ from "lodash";
-
+import OwlCarousel from 'react-owl-carousel';
+import 'owl.carousel/dist/assets/owl.carousel.css';
+import 'owl.carousel/dist/assets/owl.theme.default.css';
+import './carousel.override.scss';
 
 const MediaViewerDialog = ({ open, onClose }) => {
+    const owlCarouselRef = useRef(null);
     const [selectPosition, setSelectPosition] = useState(0);
     const [medias, setMedias] = useState([]);
 
@@ -29,6 +33,13 @@ const MediaViewerDialog = ({ open, onClose }) => {
         onClose();
     }
 
+    const scrollToItem = (index) => {
+        if (owlCarouselRef.current) {
+            //owlCarouselRef.current.to(index);
+            // owlCarouselRef.current.trigger('to.owl.carousel', index, 300); // 300 is the animation duration in milliseconds
+        }
+    };
+
     useEffect(() => {
         const close = (e) => {
             if (e.keyCode === 27) {
@@ -38,6 +49,11 @@ const MediaViewerDialog = ({ open, onClose }) => {
         window.addEventListener('keydown', close)
         return () => window.removeEventListener('keydown', close)
     }, [])
+
+    // useEffect(() => {
+    //     scrollToItem(selectPosition);
+    // }, [selectPosition])
+
 
     return (
         <Dialog
@@ -86,31 +102,47 @@ const MediaViewerDialog = ({ open, onClose }) => {
                         }
                     </Box>
                     <Stack direction="row" mt="20px">
-                        {_.map(medias, (media, index) => {
-                            return (
-                                <Box
-                                    sx={{
-                                        position: 'relative',
-                                        display: 'flex',
-                                        height: '80px',
-                                        width: '80px',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '10px',
-                                        border: index === selectPosition ? '3px solid #07C160' : 'none'
-                                    }}>
-                                    <img
-                                        alt=""
-                                        src={readUrl(media.url)}
-                                        style={{ height: '70px', width: '70px', objectFit: 'cover', borderRadius: '7.5px' }}
-                                    />
-                                </Box>
-                            )
-                        })}
+                        <OwlCarousel
+                            ref={owlCarouselRef}
+                            className="owl-carousel-container owl-theme section"
+                            items={1}
+                            draggable
+                            center
+                            margin={"10px"}
+                            nav={false}
+                            autoWidth
+                            dots={false}>
+                            {_.map(medias, (media, index) => {
+                                return (
+                                    <div className="item">
+                                        <Box
+                                            onClick={() => {
+                                                setSelectPosition(index);
+                                            }}
+                                            sx={{
+                                                position: 'relative',
+                                                display: 'flex',
+                                                height: '100%',
+                                                width: '100%',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '10px',
+                                                border: index === selectPosition ? '3px solid #07C160' : 'none'
+                                            }}>
+                                            <img
+                                                alt=""
+                                                src={readUrl(media.url)}
+                                                style={{ height: '70px', width: '70px', objectFit: 'cover', borderRadius: '7.5px' }}
+                                            />
+                                        </Box>
+                                    </div>
+                                )
+                            })}
+                        </OwlCarousel>
                     </Stack>
                 </Box>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 };
 

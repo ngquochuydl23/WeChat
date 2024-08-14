@@ -13,6 +13,7 @@ import { patchThumnail } from "@/services/roomApiService";
 import _ from "lodash";
 import IcIditName from "@/assets/icons/IcIditName";
 import RenameRoomDialog from "./RenameRoomDialog";
+import { mediaViewerSubject } from "@/pages/chat/ChatPage";
 
 const RoomDetail = ({
     room,
@@ -130,6 +131,9 @@ const RoomDetail = ({
                                     return (
                                         <Grid item xs={3} md={3}>
                                             <img
+                                                onClick={() => {
+                                                    mediaViewerSubject.next(medias.map(x => x.attachment));
+                                                }}
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',
